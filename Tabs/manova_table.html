@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #fdfefe; padding: 20px; }
+  table { border-collapse: collapse; width: 100%; max-width: 950px; margin: 20px auto; background-color: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden; }
+  th { background-color: #2c3e50; color: #ffffff; padding: 14px 18px; text-align: left; font-size: 14px; font-weight: 600; text-transform: uppercase; border-bottom: 3px solid #1abc9c; }
+  td { padding: 12px 18px; border-bottom: 1px solid #ecf0f1; font-size: 14px; color: #2c3e50; }
+  tr:nth-child(even) { background-color: #f8f9fa; }
+  tr:hover { background-color: #e8f8f5; transition: background-color 0.2s ease; }
+  .caption { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 15px auto; text-align: center; max-width: 950px; border-left: 4px solid #1abc9c; padding-left: 10px; }
+  .sig { font-weight: bold; color: #27ae60; }
+  .ns { color: #95a5a6; font-style: italic; }
+  .notes { font-size: 12px; color: #7f8c8d; margin: 10px auto; text-align: center; max-width: 950px; }
+</style>
+</head>
+<body>
+<div class='caption'>Table 1. Multivariate Analysis of Variance (MANOVA) Results with Interactions</div>
+<table>
+  <thead>
+    <tr>
+      <th>Socio-Demographic Predictor</th>
+      <th style='text-align: center;'>Df</th>
+      <th style='text-align: center;'>Pillai's Trace</th>
+      <th style='text-align: center;'>Approx. F</th>
+      <th style='text-align: center;'>Num Df</th>
+      <th style='text-align: center;'>Den Df</th>
+      <th style='text-align: center;'>Pr(&gt;F)</th>
+      <th style='text-align: center;'>Significance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style='font-weight: bold; color: #34495e;'>Ethnoracial ID</td>
+      <td style='text-align: center;'>5</td>
+      <td style='text-align: center;'>0.06970</td>
+      <td style='text-align: center;'>5.766</td>
+      <td style='text-align: center;'>15</td>
+      <td style='text-align: center;'>3636</td>
+      <td style='text-align: center; font-weight: 500;'>&lt; 0.0001</td>
+      <td style='text-align: center;' class='sig'>***</td>
+    </tr>
+    <tr>
+      <td style='font-weight: bold; color: #34495e;'>Gender ID</td>
+      <td style='text-align: center;'>2</td>
+      <td style='text-align: center;'>0.01548</td>
+      <td style='text-align: center;'>3.149</td>
+      <td style='text-align: center;'>6</td>
+      <td style='text-align: center;'>2422</td>
+      <td style='text-align: center; font-weight: 500;'>0.00445</td>
+      <td style='text-align: center;' class='sig'>**</td>
+    </tr>
+    <tr>
+      <td style='font-weight: bold; color: #34495e;'>Sexuality</td>
+      <td style='text-align: center;'>1</td>
+      <td style='text-align: center;'>0.00055</td>
+      <td style='text-align: center;'>0.223</td>
+      <td style='text-align: center;'>3</td>
+      <td style='text-align: center;'>1210</td>
+      <td style='text-align: center; font-weight: 500;'>0.88054</td>
+      <td style='text-align: center;' class='ns'>n.s.</td>
+    </tr>
+    <tr>
+      <td style='font-weight: bold; color: #34495e;'>Social Ideology</td>
+      <td style='text-align: center;'>2</td>
+      <td style='text-align: center;'>0.05276</td>
+      <td style='text-align: center;'>10.937</td>
+      <td style='text-align: center;'>6</td>
+      <td style='text-align: center;'>2422</td>
+      <td style='text-align: center; font-weight: 500;'>&lt; 0.0001</td>
+      <td style='text-align: center;' class='sig'>***</td>
+    </tr>
+    <tr>
+      <td style='font-weight: bold; color: #34495e;'>Economic Ideology</td>
+      <td style='text-align: center;'>2</td>
+      <td style='text-align: center;'>0.01392</td>
+      <td style='text-align: center;'>2.829</td>
+      <td style='text-align: center;'>6</td>
+      <td style='text-align: center;'>2422</td>
+      <td style='text-align: center; font-weight: 500;'>0.00955</td>
+      <td style='text-align: center;' class='sig'>**</td>
+    </tr>
+    <tr>
+      <td style='font-weight: bold; color: #34495e;'>Sexuality x Social Ideology Interaction</td>
+      <td style='text-align: center;'>2</td>
+      <td style='text-align: center;'>0.01855</td>
+      <td style='text-align: center;'>3.778</td>
+      <td style='text-align: center;'>6</td>
+      <td style='text-align: center;'>2422</td>
+      <td style='text-align: center; font-weight: 500;'>0.00095</td>
+      <td style='text-align: center;' class='sig'>***</td>
+    </tr>
+    <tr>
+      <td style='font-weight: bold; color: #34495e;'>Residuals</td>
+      <td style='text-align: center;'>1212</td>
+      <td style='text-align: center;'></td>
+      <td style='text-align: center;'></td>
+      <td style='text-align: center;'></td>
+      <td style='text-align: center;'></td>
+      <td style='text-align: center; font-weight: 500;'></td>
+      <td style='text-align: center;' ></td>
+    </tr>
+  </tbody>
+</table>
+<div class='notes'>Significance codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 (n.s. = not significant)</div>
+</body>
+</html>

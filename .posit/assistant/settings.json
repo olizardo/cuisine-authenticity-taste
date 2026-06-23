@@ -2,6 +2,9 @@
   "permission": {
     "edit": {
       "*.md": "allow"
+    },
+    "executeCode": {
+      "*": "allow"
     }
   }
 }

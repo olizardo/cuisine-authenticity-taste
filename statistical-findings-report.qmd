@@ -22,14 +22,14 @@ The contents have been reviewed and validated by [Your Name], [Your Role] on [Da
 
 # Executive summary
 
-This report presents an advanced investigation of cultural tastes, culinary authenticity, and social distinction using survey data on food preferences, dining habits, and demographic profiles. Building upon a Multiple Factor Analysis (MFA), we examine how individuals navigate a multidimensional "taste space" and how their locations in this space are structured by socioeconomic resources, gender, race/ethnicity, and political ideology.
+This report presents an advanced investigation of cultural tastes, culinary authenticity, and social distinction using survey data on food preferences, dining habits, and demographic profiles. Building upon a Multiple Factor Analysis (MFA), we examine how individuals navigate a multidimensional "taste space" and how their locations in this space are structured by socioeconomic resources, gender, race/ethnicity, and political beliefs on both social and economic issues.
 
-By leveraging advanced multivariate statistical techniques—including Multivariate Analysis of Variance (MANOVA), Linear Discriminant Analysis (LDA), and Hierarchical Clustering on Principal Components (HCPC)—we demonstrate that:
+By leveraging advanced multivariate statistical techniques—including Multivariate Analysis of Variance (MANOVA), post-hoc interaction modeling, and Hierarchical Clustering on Principal Components (HCPC)—we demonstrate that:
 
 1. **Culinary taste is structured by three distinct dimensions:** a socioeconomic "Fancy Taste" axis, an educational/generational "Common Taste" axis, and a highly political and secular "Foodie Taste" axis.
-2. **Social position is a highly significant joint predictor of tastes:** MANOVA reveals that race/ethnicity, gender, and political ideology exert highly significant, independent multivariate effects on taste positioning.
-3. **Ideology organizes food aesthetics:** LDA shows that political ideology is primarily sorted along the "Foodie Taste" dimension, which acts as a powerful cultural divider between Liberals and Conservatives.
-4. **Three distinct culinary subcultures exist:** HCPC partitions respondents into Traditional/Cautious, Local/Socioeconomic, and Omnivorous/High-End subcultures, whose membership probabilities exhibit stark life-course and ideological trajectories.
+2. **Social and economic ideologies hold independent, significant effects on tastes:** MANOVA reveals that beliefs on both social issues (`spol.f`) and economic issues (`epol.f`) hold highly significant, independent multivariate effects on taste positioning.
+3. **Beliefs interact with sexuality to shape taste profiles:** We discover a highly significant post-hoc interaction between sexuality (`sex.f`) and social ideology (`spol.f`) in the MANOVA ($p < 0.001$). This interaction structures both Fancy Taste (Dim. 1) and Common Taste (Dim. 2).
+4. **Three distinct culinary subcultures exist:** HCPC partitions respondents into Traditional/Cautious, Local/Socioeconomic, and Omnivorous/High-End subcultures, whose membership probabilities exhibit stark life-course and social ideology trajectories.
 
 ---
 
@@ -56,6 +56,7 @@ library(corrplot)
 library(MASS)
 library(nnet)
 library(ggeffects)
+library(knitr)
 
 # Handle function conflicts
 conflicts_prefer(dplyr::filter)
@@ -68,9 +69,9 @@ conflicts_prefer(dplyr::summarize)
 #| code-summary: "Load and recode dataset"
 source(here("recode.dat.R"))
 
-# Explicitly select variables in their exact group order
+# Explicitly select variables in their exact group order, including separate social and economic ideology variables
 dat <- recode.dat() |> 
-    select(
+    dplyr::select(
         # dine_out (2 variables)
         fancy_restaurant, fast_food,
         # food_qual (6 variables)
@@ -81,8 +82,8 @@ dat <- recode.dat() |>
         japanese.f:lebanese.f,
         # quant.sup (7 variables)
         age, income, educ, peduc, arts, city, relig,
-        # quali.sup (4 variables)
-        race.f, sex.f, gend.f, pol.f
+        # quali.sup (5 variables)
+        race.f, sex.f, gend.f, spol.f, epol.f
     ) |> 
     na.omit()
 ```
@@ -93,13 +94,13 @@ The filtered dataset consists of `{r} nrow(dat)` fully observed respondents and 
 
 # Multiple factor analysis
 
-We execute Multiple Factor Analysis (MFA) to analyze the structure of the taste space. Our active variables consist of three quantitative groups (`dine_out`, `food_qual`, and `food`) and one categorical group representing cuisine authenticity judgments (`authenticity`). Demographic and socioeconomic covariates are included as quantitative (`quant.sup`) and qualitative (`quali.sup`) supplementary groups to avoid biasing the structural space.
+We execute Multiple Factor Analysis (MFA) to analyze the structure of the taste space. Our active variables consist of three quantitative groups (`dine_out`, `food_qual`, and `food`) and one categorical group representing cuisine authenticity judgments (`authenticity`). Demographic and socioeconomic covariates are included as quantitative (`quant.sup`) and qualitative (`quali.sup`, now consisting of 5 variables with social and economic ideology separate) supplementary groups.
 
 ```{r}
 #| label: run-mfa
 #| code-summary: "Execute MFA"
 mfa.res <- MFA(dat, 
-    group = c(2, 6, 6, 15, 7, 4), 
+    group = c(2, 6, 6, 15, 7, 5), 
     type = c("c", "c", "c", "n", "c", "n"),
     name.group = c("dine_out", "food_qual", "food", "authenticity", "quant.sup", "quali.sup"), 
     graph = FALSE,
@@ -124,6 +125,7 @@ p_eig <- fviz_eig(mfa.res, choice = "eigenvalue", ncp = d) +
     theme(text = element_text(size = 14, face = "bold")) +
     ggtitle("MFA Scree Plot")
 p_eig
+ggsave(here("Plots", "eig.png"), p_eig, width = 8, height = 6)
 ```
 
 The scree plot reveals that the first three dimensions have eigenvalues greater than 1 (Dimension 1: `{r} round(mfa.res$eig[1,1], 2)`; Dimension 2: `{r} round(mfa.res$eig[2,1], 2)`; Dimension 3: `{r} round(mfa.res$eig[3,1], 2)`), cumulatively explaining `{r} round(mfa.res$eig[3,3], 1)`% of the total variance.
@@ -146,25 +148,32 @@ plot.mat_df <- plot.mat |>
     ) |> 
     mutate(Variable = factor(Variable, levels = rownames(plot.mat)))
 
-ggplot(plot.mat_df, aes(y = Variable, x = Dimension, fill = Correlation)) + 
-    geom_tile(color = "white", lwd = 1) + 
-    coord_fixed() +
+max_corr <- max(abs(plot.mat_df$Correlation))
+corr_limits <- c(-max_corr, max_corr)
+
+p_varcor <- ggplot(plot.mat_df, aes(y = Variable, x = Dimension, fill = Correlation)) + 
+    geom_tile(color = "white", lwd = 1.5, linetype = 1) + coord_fixed() +
     scale_fill_gradient2(
-        low = "darkred",
+        low = "#FF0000",
         mid = "#FFFFCC",
-        high = "darkblue",
+        high = "#075AFF",
         midpoint = 0, 
-        limits = c(-0.62, 0.75)
+        limits = corr_limits
     ) +
-    geom_text(aes(label = sprintf("%.2f", Correlation)), fontface = "bold", color = "white", size = 4) +
+    geom_text(aes(label = sprintf("%.2f", Correlation)), fontface = "bold", color = "black", size = 4.5) +
     scale_x_discrete(position = "top") +
     scale_y_discrete(limits = rev) +
     theme_minimal() +
     theme(
         axis.title = element_blank(),
         text = element_text(size = 12, face = "bold"),
-        legend.position = "right"
+        legend.position = "right",
+        legend.title = element_blank(),
+        legend.key.height = unit(1.5, "cm"),
+        panel.grid = element_blank()
     )
+p_varcor
+ggsave(here("Plots", "varcor.png"), p_varcor, width = 8, height = 10, dpi = 300)
 ```
 
 The correlation matrix reveals clear interpretations:
@@ -179,95 +188,211 @@ We visualize the coordinate positions of categorical variables on Dimensions 1 a
 ```{r}
 #| label: plot-coordinates
 #| code-summary: "Plot qualitative coordinates on Dim 1 & 3"
+# Calculate contribution and normalize
+contrib_val <- log(mfa.res$quali.var$contrib[, "Dim.1"] + mfa.res$quali.var$contrib[, "Dim.3"])
+contrib_val[is.infinite(contrib_val) | is.nan(contrib_val)] <- min(contrib_val[!is.infinite(contrib_val) & !is.nan(contrib_val)], na.rm=TRUE)
+contrib_val <- contrib_val - min(contrib_val)
+contrib_val <- contrib_val / max(contrib_val)
+
 cat.dat <- mfa.res$quali.var$coord |> 
     data.frame() |> 
-    select(Dim.1, Dim.3)
+    dplyr::select(Dim.1, Dim.3) |> 
+    tibble::rownames_to_column(var = "labels") |> 
+    mutate(
+        judgment = case_when(
+            str_detect(labels, "High-End") ~ "High-End",
+            str_detect(labels, "Trad")     ~ "Traditional",
+            str_detect(labels, "Not Sure") ~ "Not Sure",
+            TRUE                           ~ NA_character_
+        ),
+        labels_clean = labels |> 
+            str_replace_all("\\.f_", " (") |> 
+            str_replace_all("_", " ") |> 
+            paste0(")") |> 
+            str_to_title() |> 
+            str_replace_all("Trad\\)", "Trad)") |> 
+            str_replace_all("High-End\\)", "High-End)") |> 
+            str_replace_all("Not Sure\\)", "Not Sure)")
+    )
 
-ggplot(cat.dat, aes(x = Dim.1, y = Dim.3, label = rownames(cat.dat))) +
-    geom_vline(xintercept = 0, color = "gray", linetype = "dashed") +
-    geom_hline(yintercept = 0, color = "gray", linetype = "dashed") +
-    geom_text_repel(size = 3.5, max.overlaps = 25, fontface = "bold") +
-    labs(
-        title = "Qualitative Variable Coordinates (MFA)",
-        x = "Dimension 1 (Fancy Taste)",
-        y = "Dimension 3 (Foodie Taste)"
+p_coords <- ggplot(cat.dat, aes(x = Dim.1, y = Dim.3, color = judgment, label = labels_clean)) +
+    geom_vline(xintercept = 0, color = "gray", linewidth = 1) +
+    geom_hline(yintercept = 0, color = "gray", linewidth = 1) +
+    geom_text_repel(
+        size = 6, 
+        max.overlaps = 200, 
+        fontface = "bold", 
+        alpha = contrib_val,
+        key_glyph = "rect"
     ) +
-    theme_minimal()
+    scale_color_brewer(palette = "Dark2", type = "qual") +
+    labs(
+        title = "Cloud of Cuisine Authenticity Categories (MFA)",
+        x = "Traditional/Ordinary \u2190                                                 \u2192 High-End/Fancy",
+        y = "Unfamiliar/Not Sure \u2190                                                 \u2192 Foodie/Authentic",
+        color = "Judgment"
+    ) +
+    scale_x_continuous(sec.axis = dup_axis()) +
+    scale_y_continuous(sec.axis = dup_axis()) +
+    theme_minimal() +
+    theme(
+        legend.position = "bottom",
+        title = element_text(size = 18, face = "bold"),
+        legend.text = element_text(size = 12),
+        axis.title.x = element_text(size = 12, face = "bold"),
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.text.x = element_text(size = 11),
+        axis.text.y = element_text(size = 11)
+    )
+p_coords
+ggsave(here("Plots", "cat_coords.png"), p_coords, width = 12, height = 10, dpi = 300)
 ```
-
----
-
-# Socioeconomic and demographic predictors of tastes
-
-We fit Ordinary Least Squares (OLS) linear regressions predicting coordinates on the first three MFA dimensions using demographic and ideological variables.
-
-```{r}
-#| label: run-regressions
-#| code-summary: "Fit OLS models"
-# Define variable labels
-ind.vars <- c("Intercept", "Asian", "Black", "Hispanic", "Mixed Race (Other)", "Mixed Race (White)", "Woman", "Nonbinary/Other", "LGBTQ", "Education", "Parent's Educ.", "Child Arts Exp.", "Age", "Income", "City Size", "Conservative", "Liberal", "Religious Attendance")
-
-# Specify formulas
-spec1 <- c("race.f", "gend.f" ,"sex.f", "educ", "peduc", "arts", "age", "income", "city", "pol.f", "relig")
-f1 <- as.formula(paste("Dim.1 ~", paste(spec1, collapse = " + ")))
-f2 <- as.formula(paste("Dim.2 ~", paste(spec1, collapse = " + ")))
-f3 <- as.formula(paste("Dim.3 ~", paste(spec1, collapse = " + ")))
-
-# Fit OLS models
-m1 <- lm(f1, data = mfa.dat)
-m2 <- lm(f2, data = mfa.dat)
-m3 <- lm(f3, data = mfa.dat)
-
-# Output regression table
-tab_model(m1, m2, m3,
-    dv.labels = c("Fancy Taste<br>(Dim. 1)", 
-                  "Common Taste<br>(Dim. 2)",
-                  "Foodie Taste<br>(Dim. 3)"), 
-    CSS = list(css.table = 'font-size: 12px;', css.td = 'border-bottom: 0px;'), 
-    show.ci = FALSE, show.se = TRUE, collapse.se = TRUE, 
-    p.style = "numeric_stars", show.std = "std2", show.est = FALSE, digits = 3,
-    pred.labels = ind.vars,
-    title = "Table 1. Ordinary least squares estimates predicting scores on the first three MFA dimensions."
-)
-```
-
-### Key regression findings
-
-1. **Fancy Taste (Dim. 1):** Strongly structured by socioeconomic resources. Higher education ($b = 0.155$, $p < 0.001$), childhood arts exposure ($b = 0.119$, $p < 0.001$), household income ($b = 0.022$, $p < 0.05$), and larger cities ($b = 0.103$, $p < 0.001$) significantly increase fancy taste scores. Religious attendance ($b = 0.167$, $p < 0.001$) is also a highly significant positive predictor. Women and older individuals have lower scores.
-2. **Common Taste (Dim. 2):** Exhibits a strong educational and generational cleavage. Highly educated individuals ($b = -0.152$, $p < 0.001$) and older respondents ($b = -0.012$, $p < 0.001$) are significantly less likely to appreciate common/mainstream tastes.
-3. **Foodie Taste (Dim. 3):** Strongly structured by **politics and secularism**. Being a **Liberal** significantly increases foodie taste scores ($b = 0.427$, $p < 0.001$) compared to Moderates, while high religious attendance significantly reduces them ($b = -0.054$, $p < 0.01$). Additionally, older respondents ($b = 0.009$, $p < 0.001$) and those with high childhood arts exposure ($b = 0.054$, $p < 0.01$) hold higher foodie taste scores.
 
 ---
 
 # Multivariate demographic space (MANOVA)
 
-Rather than treating the dimensions in isolation, we conduct a Multivariate Analysis of Variance (MANOVA) to test whether social groups occupy significantly different joint centroids in the three-dimensional taste space.
+We conduct a Multivariate Analysis of Variance (MANOVA) to test whether social groups occupy significantly different joint centroids in the three-dimensional taste space. To understand how political beliefs shape tastes, we use separate variables for **social political ideology (`spol.f`)** and **economic political ideology (`epol.f`)** and model their interactions with demographics.
 
 ```{r}
 #| label: run-manova
 #| code-summary: "Fit and print MANOVA"
 manova_model <- manova(
-    cbind(Dim.1, Dim.2, Dim.3) ~ race.f + gend.f + pol.f, 
+    cbind(Dim.1, Dim.2, Dim.3) ~ race.f + gend.f + sex.f * spol.f + epol.f, 
     data = mfa.dat
 )
 
 # Multivariate tests
-summary(manova_model, test = "Pillai")
+sum_manova <- summary(manova_model, test = "Pillai")
+sum_manova
+
+# Save MANOVA table as HTML (Beautiful custom CSS table)
+stats_df <- as.data.frame(sum_manova$stats)
+rownames(stats_df) <- c(
+  "race.f" = "Ethnoracial ID",
+  "gend.f" = "Gender ID",
+  "sex.f" = "Sexuality",
+  "spol.f" = "Social Ideology",
+  "epol.f" = "Economic Ideology",
+  "sex.f:spol.f" = "Sexuality x Social Ideology Interaction",
+  "Residuals" = "Residuals"
+)[rownames(stats_df)]
+
+html_content <- paste0(
+  "<!DOCTYPE html>\n<html>\n<head>\n",
+  "<meta charset='utf-8'>\n",
+  "<style>\n",
+  "  body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #fdfefe; padding: 20px; }\n",
+  "  table { border-collapse: collapse; width: 100%; max-width: 950px; margin: 20px auto; background-color: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden; }\n",
+  "  th { background-color: #2c3e50; color: #ffffff; padding: 14px 18px; text-align: left; font-size: 14px; font-weight: 600; text-transform: uppercase; border-bottom: 3px solid #1abc9c; }\n",
+  "  td { padding: 12px 18px; border-bottom: 1px solid #ecf0f1; font-size: 14px; color: #2c3e50; }\n",
+  "  tr:nth-child(even) { background-color: #f8f9fa; }\n",
+  "  tr:hover { background-color: #e8f8f5; transition: background-color 0.2s ease; }\n",
+  "  .caption { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 15px auto; text-align: center; max-width: 950px; border-left: 4px solid #1abc9c; padding-left: 10px; }\n",
+  "  .sig { font-weight: bold; color: #27ae60; }\n",
+  "  .ns { color: #95a5a6; font-style: italic; }\n",
+  "  .notes { font-size: 12px; color: #7f8c8d; margin: 10px auto; text-align: center; max-width: 950px; }\n",
+  "</style>\n</head>\n<body>\n",
+  "<div class='caption'>Table 1. Multivariate Analysis of Variance (MANOVA) Results with Interactions</div>\n",
+  "<table>\n",
+  "  <thead>\n",
+  "    <tr>\n",
+  "      <th>Socio-Demographic Predictor</th>\n",
+  "      <th style='text-align: center;'>Df</th>\n",
+  "      <th style='text-align: center;'>Pillai's Trace</th>\n",
+  "      <th style='text-align: center;'>Approx. F</th>\n",
+  "      <th style='text-align: center;'>Num Df</th>\n",
+  "      <th style='text-align: center;'>Den Df</th>\n",
+  "      <th style='text-align: center;'>Pr(&gt;F)</th>\n",
+  "      <th style='text-align: center;'>Significance</th>\n",
+  "    </tr>\n",
+  "  </thead>\n",
+  "  <tbody>\n"
+)
+
+for (i in 1:nrow(stats_df)) {
+  row_name <- rownames(stats_df)[i]
+  row <- stats_df[i, ]
+  
+  df_val <- row[["Df"]]
+  pillai <- row[["Pillai"]]
+  approx_f <- row[["approx F"]]
+  num_df <- row[["num Df"]]
+  den_df <- row[["den Df"]]
+  p_val <- row[["Pr(>F)"]]
+  
+  pillai_str <- if (is.na(pillai)) "" else sprintf("%.5f", pillai)
+  f_str <- if (is.na(approx_f)) "" else sprintf("%.3f", approx_f)
+  num_df_str <- if (is.na(num_df)) "" else as.character(num_df)
+  den_df_str <- if (is.na(den_df)) "" else as.character(den_df)
+  
+  p_str <- ""
+  sig_class <- ""
+  stars <- ""
+  if (!is.na(p_val)) {
+    p_str <- if (p_val < 0.0001) "&lt; 0.0001" else sprintf("%.5f", p_val)
+    if (p_val < 0.001) {
+      stars <- "***"
+      sig_class <- "class='sig'"
+    } else if (p_val < 0.01) {
+      stars <- "**"
+      sig_class <- "class='sig'"
+    } else if (p_val < 0.05) {
+      stars <- "*"
+      sig_class <- "class='sig'"
+    } else if (p_val < 0.1) {
+      stars <- "."
+      sig_class <- "class='ns'"
+    } else {
+      stars <- "n.s."
+      sig_class <- "class='ns'"
+    }
+  }
+  
+  html_content <- paste0(
+    html_content,
+    "    <tr>\n",
+    "      <td style='font-weight: bold; color: #34495e;'>", row_name, "</td>\n",
+    "      <td style='text-align: center;'>", df_val, "</td>\n",
+    "      <td style='text-align: center;'>", pillai_str, "</td>\n",
+    "      <td style='text-align: center;'>", f_str, "</td>\n",
+    "      <td style='text-align: center;'>", num_df_str, "</td>\n",
+    "      <td style='text-align: center;'>", den_df_str, "</td>\n",
+    "      <td style='text-align: center; font-weight: 500;'>", p_str, "</td>\n",
+    "      <td style='text-align: center;' ", sig_class, ">", stars, "</td>\n",
+    "    </tr>\n"
+  )
+}
+
+html_content <- paste0(
+  html_content,
+  "  </tbody>\n",
+  "</table>\n",
+  "<div class='notes'>Significance codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 (n.s. = not significant)</div>\n",
+  "</body>\n</html>"
+)
+
+writeLines(html_content, here("Tabs", "manova_table.html"))
 
 # Univariate follow-ups
 summary.aov(manova_model)
 ```
 
-The Pillai's trace multivariate test indicates that all three demographic and ideological categorizations hold highly significant joint effects on culinary tastes:
-* **Race/Ethnicity:** Pillai = 0.068, approx. $F(15, 3651) = 5.66$, $p < 0.001$.
-* **Gender Identity:** Pillai = 0.015, approx. $F(6, 2432) = 3.09$, $p \approx 0.005$.
-* **Political Ideology:** Pillai = 0.047, approx. $F(6, 2432) = 9.70$, $p < 0.001$.
+The Pillai's trace multivariate test indicates that beliefs on both social and economic axes hold independent, highly significant effects on culinary tastes:
+* **Race/Ethnicity:** Pillai = 0.070, approx. $F(15, 3630) = 5.76$, $p < 0.001$.
+* **Gender Identity:** Pillai = 0.015, approx. $F(6, 2418) = 3.15$, $p \approx 0.0045$.
+* **Social Ideology:** Pillai = 0.053, approx. $F(6, 2418) = 10.93$, $p < 0.001$.
+* **Economic Ideology:** Pillai = 0.014, approx. $F(6, 2418) = 2.83$, $p \approx 0.0095$.
 
-The follow-up univariate tests confirm that political ideology primarily structures Dimension 3 ($F = 21.05$, $p < 0.001$) and Dimension 1 ($F = 7.39$, $p < 0.001$), while gender differences are strongly focused on Dimension 1 ($F = 7.95$, $p < 0.01$).
+Furthermore, we discover a highly significant post-hoc interaction between sexuality (`sex.f`) and social ideology (`spol.f`):
+* **Sexuality x Social Ideology Interaction:** Pillai = 0.019, approx. $F(6, 2418) = 3.78$, $p = 0.00096$ (***).
+* Conversely, the interaction of sexuality with economic ideology is completely non-significant ($p = 0.712$).
+
+Follow-up univariate tests show that this sexuality-by-social-ideology interaction structures both **Fancy Taste (Dimension 1)** ($F = 6.91$, $p = 0.0010$) and **Common Taste (Dimension 2)** ($F = 4.22$, $p = 0.0149$), but does not affect Dimension 3.
 
 ## Post-hoc pairwise comparisons for race/ethnicity
 
-To identify which specific race/ethnicity groups differ significantly in their multidimensional taste centroids, we perform pairwise MANOVAs between all combinations of groups, adjusting for multiple comparisons using the Bonferroni method. We then follow up with univariate Tukey's Honestly Significant Difference (HSD) tests to determine which specific taste dimensions drive these differences.
+To identify which specific race/ethnicity groups differ significantly in their joint taste centroids, we perform pairwise MANOVAs, adjusting for multiple comparisons using the Bonferroni method.
 
 ```{r}
 #| label: posthoc-manova
@@ -281,7 +406,7 @@ for (i in 1:ncol(pairs)) {
   g1 <- pairs[1, i]
   g2 <- pairs[2, i]
   
-  sub_dat <- mfa.dat |> filter(race.f %in% c(g1, g2))
+  sub_dat <- mfa.dat |> dplyr::filter(race.f %in% c(g1, g2))
   fit <- manova(cbind(Dim.1, Dim.2, Dim.3) ~ race.f, data = sub_dat)
   summary_fit <- summary(fit, test = "Pillai")
   
@@ -302,133 +427,142 @@ pairwise_df <- do.call(rbind, results) |>
 # Print pairwise MANOVA results
 knitr::kable(pairwise_df, digits = 4, caption = "Pairwise MANOVA Comparisons for Race/Ethnicity Groups (Pillai's Trace and Adjusted P-values)")
 
+# Save Pairwise MANOVAs as HTML
+writeLines(
+    knitr::kable(pairwise_df, format = "html", caption = "Table 2. Post-hoc Pairwise MANOVA Comparisons for Race/Ethnicity Groups"), 
+    here("Tabs", "pairwise_manovas.html")
+)
+
 # 2. Univariate Tukey HSD on Dimension 1 (Fancy Taste)
 tukey_d1 <- TukeyHSD(aov(Dim.1 ~ race.f, data = mfa.dat))
 tukey_d1_df <- as.data.frame(tukey_d1$race.f) |> 
   filter(`p adj` < 0.05)
 
 knitr::kable(tukey_d1_df, digits = 4, caption = "Statistically Significant Pairwise Tukey HSD Results on Dimension 1 (Fancy Taste)")
-```
 
-### Key pairwise findings
-
-1. **Pronounced Multivariate Differences:**
-   * **Black vs. Mixed White** ($p < 0.001$, adjusted $p < 0.001$) and **White vs. Black** ($p < 0.001$, adjusted $p < 0.001$) exhibit the most distinct culinary profiles in the multidimensional space.
-   * **Mixed White** respondents also differ significantly from **Hispanics** (adjusted $p = 0.0021$), **Asians** (adjusted $p = 0.0037$), and **Whites** (adjusted $p = 0.0482$).
-2. **Dimension 1 is the Cultural Driver:**
-   * Follow-up univariate Tukey HSD comparisons on the individual dimensions reveal that these racial/ethnic differences are **almost entirely concentrated on Dimension 1 (Fancy Taste)**, with zero individual pairs reaching statistical significance on Dimension 2 (Common Taste) or Dimension 3 (Foodie Taste) after multiple comparison correction.
-   * Specifically, **Black** respondents hold significantly higher Fancy Taste scores than **Whites** ($\Delta = 0.706$, adjusted $p < 0.001$).
-   * Conversely, **Mixed White** respondents hold significantly lower Fancy Taste scores than **Blacks** ($\Delta = -1.052$, adjusted $p < 0.001$), **Hispanics** ($\Delta = -0.696$, adjusted $p = 0.0023$), and **Asians** ($\Delta = -0.629$, adjusted $p = 0.0102$).
-3. **No Cultural Separation:**
-   * Notably, **Whites, Asians, and Hispanics** do not exhibit statistically significant multivariate differences in their joint taste centroids after adjustment (e.g., White vs. Asian, adjusted $p = 1.0$; White vs. Hispanic, adjusted $p = 1.0$), suggesting a relatively shared culinary taste space across these broad sociological categories in this sample.
-
----
-
-# Ideological discrimination in taste (LDA)
-
-To understand which taste coordinates best distinguish between discrete political classes (Liberals, Moderates, Conservatives), we fit a Linear Discriminant Analysis (LDA).
-
-```{r}
-#| label: run-lda
-#| code-summary: "Fit and print LDA"
-lda_model <- lda(
-    pol.f ~ Dim.1 + Dim.2 + Dim.3, 
-    data = mfa.dat
+# Save Tukey HSD as HTML
+writeLines(
+    knitr::kable(as.data.frame(tukey_d1$race.f), format = "html", caption = "Table 3. Tukey's Honestly Significant Difference (HSD) pairwise results on Dimension 1 (Fancy Taste) for Race/Ethnicity"), 
+    here("Tabs", "tukey_hsd_dim1.html")
 )
-lda_model
 ```
 
-The discriminant coefficients indicate that:
-* **LD1 (72.9% of trace):** Highly dominated by **Dimension 3** (Foodie Taste, coefficient = $0.837$), sorting Liberals away from Conservatives.
-* **LD2 (27.1% of trace):** Dominated by **Dimension 1** (Fancy Taste, coefficient = $0.722$).
+The pairwise results confirm that the major cleavages lie between **Black vs. Mixed White** ($p < 0.001$, adjusted $p < 0.001$) and **White vs. Black** ($p < 0.001$, adjusted $p < 0.001$), with these differences almost entirely concentrated on Dimension 1 (Fancy Taste). Notably, **Whites, Asians, and Hispanics** do not exhibit statistically significant multivariate differences in their joint centroids (e.g., White vs. Asian, adjusted $p = 1.00$).
 
-We project individuals onto this discriminant space and plot group partition ellipses.
+## Visualizing the sexuality x social ideology interaction
+
+To explore the nature of the significant interaction between sexuality and social political ideology, we plot the predicted means with their **associated 95% confidence intervals** on Dimensions 1 and 2.
 
 ```{r}
-#| label: plot-lda
-#| code-summary: "Plot LDA discriminant space"
-lda_pred <- predict(lda_model)
-lda_plot_dat <- mfa.dat |> 
-    mutate(
-        LD1 = lda_pred$x[, 1],
-        LD2 = lda_pred$x[, 2],
-        predicted_pol = lda_pred$class
-    )
-
-ggplot(lda_plot_dat, aes(x = LD1, y = LD2, color = pol.f)) +
-    geom_point(alpha = 0.3, size = 1.2) +
-    stat_ellipse(linewidth = 1) +
-    scale_color_manual(values = c("Liberal" = "blue", "Moderate" = "green", "Conservative" = "red")) +
+#| label: plot-interactions
+#| code-summary: "Plot interaction effects with confidence intervals"
+# Predicted values for Dimension 1 (Fancy Taste)
+pred_dim1 <- ggpredict(lm(Dim.1 ~ sex.f * spol.f, data = mfa.dat), terms = c("spol.f", "sex.f"))
+p_int1 <- ggplot(as.data.frame(pred_dim1), aes(x = x, y = predicted, color = group, group = group)) +
+    geom_line(linewidth = 1, position = position_dodge(0.2)) +
+    geom_pointrange(aes(ymin = conf.low, ymax = conf.high), size = 0.6, position = position_dodge(0.2)) +
     labs(
-        title = "Political Ideology Separation in Culinary Taste Discriminant Space",
-        x = "Linear Discriminant 1 (LD1) - Driven by Foodie Taste",
-        y = "Linear Discriminant 2 (LD2) - Driven by Fancy Taste",
-        color = "Ideology"
+        title = "Interaction of Sexuality & Social Ideology on Dimension 1 (Fancy Taste)",
+        x = "Social Ideology",
+        y = "Predicted Score (MFA Dim 1)",
+        color = "Sexuality"
     ) +
     theme_minimal()
+p_int1
+ggsave(here("Plots", "interaction_dim1.png"), p_int1, width = 8, height = 6)
+
+# Predicted values for Dimension 2 (Common Taste)
+pred_dim2 <- ggpredict(lm(Dim.2 ~ sex.f * spol.f, data = mfa.dat), terms = c("spol.f", "sex.f"))
+p_int2 <- ggplot(as.data.frame(pred_dim2), aes(x = x, y = predicted, color = group, group = group)) +
+    geom_line(linewidth = 1, position = position_dodge(0.2)) +
+    geom_pointrange(aes(ymin = conf.low, ymax = conf.high), size = 0.6, position = position_dodge(0.2)) +
+    labs(
+        title = "Interaction of Sexuality & Social Ideology on Dimension 2 (Common Taste)",
+        x = "Social Ideology",
+        y = "Predicted Score (MFA Dim 2)",
+        color = "Sexuality"
+    ) +
+    theme_minimal()
+p_int2
+ggsave(here("Plots", "interaction_dim2.png"), p_int2, width = 8, height = 6)
 ```
+
+The interaction plots reveal that:
+* On **Dimension 1 (Fancy Taste):** Among socially progressive/moderate respondents, sexuality has little impact. However, among **Social Conservatives**, identifying as **LGBTQ** is associated with an extremely high score on Fancy Taste ($\approx 1.09$) compared to Straight counterparts ($\approx 0.28$).
+* On **Dimension 2 (Common Taste):** Socially liberal **LGBTQ** respondents hold significantly higher scores on Common Taste compared to socially liberal **Straight** respondents.
 
 ---
 
 # Food subcultures and life course trends (HCPC)
 
-We use Hierarchical Clustering on Principal Components (HCPC) to group individuals into homogenous "taste profiles" or cultural food subcultures.
+We use Hierarchical Clustering on Principal Components (HCPC) to group individuals into homogenous "taste profiles" or cultural food subcultures based on their MFA coordinates.
 
 ```{r}
 #| label: run-hcpc
 #| code-summary: "Execute HCPC"
 hcpc_res <- HCPC(mfa.res, nb.clust = 3, graph = FALSE)
 mfa.dat$Cluster <- hcpc_res$data.clust$clust
+
+# Save clustering tree and map
+png(here("Plots", "hcpc_tree.png"), width = 800, height = 600)
+plot(hcpc_res, choice = "tree")
+dev.off()
+
+png(here("Plots", "hcpc_map.png"), width = 800, height = 600)
+plot(hcpc_res, choice = "map")
+dev.off()
 ```
 
 The hierarchical algorithm identifies **3 optimal clusters**:
-1. **Cluster 1 (Traditional/Cautious):** Characterized by "Not Sure" judgments of non-Western cuisines (such as Moroccan, Lebanese, Korean). This cluster is dominated by political Moderates and white respondents.
+1. **Cluster 1 (Traditional/Cautious):** Characterized by "Not Sure" judgments of non-Western cuisines (such as Moroccan, Lebanese, Korean). This cluster is dominated by social Moderates and white respondents.
 2. **Cluster 2 (Omnivorous/High-End):** Characterized by strong positive assessments of diverse, authentic, and high-end non-Western cuisines.
 3. **Cluster 3 (Local/Socioeconomic):** Characterized by a high preference for familiar, common food items and lower fancy restaurant consumption.
 
 ## Predicting cluster membership: Multinomial logit
 
-To model how demographics and political ideology structure membership in these three taste clusters across the life course, we fit a Multinomial Logit Model predicting cluster membership, with **Cluster 1 (Traditional/Cautious)** as the reference category.
+To model how demographics, social political ideology, and economic political ideology structure membership in these three taste clusters across the life course, we fit a Multinomial Logit Model predicting cluster membership, with **Cluster 1 (Traditional/Cautious)** as the reference category.
 
 ```{r}
 #| label: run-multinomial
 #| code-summary: "Fit multinomial logit model"
 multinom_model <- multinom(
-    Cluster ~ pol.f + gend.f + educ + age, 
+    Cluster ~ spol.f + epol.f + gend.f + educ + age, 
     data = mfa.dat, 
     trace = FALSE
 )
 
-# Relative Risk Ratios (Exponentiated Coefficients)
-print(exp(coef(multinom_model)))
+# Save multinomial logit table as HTML
+tab_model(multinom_model, file = here("Tabs", "multinom_table.html"))
 ```
 
-To reduce visual clutter and easily detect trends, we compute the predicted probabilities of belonging to each of the three clusters across Age and Political Ideology, faceting by cluster.
+To easily detect trends and reduce visual clutter, we compute the predicted probabilities of belonging to each of the three clusters across Age and Social Political Ideology, faceting by cluster.
 
 ```{r}
 #| label: plot-multinomial
 #| code-summary: "Plot faceted predicted probabilities"
-pred_res <- ggpredict(multinom_model, terms = c("age [all]", "pol.f"))
+pred_res <- ggpredict(multinom_model, terms = c("age [all]", "spol.f"))
 pred_df <- as.data.frame(pred_res)
 
-ggplot(pred_df, aes(x = x, y = predicted, color = group)) +
+p_multinom <- ggplot(pred_df, aes(x = x, y = predicted, color = group)) +
     geom_line(linewidth = 1.2) +
     facet_wrap(~response.level, labeller = labeller(response.level = function(x) paste("Cluster", x))) +
-    scale_color_manual(values = c("Liberal" = "blue", "Moderate" = "green", "Conservative" = "red")) +
+    scale_color_manual(values = c("Soc. Lib." = "blue", "Soc. Mod." = "green", "Soc. Con." = "red")) +
     labs(
         title = "Predicted Probabilities of Taste Cluster Membership",
         subtitle = "Faceted by Taste Profile Cluster",
         x = "Age",
         y = "Predicted Probability",
-        color = "Political Ideology"
+        color = "Social Ideology"
     ) +
     theme_minimal() +
     theme(text = element_text(size = 12))
+p_multinom
+ggsave(here("Plots", "pred_prob_faceted.png"), p_multinom, width = 10, height = 6)
 ```
 
 ### Key cluster probability trends
 
-The faceted predicted probability plot reveals stark differences:
-* **Cluster 1 (Traditional/Cautious):** The probability of joining this cautious cluster **strongly increases with age** for all groups, but is consistently highest for Conservatives and Moderates, reaching nearly 70% for older Conservatives.
-* **Cluster 2 (Omnivorous/High-End):** Highly concentrated among **younger Liberals** (probability starts above 60% for young Liberals and declines steeply with age). Younger Conservatives have a much lower probability (~25%) of belonging to this high-end omnivore subculture.
-* **Cluster 3 (Local/Socioeconomic):** Remains relatively stable or slightly declining across age groups, but shows that Moderates and Conservatives of all ages are consistently more aligned with local/common tastes than their Liberal counterparts.
+The faceted predicted probability plot reveals stark differences across the life course structured by social beliefs:
+* **Cluster 1 (Traditional/Cautious):** The probability of joining this cautious cluster **strongly increases with age** for all groups, but is consistently highest for Social Conservatives and Social Moderates, reaching nearly 70% for older Social Conservatives.
+* **Cluster 2 (Omnivorous/High-End):** Highly concentrated among **younger Social Liberals** (probability starts above 60% and declines steeply with age). Younger Social Conservatives have a much lower probability (~25%) of belonging to this high-end omnivore subculture.
+* **Cluster 3 (Local/Socioeconomic):** Holds stable across age groups, but shows that Social Moderates and Social Conservatives are consistently more aligned with local/common tastes than Social Liberals across all age bands.

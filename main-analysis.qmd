@@ -1,7 +1,7 @@
 ---
-  title: "Cuisines MCA Analysis"
-  author: "Omar Lizardo"
-  date: "`r Sys.Date()`"
+title: "Cuisines MCA Analysis"
+author: "Omar Lizardo"
+date: "`r Sys.Date()`"
 ---
 
 # Setup
@@ -20,15 +20,21 @@
     library(ggrepel)
     library(stringr)
     library(corrplot)
+    library(MASS)
+    library(nnet)
+    library(ggeffects)
+    library(knitr)
+    
     conflicts_prefer(dplyr::filter)
     conflicts_prefer(dplyr::select)
     conflicts_prefer(dplyr::summarize)
 ```
 
+# Getting and recoding data
 ```{r Getting and Recoding Data}
     source(here("recode.dat.R"))
     dat <- recode.dat() |> 
-        select(
+        dplyr::select(
             # dine_out (2 variables)
             fancy_restaurant, fast_food,
             # food_qual (6 variables)
@@ -39,16 +45,17 @@
             japanese.f:lebanese.f,
             # quant.sup (7 variables)
             age, income, educ, peduc, arts, city, relig,
-            # quali.sup (4 variables)
-            race.f, sex.f, gend.f, pol.f
+            # quali.sup (5 variables)
+            race.f, sex.f, gend.f, spol.f, epol.f
         ) |> 
         na.omit()
     names(dat)
 ```
 
+# Multiple Factor Analysis
 ```{r Multiple Factor Analysis}
     mfa.res <- MFA(dat, 
-        group = c(2, 6, 6, 15, 7, 4), 
+        group = c(2, 6, 6, 15, 7, 5), 
         type = c("c", "c", "c", "n", "c", "n"),
         name.group = c("dine_out", "food_qual", "food", "authenticity", "quant.sup", "quali.sup"), 
         graph = FALSE,
@@ -57,32 +64,78 @@
     mfa.dat <- dat |> cbind(mfa.res$ind$coord)
 ```
 
-```{r}
+# MFA scree plot & coordinates
+```{r Scree Plot}
+    p_eig <- fviz_eig(mfa.res, choice = "eigenvalue", ncp = 10) +
+        geom_hline(yintercept = 1, linetype = 2, color = "red", linewidth = 1) +
+        theme_minimal() +
+        theme(text = element_text(size = 14, face = "bold")) +
+        ggtitle("MFA Scree Plot")
+    ggsave(here("Plots", "eig.png"), p_eig, width = 8, height = 6)
+```
+
+```{r Qualitative Coordinates Plot}
+    # Calculate contribution and normalize
+    contrib_val <- log(mfa.res$quali.var$contrib[, "Dim.1"] + mfa.res$quali.var$contrib[, "Dim.3"])
+    contrib_val[is.infinite(contrib_val) | is.nan(contrib_val)] <- min(contrib_val[!is.infinite(contrib_val) & !is.nan(contrib_val)], na.rm=TRUE)
+    contrib_val <- contrib_val - min(contrib_val)
+    contrib_val <- contrib_val / max(contrib_val)
+
     cat.dat <- mfa.res$quali.var$coord |> 
         data.frame() |> 
-        select(Dim.1, Dim.3)
-    p <- ggplot(cat.dat, aes(x = Dim.1, y = Dim.3, label = rownames(cat.dat)))
-    p <- p + geom_vline(xintercept = 0, color = "gray", linewidth = 1)
-    p <- p + geom_hline(yintercept = 0, color = "gray", linewidth = 1)
-    p <- p + geom_text_repel(
-        size = 7, 
-        max.overlaps = 30, 
-        fontface = "bold", 
-        alpha = 1
+        dplyr::select(Dim.1, Dim.3) |> 
+        tibble::rownames_to_column(var = "labels") |> 
+        mutate(
+            judgment = case_when(
+                str_detect(labels, "High-End") ~ "High-End",
+                str_detect(labels, "Trad")     ~ "Traditional",
+                str_detect(labels, "Not Sure") ~ "Not Sure",
+                TRUE                           ~ NA_character_
+            ),
+            labels_clean = labels |> 
+                str_replace_all("\\.f_", " (") |> 
+                str_replace_all("_", " ") |> 
+                paste0(")") |> 
+                str_to_title() |> 
+                str_replace_all("Trad\\)", "Trad)") |> 
+                str_replace_all("High-End\\)", "High-End)") |> 
+                str_replace_all("Not Sure\\)", "Not Sure)")
         )
-    p + theme_minimal() + theme(text = element_text(size = 16))
+
+    p_coords <- ggplot(cat.dat, aes(x = Dim.1, y = Dim.3, color = judgment, label = labels_clean)) +
+        geom_vline(xintercept = 0, color = "gray", linewidth = 1) +
+        geom_hline(yintercept = 0, color = "gray", linewidth = 1) +
+        geom_text_repel(
+            size = 6, 
+            max.overlaps = 200, 
+            fontface = "bold", 
+            alpha = contrib_val,
+            key_glyph = "rect"
+        ) +
+        scale_color_brewer(palette = "Dark2", type = "qual") +
+        labs(
+            title = "Cloud of Cuisine Authenticity Categories (MFA)",
+            x = "Traditional/Ordinary \u2190                                                 \u2192 High-End/Fancy",
+            y = "Unfamiliar/Not Sure \u2190                                                 \u2192 Foodie/Authentic",
+            color = "Judgment"
+        ) +
+        scale_x_continuous(sec.axis = dup_axis()) +
+        scale_y_continuous(sec.axis = dup_axis()) +
+        theme_minimal() +
+        theme(
+            legend.position = "bottom",
+            title = element_text(size = 18, face = "bold"),
+            legend.text = element_text(size = 12),
+            axis.title.x = element_text(size = 12, face = "bold"),
+            axis.title.y = element_text(size = 12, face = "bold"),
+            axis.text.x = element_text(size = 11),
+            axis.text.y = element_text(size = 11)
+        )
+    ggsave(here("Plots", "cat_coords.png"), p_coords, width = 12, height = 10, dpi = 300)
 ```
 
-```{r Eigenvalue Plot}
-    d <- 10
-    p <- fviz_eig(mfa.res, choice = "eigenvalue", ncp =d)
-    p <- p + geom_hline(yintercept = 1, linetype = 2, color = "red", linewidth = 1)
-    p <- p + theme(text = element_text(size = 16, face = "bold"))
-    p + geom_text(label = paste0(round(mfa.res$eig[, 2], 1),"%")[1:d], vjust=-1.1, hjust = 0.3,size = 5) + ylim(0, 1.75)  + ggtitle("")
-    save_plot(here("Plots", "eig.png"), height = 25, width = 20)
-```
-
-```{r}
+# Correlation matrix heatmap
+```{r Correlation Heatmap}
     plot.mat <- get_mfa_var(mfa.res)$cor
     plot.mat_df <- plot.mat |> 
         as.data.frame() |> 
@@ -93,165 +146,261 @@
             values_to = "Correlation"
         ) |> 
         mutate(Variable = factor(Variable, levels = rownames(plot.mat)))
-    a <- 0.75
-    b <- -0.62
-    ggplot(plot.mat_df, aes(y = Variable, x = Dimension, fill = Correlation)) + 
-        geom_tile(color = "white", lwd = 2, linetype = 1) + coord_fixed() +
+    
+    max_corr <- max(abs(plot.mat_df$Correlation))
+    corr_limits <- c(-max_corr, max_corr)
+
+    p_varcor <- ggplot(plot.mat_df, aes(y = Variable, x = Dimension, fill = Correlation)) + 
+        geom_tile(color = "white", lwd = 1.5, linetype = 1) + coord_fixed() +
         scale_fill_gradient2(
-                    low = "darkred",
+                    low = "#FF0000",
                     mid = "#FFFFCC",
-                    high = "darkblue",
-                    midpoint = 0, limits = c(b, a)) +
+                    high = "#075AFF",
+                    midpoint = 0, limits = corr_limits) +
         geom_text(aes(label = sprintf("%.2f", Correlation)), 
-                    vjust = 0.6, 
+                    vjust = 0.5, 
                     fontface = "bold", 
-                    color = "white", size = 10) +
+                    color = "black", size = 4.5) +
         scale_x_discrete(position = "top") +
         scale_y_discrete(limits = rev) +
         theme_minimal() +
         theme(
             axis.title = element_blank(),
-            text = element_text(size = 22, face = "bold"),
+            text = element_text(size = 12, face = "bold"),
             legend.position = "right",
             legend.title = element_blank(),
-            legend.key.height = unit(3, "cm"),  
+            legend.key.height = unit(1.5, "cm"),
+            panel.grid = element_blank()
         ) 
-    save_plot(here("Plots", "varcor.png"), height = 60, width = 40) 
+    ggsave(here("Plots", "varcor.png"), p_varcor, width = 8, height = 10, dpi = 300) 
 ```
 
-```{r Regression Models}
-    ind.vars <- c("Intercept", "Asian", "Black", "Hispanic", "Mixed Race (Other)", "Mixed Race (White)", "Woman", "Nonbinary/Other", "LGBTQ", "Education", "Parent's Educ.", "Child Arts Exp.", "Age", "Income", "City Size", "Conservative", "Liberal", "Religious Attendance")
-    spec1 <- c("race.f", "gend.f" ,"sex.f", "educ", "peduc", "arts", "age", "income", "city", "pol.f", "relig")
-    f1 <- as.formula(paste("Dim.1 ~", paste(spec1, collapse = " + ")))
-    f2 <- as.formula(paste("Dim.2 ~", paste(spec1, collapse = " + ")))
-    f3 <- as.formula(paste("Dim.3 ~", paste(spec1, collapse = " + ")))
-    m1 <- lm(f1, data = mfa.dat)
-    m2 <- lm(f2, data = mfa.dat)
-    m3 <- lm(f3, data = mfa.dat)
-    tab_model(m1, m2, m3,
-            file = here("Tabs", "pca-reg-tab1.html"), 
-            dv.labels = c("Fancy Taste <br> (Dim. 1)", 
-                          "Common Taste <br> (Dim. 2)",
-                          "Foodie Taste <br> (Dim. 3)"
-                        ), 
-            CSS = list(css.table = 'font-size: 12px;', css.td = 'border-bottom: 0px;'), 
-            show.ci = FALSE,  show.se = TRUE, collapse.se = TRUE, p.style = "numeric_stars", show.std = "std2", show.est = FALSE, digits = 3,
-            pred.labels = ind.vars,
-            title = "Table 1. Coefficient estimates of ordinary least squares linear models predicting scores on the first three MFA dimensions."
-            )
-```
-
-## Multivariate Analysis of Variance (MANOVA)
-Here we test whether there are statistically significant differences in the multivariate centroids of the first three MFA dimensions across key demographic groups (race, gender, and political ideology) simultaneously.
-
+# Multivariate Analysis of Variance (MANOVA)
 ```{r MANOVA}
-    # Fit MANOVA model
+    # Fit MANOVA model with interactions between sexuality and social ideology
     manova_model <- manova(
-        cbind(Dim.1, Dim.2, Dim.3) ~ race.f + gend.f + pol.f, 
+        cbind(Dim.1, Dim.2, Dim.3) ~ race.f + gend.f + sex.f * spol.f + epol.f, 
         data = mfa.dat
     )
     
-    # Multivariate test results (Pillai's Trace is robust to assumption violations)
-    print(summary(manova_model, test = "Pillai"))
+    # Save MANOVA table as HTML (Beautiful custom CSS table)
+    sum_manova <- summary(manova_model, test = "Pillai")
+    stats_df <- as.data.frame(sum_manova$stats)
+    rownames(stats_df) <- c(
+      "race.f" = "Ethnoracial ID",
+      "gend.f" = "Gender ID",
+      "sex.f" = "Sexuality",
+      "spol.f" = "Social Ideology",
+      "epol.f" = "Economic Ideology",
+      "sex.f:spol.f" = "Sexuality x Social Ideology Interaction",
+      "Residuals" = "Residuals"
+    )[rownames(stats_df)]
+
+    html_content <- paste0(
+      "<!DOCTYPE html>\n<html>\n<head>\n",
+      "<meta charset='utf-8'>\n",
+      "<style>\n",
+      "  body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #fdfefe; padding: 20px; }\n",
+      "  table { border-collapse: collapse; width: 100%; max-width: 950px; margin: 20px auto; background-color: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border-radius: 6px; overflow: hidden; }\n",
+      "  th { background-color: #2c3e50; color: #ffffff; padding: 14px 18px; text-align: left; font-size: 14px; font-weight: 600; text-transform: uppercase; border-bottom: 3px solid #1abc9c; }\n",
+      "  td { padding: 12px 18px; border-bottom: 1px solid #ecf0f1; font-size: 14px; color: #2c3e50; }\n",
+      "  tr:nth-child(even) { background-color: #f8f9fa; }\n",
+      "  tr:hover { background-color: #e8f8f5; transition: background-color 0.2s ease; }\n",
+      "  .caption { font-size: 18px; font-weight: bold; color: #2c3e50; margin: 15px auto; text-align: center; max-width: 950px; border-left: 4px solid #1abc9c; padding-left: 10px; }\n",
+      "  .sig { font-weight: bold; color: #27ae60; }\n",
+      "  .ns { color: #95a5a6; font-style: italic; }\n",
+      "  .notes { font-size: 12px; color: #7f8c8d; margin: 10px auto; text-align: center; max-width: 950px; }\n",
+      "</style>\n</head>\n<body>\n",
+      "<div class='caption'>Table 1. Multivariate Analysis of Variance (MANOVA) Results with Interactions</div>\n",
+      "<table>\n",
+      "  <thead>\n",
+      "    <tr>\n",
+      "      <th>Socio-Demographic Predictor</th>\n",
+      "      <th style='text-align: center;'>Df</th>\n",
+      "      <th style='text-align: center;'>Pillai's Trace</th>\n",
+      "      <th style='text-align: center;'>Approx. F</th>\n",
+      "      <th style='text-align: center;'>Num Df</th>\n",
+      "      <th style='text-align: center;'>Den Df</th>\n",
+      "      <th style='text-align: center;'>Pr(&gt;F)</th>\n",
+      "      <th style='text-align: center;'>Significance</th>\n",
+      "    </tr>\n",
+      "  </thead>\n",
+      "  <tbody>\n"
+    )
+
+    for (i in 1:nrow(stats_df)) {
+      row_name <- rownames(stats_df)[i]
+      row <- stats_df[i, ]
+      
+      df_val <- row[["Df"]]
+      pillai <- row[["Pillai"]]
+      approx_f <- row[["approx F"]]
+      num_df <- row[["num Df"]]
+      den_df <- row[["den Df"]]
+      p_val <- row[["Pr(>F)"]]
+      
+      pillai_str <- if (is.na(pillai)) "" else sprintf("%.5f", pillai)
+      f_str <- if (is.na(approx_f)) "" else sprintf("%.3f", approx_f)
+      num_df_str <- if (is.na(num_df)) "" else as.character(num_df)
+      den_df_str <- if (is.na(den_df)) "" else as.character(den_df)
+      
+      p_str <- ""
+      sig_class <- ""
+      stars <- ""
+      if (!is.na(p_val)) {
+        p_str <- if (p_val < 0.0001) "&lt; 0.0001" else sprintf("%.5f", p_val)
+        if (p_val < 0.001) {
+          stars <- "***"
+          sig_class <- "class='sig'"
+        } else if (p_val < 0.01) {
+          stars <- "**"
+          sig_class <- "class='sig'"
+        } else if (p_val < 0.05) {
+          stars <- "*"
+          sig_class <- "class='sig'"
+        } else if (p_val < 0.1) {
+          stars <- "."
+          sig_class <- "class='ns'"
+        } else {
+          stars <- "n.s."
+          sig_class <- "class='ns'"
+        }
+      }
+      
+      html_content <- paste0(
+        html_content,
+        "    <tr>\n",
+        "      <td style='font-weight: bold; color: #34495e;'>", row_name, "</td>\n",
+        "      <td style='text-align: center;'>", df_val, "</td>\n",
+        "      <td style='text-align: center;'>", pillai_str, "</td>\n",
+        "      <td style='text-align: center;'>", f_str, "</td>\n",
+        "      <td style='text-align: center;'>", num_df_str, "</td>\n",
+        "      <td style='text-align: center;'>", den_df_str, "</td>\n",
+        "      <td style='text-align: center; font-weight: 500;'>", p_str, "</td>\n",
+        "      <td style='text-align: center;' ", sig_class, ">", stars, "</td>\n",
+        "    </tr>\n"
+      )
+    }
+
+    html_content <- paste0(
+      html_content,
+      "  </tbody>\n",
+      "</table>\n",
+      "<div class='notes'>Significance codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1 (n.s. = not significant)</div>\n",
+      "</body>\n</html>"
+    )
+
+    writeLines(html_content, here("Tabs", "manova_table.html"))
     
-    # Univariate follow-up ANOVAs
-    print(summary.aov(manova_model))
+    # Post-hoc pairwise comparisons for race/ethnicity
+    levels_race <- levels(mfa.dat$race.f)
+    pairs <- combn(levels_race, 2)
+    results <- list()
+    for (i in 1:ncol(pairs)) {
+      g1 <- pairs[1, i]
+      g2 <- pairs[2, i]
+      sub_dat <- mfa.dat |> dplyr::filter(race.f %in% c(g1, g2))
+      fit <- manova(cbind(Dim.1, Dim.2, Dim.3) ~ race.f, data = sub_dat)
+      results[[i]] <- data.frame(
+        Comparison = paste(g1, "vs.", g2),
+        Pillai = summary(fit, test = "Pillai")$stats[1, "Pillai"],
+        p_value = summary(fit, test = "Pillai")$stats[1, "Pr(>F)"]
+      )
+    }
+    pairwise_df <- do.call(rbind, results) |> 
+      mutate(p_adj_bonferroni = p.adjust(p_value, method = "bonferroni")) |> 
+      arrange(p_value)
+    
+    writeLines(
+        knitr::kable(pairwise_df, format = "html", caption = "Table 2. Post-hoc Pairwise MANOVA Comparisons for Race/Ethnicity Groups"), 
+        here("Tabs", "pairwise_manovas.html")
+    )
+    
+    # Univariate Tukey HSD on Dimension 1
+    tukey_d1 <- TukeyHSD(aov(Dim.1 ~ race.f, data = mfa.dat))
+    writeLines(
+        knitr::kable(as.data.frame(tukey_d1$race.f), format = "html", caption = "Table 3. Tukey's Honestly Significant Difference (HSD) pairwise results on Dimension 1 (Fancy Taste) for Race/Ethnicity"), 
+        here("Tabs", "tukey_hsd_dim1.html")
+    )
 ```
 
-## Linear Discriminant Analysis (LDA)
-Having found that political ideology (`pol.f`) is a strong predictor of tastes in both regression and MANOVA, we use Linear Discriminant Analysis (LDA) to identify how the continuous taste dimensions (`Dim.1`, `Dim.2`, `Dim.3`) best discriminate between Liberals, Moderates, and Conservatives.
-
-```{r LDA}
-    library(MASS)
-    
-    # Fit the LDA model
-    lda_model <- lda(
-        pol.f ~ Dim.1 + Dim.2 + Dim.3, 
-        data = mfa.dat
-    )
-    
-    # Print the model results
-    print(lda_model)
-    
-    # Predict discriminant scores
-    lda_pred <- predict(lda_model)
-    
-    # Create an LDA score dataframe for plotting
-    lda_plot_dat <- mfa.dat |> 
-        mutate(
-            LD1 = lda_pred$x[, 1],
-            LD2 = lda_pred$x[, 2],
-            predicted_pol = lda_pred$class
-        )
-    
-    # Plot discriminant space
-    ggplot(lda_plot_dat, aes(x = LD1, y = LD2, color = pol.f)) +
-        geom_point(alpha = 0.4, size = 1.5) +
-        stat_ellipse(linewidth = 1) +
-        scale_color_manual(values = c("Liberal" = "blue", "Moderate" = "green", "Conservative" = "red")) +
+## Post-hoc interaction plots
+```{r Interaction Plots}
+    # Plot Dimension 1 Sexuality x Social Ideology Interaction with Confidence Intervals
+    pred_dim1 <- ggpredict(lm(Dim.1 ~ sex.f * spol.f, data = mfa.dat), terms = c("spol.f", "sex.f"))
+    p_int1 <- ggplot(as.data.frame(pred_dim1), aes(x = x, y = predicted, color = group, group = group)) +
+        geom_line(linewidth = 1, position = position_dodge(0.2)) +
+        geom_pointrange(aes(ymin = conf.low, ymax = conf.high), size = 0.6, position = position_dodge(0.2)) +
         labs(
-            title = "Linear Discriminant Analysis of Tastes by Political Ideology",
-            x = "Linear Discriminant 1 (LD1)",
-            y = "Linear Discriminant 2 (LD2)",
-            color = "Ideology"
+            title = "Interaction of Sexuality & Social Ideology on Dimension 1 (Fancy Taste)",
+            x = "Social Ideology",
+            y = "Predicted Score (MFA Dim 1)",
+            color = "Sexuality"
         ) +
         theme_minimal()
+    ggsave(here("Plots", "interaction_dim1.png"), p_int1, width = 8, height = 6)
+
+    # Plot Dimension 2 Sexuality x Social Ideology Interaction with Confidence Intervals
+    pred_dim2 <- ggpredict(lm(Dim.2 ~ sex.f * spol.f, data = mfa.dat), terms = c("spol.f", "sex.f"))
+    p_int2 <- ggplot(as.data.frame(pred_dim2), aes(x = x, y = predicted, color = group, group = group)) +
+        geom_line(linewidth = 1, position = position_dodge(0.2)) +
+        geom_pointrange(aes(ymin = conf.low, ymax = conf.high), size = 0.6, position = position_dodge(0.2)) +
+        labs(
+            title = "Interaction of Sexuality & Social Ideology on Dimension 2 (Common Taste)",
+            x = "Social Ideology",
+            y = "Predicted Score (MFA Dim 2)",
+            color = "Sexuality"
+        ) +
+        theme_minimal()
+    ggsave(here("Plots", "interaction_dim2.png"), p_int2, width = 8, height = 6)
 ```
 
-## Hierarchical Clustering on Principal Components (HCPC)
-To discover distinct "taste profiles" or "food consumer subcultures" within the sample, we perform Hierarchical Clustering on Principal Components (HCPC) on our MFA individual coordinates.
-
+# Hierarchical Clustering on Principal Components (HCPC)
 ```{r HCPC}
     # Run HCPC clustering (using 3 clusters)
     hcpc_res <- HCPC(mfa.res, nb.clust = 3, graph = FALSE)
-    
-    # Extract cluster membership back into our main dataset
     mfa.dat$Cluster <- hcpc_res$data.clust$clust
     
-    # Visualize the hierarchical tree of clusters
-    plot(hcpc_res, choice = "tree", main = "Hierarchical Clustering Tree")
+    # Save trees and maps to Plots folder
+    png(here("Plots", "hcpc_tree.png"), width = 800, height = 600)
+    plot(hcpc_res, choice = "tree")
+    dev.off()
     
-    # Visualize the individuals on the principal component map colored by cluster
-    plot(hcpc_res, choice = "map", main = "Individual Factor Map by Cluster")
+    png(here("Plots", "hcpc_map.png"), width = 800, height = 600)
+    plot(hcpc_res, choice = "map")
+    dev.off()
 ```
 
-### Profiling the Clusters using Multinomial Logit Analysis
-To understand how socioeconomic, demographic, and ideological variables predict membership in these three taste clusters, we fit a Multinomial Logit Model predicting cluster membership.
-
-To facilitate pattern detection and avoid visual clutter, we compute the predicted probabilities of being in each cluster across the life course (age) for different political ideologies, and present them in faceted plots for each of the clusters.
-
+## Profiling the Clusters using Multinomial Logit Analysis
 ```{r Multinomial Logit}
-    library(nnet)
-    library(ggeffects)
-    
-    # Fit the Multinomial Logit Model
+    # Fit the Multinomial Logit Model predicting cluster membership from demographics
     multinom_model <- multinom(
-        Cluster ~ pol.f + gend.f + educ + age, 
+        Cluster ~ spol.f + epol.f + gend.f + educ + age, 
         data = mfa.dat, 
         trace = FALSE
     )
     
-    # Print the model coefficients as Relative Risk Ratios (Exponentiated Coefficients)
-    print(exp(coef(multinom_model)))
+    # Save multinomial logit table as HTML
+    tab_model(multinom_model, file = here("Tabs", "multinom_table.html"))
     
-    # Calculate predicted probabilities across age and political ideology
-    pred_res <- ggpredict(multinom_model, terms = c("age [all]", "pol.f"))
+    # Calculate predicted probabilities across age and social political ideology
+    pred_res <- ggpredict(multinom_model, terms = c("age [all]", "spol.f"))
     pred_df <- as.data.frame(pred_res)
     
     # Plot predicted probabilities faceted by cluster to reduce visual clutter
-    ggplot(pred_df, aes(x = x, y = predicted, color = group)) +
+    p_multinom <- ggplot(pred_df, aes(x = x, y = predicted, color = group)) +
         geom_line(linewidth = 1.2) +
         facet_wrap(~response.level, labeller = labeller(response.level = function(x) paste("Cluster", x))) +
-        scale_color_manual(values = c("Liberal" = "blue", "Moderate" = "green", "Conservative" = "red")) +
+        scale_color_manual(values = c("Soc. Lib." = "blue", "Soc. Mod." = "green", "Soc. Con." = "red")) +
         labs(
-            title = "Predicted Probabilities of Cluster Membership by Age and Political Ideology",
+            title = "Predicted Probabilities of Cluster Membership by Age and Social Ideology",
             x = "Age",
             y = "Predicted Probability",
-            color = "Political Ideology"
+            color = "Social Ideology"
         ) +
         theme_minimal() +
-        theme(text = element_text(size = 14))
+        theme(text = element_text(size = 12))
     
     # Save the faceted probability plot
-    save_plot(here("Plots", "pred_prob_faceted.png"), height = 15, width = 25)
+    ggsave(here("Plots", "pred_prob_faceted.png"), p_multinom, width = 10, height = 6)
 ```
