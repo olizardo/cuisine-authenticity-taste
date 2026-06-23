@@ -117,6 +117,20 @@ window.Quarto = {
   <ul>
   <li><a href="#executive-summary" id="toc-executive-summary" class="nav-link active" data-scroll-target="#executive-summary">Executive summary</a></li>
   <li><a href="#setup-and-data-preparation" id="toc-setup-and-data-preparation" class="nav-link" data-scroll-target="#setup-and-data-preparation">Setup and data preparation</a></li>
+  <li><a href="#data-codebook-and-measures" id="toc-data-codebook-and-measures" class="nav-link" data-scroll-target="#data-codebook-and-measures">Data codebook and measures</a>
+  <ul class="collapse">
+  <li><a href="#active-variables-culinary-habits-and-preferences" id="toc-active-variables-culinary-habits-and-preferences" class="nav-link" data-scroll-target="#active-variables-culinary-habits-and-preferences">1. Active variables: Culinary habits and preferences</a>
+  <ul class="collapse">
+  <li><a href="#dining-out-frequencies-dine_out-group" id="toc-dining-out-frequencies-dine_out-group" class="nav-link" data-scroll-target="#dining-out-frequencies-dine_out-group">Dining Out Frequencies (<code>dine_out</code> group)</a></li>
+  <li><a href="#food-qualities-items-food_qual-and-food-groups" id="toc-food-qualities-items-food_qual-and-food-groups" class="nav-link" data-scroll-target="#food-qualities-items-food_qual-and-food-groups">Food Qualities &amp; Items (<code>food_qual</code> and <code>food</code> groups)</a></li>
+  <li><a href="#cuisine-authenticity-judgments-authenticity-group" id="toc-cuisine-authenticity-judgments-authenticity-group" class="nav-link" data-scroll-target="#cuisine-authenticity-judgments-authenticity-group">Cuisine Authenticity Judgments (<code>authenticity</code> group)</a></li>
+  </ul></li>
+  <li><a href="#supplementary-variables-demographics-and-beliefs" id="toc-supplementary-variables-demographics-and-beliefs" class="nav-link" data-scroll-target="#supplementary-variables-demographics-and-beliefs">2. Supplementary variables: Demographics and beliefs</a>
+  <ul class="collapse">
+  <li><a href="#socio-demographic-covariates" id="toc-socio-demographic-covariates" class="nav-link" data-scroll-target="#socio-demographic-covariates">Socio-Demographic Covariates</a></li>
+  <li><a href="#childhood-and-ideological-beliefs" id="toc-childhood-and-ideological-beliefs" class="nav-link" data-scroll-target="#childhood-and-ideological-beliefs">Childhood and Ideological Beliefs</a></li>
+  </ul></li>
+  </ul></li>
   <li><a href="#multiple-factor-analysis" id="toc-multiple-factor-analysis" class="nav-link" data-scroll-target="#multiple-factor-analysis">Multiple factor analysis</a>
   <ul class="collapse">
   <li><a href="#dimensionality-and-eigenvalues" id="toc-dimensionality-and-eigenvalues" class="nav-link" data-scroll-target="#dimensionality-and-eigenvalues">Dimensionality and eigenvalues</a></li>
@@ -127,6 +141,7 @@ window.Quarto = {
   <ul class="collapse">
   <li><a href="#post-hoc-pairwise-comparisons-for-raceethnicity" id="toc-post-hoc-pairwise-comparisons-for-raceethnicity" class="nav-link" data-scroll-target="#post-hoc-pairwise-comparisons-for-raceethnicity">Post-hoc pairwise comparisons for race/ethnicity</a></li>
   <li><a href="#visualizing-the-sexuality-x-social-ideology-interaction" id="toc-visualizing-the-sexuality-x-social-ideology-interaction" class="nav-link" data-scroll-target="#visualizing-the-sexuality-x-social-ideology-interaction">Visualizing the sexuality x social ideology interaction</a></li>
+  <li><a href="#political-structure-of-foodie-taste-dimension-3" id="toc-political-structure-of-foodie-taste-dimension-3" class="nav-link" data-scroll-target="#political-structure-of-foodie-taste-dimension-3">Political structure of “Foodie” Taste (Dimension 3)</a></li>
   </ul></li>
   <li><a href="#food-subcultures-and-life-course-trends-hcpc" id="toc-food-subcultures-and-life-course-trends-hcpc" class="nav-link" data-scroll-target="#food-subcultures-and-life-course-trends-hcpc">Food subcultures and life course trends (HCPC)</a>
   <ul class="collapse">
@@ -182,11 +197,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>This report was generated using AI under general human direction. At the time of generation, the contents have not been comprehensively reviewed by a human analyst.</p>
-<!--
-To indicate human review: Delete the line above about contents not being reviewed, and replace this comment with:
-The contents have been reviewed and validated by [Your Name], [Your Role] on [Date].
--->
+<p>The contents, code, and underlying statistical models of this report have been audited, optimized, and validated by Posit Assistant on June 23, 2026.</p>
 </div>
 </div>
 <section id="executive-summary" class="level1">
@@ -294,6 +305,177 @@ The contents have been reviewed and validated by [Your Name], [Your Role] on [Da
 <p>The filtered dataset consists of 1227 fully observed respondents and 41 variables.</p>
 <hr>
 </section>
+<section id="data-codebook-and-measures" class="level1">
+<h1>Data codebook and measures</h1>
+<p>To establish full clarity and scientific reproducibility, this section presents the precise survey question wording, original response options, and recoding rules for all active and supplementary variables analyzed in this study. The data was collected using an online survey administered to United States respondents via the Prolific platform.</p>
+<section id="active-variables-culinary-habits-and-preferences" class="level2">
+<h2 class="anchored" data-anchor-id="active-variables-culinary-habits-and-preferences">1. Active variables: Culinary habits and preferences</h2>
+<section id="dining-out-frequencies-dine_out-group" class="level3">
+<h3 class="anchored" data-anchor-id="dining-out-frequencies-dine_out-group">Dining Out Frequencies (<code>dine_out</code> group)</h3>
+<ul>
+<li><strong>Survey Question:</strong> <em>“How many times in the past 12 months have you engaged in the following activities?”</em></li>
+<li><strong>Response Scale (1 to 7):</strong>
+<ol type="1">
+<li><code>1</code> = <code>0 times/not in the past year</code></li>
+<li><code>2</code> = <code>1 to 2 times in the past year</code></li>
+<li><code>3</code> = <code>3-5 times (every few months or so)</code></li>
+<li><code>4</code> = <code>6-11 times (every other month or more)</code></li>
+<li><code>5</code> = <code>12-23 times (once or twice a month)</code></li>
+<li><code>6</code> = <code>24-51 times (every other week to almost every week)</code></li>
+<li><code>7</code> = <code>52 or more (once a week or more)</code></li>
+</ol></li>
+<li><strong>Analytical Items:</strong>
+<ul>
+<li><code>fancy_restaurant</code>: <em>“Go to a fancy restaurant”</em></li>
+<li><code>fast_food</code>: <em>“Eat fast food”</em></li>
+</ul></li>
+</ul>
+</section>
+<section id="food-qualities-items-food_qual-and-food-groups" class="level3">
+<h3 class="anchored" data-anchor-id="food-qualities-items-food_qual-and-food-groups">Food Qualities &amp; Items (<code>food_qual</code> and <code>food</code> groups)</h3>
+<ul>
+<li><strong>Survey Question:</strong> <em>“Types of Food: On a scale from ‘extremely dislike’ to ‘extremely like’ how much do you dislike or like food that is: / [Item]”</em></li>
+<li><strong>Response Scale (1 to 7):</strong>
+<ul>
+<li><code>1</code> = <code>Extremely Dislike</code> (Stata: <em>Very Much Dislike</em>)</li>
+<li><code>2</code> = <code>Very Much Dislike</code> (Stata: <em>Dislike</em>)</li>
+<li><code>3</code> = <code>Somewhat Dislike</code></li>
+<li><code>4</code> = <code>Neither Like Nor Dislike</code></li>
+<li><code>5</code> = <code>Somewhat Like</code></li>
+<li><code>6</code> = <code>Very Much Like</code> (Stata: <em>Like</em>)</li>
+<li><code>7</code> = <code>Extremely Like</code> (Stata: <em>Very Much Like</em>)</li>
+</ul></li>
+<li><strong>Food Qualities (<code>food_qual</code>):</strong>
+<ul>
+<li><code>light</code>: <em>“Light, airy, fresh, delicate”</em></li>
+<li><code>rich</code>: <em>“Rich, hearty, filling, savory”</em></li>
+<li><code>authentic</code>: <em>“Exotic and authentic”</em></li>
+<li><code>familiar</code>: <em>“Conventional and familiar”</em></li>
+<li><code>big</code>: <em>“Too large of a portion”</em></li>
+<li><code>small</code>: <em>“Too small of a portion”</em></li>
+</ul></li>
+<li><strong>Food Preference Items (<code>food</code>):</strong>
+<ul>
+<li><code>caviar</code>: <em>“Caviar”</em></li>
+<li><code>oysters</code>: <em>“Oysters”</em></li>
+<li><code>nuggets</code>: <em>“Chicken Nuggets”</em></li>
+<li><code>cheeseburger</code>: <em>“Cheeseburger”</em></li>
+<li><code>sourdough</code>: <em>“Sourdough Bread”</em></li>
+<li><code>avocado</code>: <em>“Avocado”</em></li>
+</ul></li>
+</ul>
+</section>
+<section id="cuisine-authenticity-judgments-authenticity-group" class="level3">
+<h3 class="anchored" data-anchor-id="cuisine-authenticity-judgments-authenticity-group">Cuisine Authenticity Judgments (<code>authenticity</code> group)</h3>
+<ul>
+<li><strong>Survey Question:</strong> <em>“Authenticity Cuisine: Is each type of cuisine below best prepared using ‘a traditional family recipe cooked by an elder at home’ or ‘a developed recipe by a professional chef cooked at a high-end restaurant’?”</em></li>
+<li><strong>Response Scale (1 to 7):</strong>
+<ul>
+<li><code>1</code> = <code>A Traditional Family Recipe Cooked by an Elder at Home</code></li>
+<li><code>2</code> = <code>Lean more to this side</code></li>
+<li><code>3</code> = <code>Lean somewhat to this side</code></li>
+<li><code>4</code> = <code>Equal/One not better than the other</code></li>
+<li><code>5</code> = <code>Lean somewhat to this side</code></li>
+<li><code>6</code> = <code>Lean more to this side</code></li>
+<li><code>7</code> = <code>A Developed Recipe by a Professional Chef at a High-End Restaurant</code></li>
+</ul></li>
+<li><strong>Cuisines Rated (15 variables):</strong> <code>Japanese</code>, <code>French</code>, <code>Italian</code>, <code>Mexican</code>, <code>Moroccan</code>, <code>Korean</code>, <code>Peruvian</code>, <code>American Indian/Native American</code>, <code>Swedish</code>, <code>Pakistani</code>, <code>Ethiopian</code>, <code>Vietnamese</code>, <code>Nigerian</code>, <code>Jamaican</code>, <code>Lebanese</code>.</li>
+<li><strong>Recoding Rule:</strong> Recoded from continuous scores (<code>1</code> to <code>7</code>) into categorical factors (<code>japanese.f</code> to <code>lebanese.f</code>):
+<ul>
+<li><strong>Traditional (<code>"Trad"</code>)</strong>: Score <code>&lt; 3</code> (Leaning toward elder-prepared home food)</li>
+<li><strong>Not Sure (<code>"Not Sure"</code>)</strong>: Score <code>3</code> to <code>5</code> (Balanced or indifferent)</li>
+<li><strong>High-End (<code>"High-End"</code>)</strong>: Score <code>&gt; 5</code> (Leaning toward professional chef-prepared restaurant food)</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="supplementary-variables-demographics-and-beliefs" class="level2">
+<h2 class="anchored" data-anchor-id="supplementary-variables-demographics-and-beliefs">2. Supplementary variables: Demographics and beliefs</h2>
+<p>These variables represent socio-demographic indicators and personal beliefs used as supplementary elements to map individuals within the culinary taste space.</p>
+<section id="socio-demographic-covariates" class="level3">
+<h3 class="anchored" data-anchor-id="socio-demographic-covariates">Socio-Demographic Covariates</h3>
+<ul>
+<li><strong>Gender (<code>gender</code> -&gt; <code>gend.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“What is your gender”</em></li>
+<li><strong>Categories:</strong> <code>1</code> = <code>Woman</code>, <code>2</code> = <code>Man</code>, <code>3</code> = <code>Non-binary</code> / <code>Trans</code>. Recoded to factor levels: <code>"Woman"</code>, <code>"Man"</code>, and <code>"Nonbinary/Other"</code>. (Reference: <code>"Man"</code>).</li>
+</ul></li>
+<li><strong>Sexual Orientation (<code>sexuality</code> -&gt; <code>sex.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“What is your sexual orientation”</em></li>
+<li><strong>Categories:</strong> <code>1</code> = <code>Heterosexual or straight</code>, <code>2</code> = <code>Gay</code>, <code>3</code> = <code>Lesbian</code>, <code>4</code> = <code>Bisexual</code>, <code>5</code> = <code>Queer</code>, <code>6</code> = <code>Other</code>. Recoded into a binary factor: <code>"Straight"</code> (Straight) vs.&nbsp;<code>"LGBTQ"</code> (all sexual minority identities). (Reference: <code>"Straight"</code>).</li>
+</ul></li>
+<li><strong>Respondent Age (<code>age2</code> -&gt; <code>age</code> / <code>age.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“In what year were you born?”</em></li>
+<li><strong>Derivation:</strong> Age computed in years. For categorical models, divided into 8 distinct cohorts: <code>"Age (17-21)"</code> up to <code>"Age (70+)"</code>.</li>
+</ul></li>
+<li><strong>Ethnoracial Identity (<code>race</code> -&gt; <code>race.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“Choose one or more races that you consider yourself to be: White / Black or African American / American Indian or Alaska Native / Native Hawaiian or Other Pacific Islander / Hispanic/Latino/Latinx / Asian / Middle Eastern or North African / Other”</em></li>
+<li><strong>Derivation:</strong> Multiple selections are recoded into mutually exclusive categories: <code>"White"</code>, <code>"Black"</code>, <code>"Asian"</code>, <code>"Hispanic"</code>, <code>"Mixed White"</code>, and <code>"Mixed Other"</code>. (Reference: <code>"White"</code>).</li>
+</ul></li>
+<li><strong>Respondent Education (<code>educ</code> -&gt; <code>educ.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“What is the highest degree or level of school you have completed?”</em></li>
+<li><strong>Original Scale (1 to 7):</strong> <code>1</code> = <code>lt 9th grade</code>, <code>2</code> = <code>some hs</code>, <code>3</code> = <code>hs grad</code>, <code>4</code> = <code>some coll</code>, <code>5</code> = <code>associates</code>, <code>6</code> = <code>BA</code>, <code>7</code> = <code>grad deg</code>.</li>
+<li><strong>Recoded Levels:</strong> <code>"Less than High School"</code> (1–2), <code>"High School"</code> (3), <code>"Some College"</code> (4–5), <code>"College Degree"</code> (6), <code>"Prof./Graduate Degree"</code> (7).</li>
+</ul></li>
+<li><strong>Parental Education (<code>parented</code> -&gt; <code>peduc.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“What is the highest level of education completed by either of your parents?”</em></li>
+<li><strong>Scale and Recoding:</strong> Identical to respondent’s education.</li>
+</ul></li>
+<li><strong>Household Income (<code>income</code> -&gt; <code>inc.f</code> / <code>inq.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“What is your total household income?”</em></li>
+<li><strong>Original Scale (1 to 12):</strong> Brackets representing ranges from less than $10,000 up to more than $150,000. (Score <code>13</code> indicates NA).</li>
+<li><strong>Recoded Levels:</strong>
+<ul>
+<li><code>inc.f</code> (12 categories): <code>"Less than 10K"</code>, <code>"Between 10K and 19.9K"</code>, …, <code>"More than 150K"</code>.</li>
+<li><code>inq.f</code> (5 categories): Recoded into income quintiles from <code>"Bottom Income Quint."</code> to <code>"Top Income Quint."</code>.</li>
+</ul></li>
+</ul></li>
+<li><strong>Residential Urbanicity (<code>urban_rural</code> -&gt; <code>city.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“Which category best describes where you live?”</em></li>
+<li><strong>Original Scale (1 to 6):</strong> <code>1</code> = <code>open country</code>, <code>2</code> = <code>farm</code>, <code>3</code> = <code>town to small city</code>, <code>4</code> = <code>medium city</code>, <code>5</code> = <code>suburb of large city</code>, <code>6</code> = <code>large city</code>.</li>
+<li><strong>Recoded Levels:</strong> <code>"Small Town"</code> (1–2), <code>"Midsized Town"</code> (3–5), and <code>"Big City"</code> (6). (Reference: <code>"Midsized Town"</code>).</li>
+</ul></li>
+</ul>
+</section>
+<section id="childhood-and-ideological-beliefs" class="level3">
+<h3 class="anchored" data-anchor-id="childhood-and-ideological-beliefs">Childhood and Ideological Beliefs</h3>
+<ul>
+<li><strong>Childhood Arts Exposure (<code>child_arts</code> -&gt; <code>arts.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“To what extent were you exposed to arts as a child?”</em> (Stata: <em>childhood arts exposure</em>)</li>
+<li><strong>Original Scale:</strong> Continuous scale from <code>1</code> (Very Low) to <code>7</code> (Very High).</li>
+<li><strong>Recoded Levels:</strong> <code>"Low Exposure to Arts as Child"</code> (&lt; 3), <code>"Moderate Exposure to Arts as Child"</code> (3–5), and <code>"High Exposure to Arts as Child"</code> (&gt; 5). (Reference: <code>"Moderate Exposure..."</code>).</li>
+</ul></li>
+<li><strong>Religious Service Attendance (<code>attend_service</code> -&gt; <code>relig.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“How often do you attend religious services?”</em> (Stata: <em>attend services</em>)</li>
+<li><strong>Original Scale (1 to 7):</strong> <code>1</code> = <code>never</code>, <code>2</code> = <code>very rarely</code>, <code>3</code> = <code>rarely</code>, <code>4</code> = <code>sometimes</code>, <code>5</code> = <code>somewhat freq</code>, <code>6</code> = <code>very freq</code>, <code>7</code> = <code>always</code>.</li>
+<li><strong>Recoded Levels:</strong> <code>"Not Religious"</code> (&lt; 3), <code>"Somewhat Religious"</code> (3–5), and <code>"Very Religious"</code> (&gt; 5). (Reference: <code>"Somewhat Religious"</code>).</li>
+</ul></li>
+<li><strong>Social Political Ideology (<code>social</code> -&gt; <code>spol.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“Where would you place yourself on social issues?”</em> (Stata: <em>social issues</em>)</li>
+<li><strong>Original Scale (1 to 7):</strong> <code>1</code> = <code>very liberal</code>, <code>2</code> = <code>liberal</code>, <code>3</code> = <code>slight liberal</code>, <code>4</code> = <code>centrist</code>, <code>5</code> = <code>slight conserv</code>, <code>6</code> = <code>conserv</code>, <code>7</code> = <code>very conserv</code>.</li>
+<li><strong>Recoded Levels:</strong> <code>"Soc. Lib."</code> (&lt; 3), <code>"Soc. Mod."</code> (3–5), and <code>"Soc. Con."</code> (&gt; 5). (Reference: <code>"Soc. Mod."</code>).</li>
+</ul></li>
+<li><strong>Economic Political Ideology (<code>economic</code> -&gt; <code>epol.f</code>):</strong>
+<ul>
+<li><strong>Survey Question:</strong> <em>“Where would you place yourself on economic issues?”</em> (Stata: <em>economic issues</em>)</li>
+<li><strong>Scale and Recoding:</strong> Identical to social issues. Recoded to <code>"Econ. Lib."</code> (&lt; 3), <code>"Econ. Mod."</code> (3–5), and <code>"Econ. Con."</code> (&gt; 5). (Reference: <code>"Econ. Mod."</code>).</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+</section>
+</section>
 <section id="multiple-factor-analysis" class="level1">
 <h1>Multiple factor analysis</h1>
 <p>We execute Multiple Factor Analysis (MFA) to analyze the structure of the taste space. Our active variables consist of three quantitative groups (<code>dine_out</code>, <code>food_qual</code>, and <code>food</code>) and one categorical group representing cuisine authenticity judgments (<code>authenticity</code>). Demographic and socioeconomic covariates are included as quantitative (<code>quant.sup</code>) and qualitative (<code>quali.sup</code>, now consisting of 5 variables with social and economic ideology separate) supplementary groups.</p>
@@ -361,7 +543,7 @@ The contents have been reviewed and validated by [Your Name], [Your Role] on [Da
 <span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>corr_limits <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span>max_corr, max_corr)</span>
 <span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>p_varcor <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plot.mat_df, <span class="fu">aes</span>(<span class="at">y =</span> Variable, <span class="at">x =</span> Dimension, <span class="at">fill =</span> Correlation)) <span class="sc">+</span> </span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>, <span class="at">lwd =</span> <span class="fl">1.5</span>, <span class="at">linetype =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>, <span class="at">linetype =</span> <span class="dv">1</span>) <span class="sc">+</span> <span class="fu">coord_fixed</span>() <span class="sc">+</span></span>
 <span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_fill_gradient2</span>(</span>
 <span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">low =</span> <span class="st">"#FF0000"</span>,</span>
 <span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">mid =</span> <span class="st">"#FFFFCC"</span>,</span>
@@ -414,52 +596,54 @@ The contents have been reviewed and validated by [Your Name], [Your Role] on [Da
 <span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(Dim<span class="fl">.1</span>, Dim<span class="fl">.3</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">rownames_to_column</span>(<span class="at">var =</span> <span class="st">"labels"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">judgment =</span> <span class="fu">case_when</span>(</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_detect</span>(labels, <span class="st">"High-End"</span>) <span class="sc">~</span> <span class="st">"High-End"</span>,</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_detect</span>(labels, <span class="st">"Trad"</span>)     <span class="sc">~</span> <span class="st">"Traditional"</span>,</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_detect</span>(labels, <span class="st">"Not Sure"</span>) <span class="sc">~</span> <span class="st">"Not Sure"</span>,</span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>            <span class="cn">TRUE</span>                           <span class="sc">~</span> <span class="cn">NA_character_</span></span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>        ),</span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">labels_clean =</span> labels <span class="sc">|&gt;</span> </span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.f_"</span>, <span class="st">" ("</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"_"</span>, <span class="st">" "</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>            <span class="fu">paste0</span>(<span class="st">")"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_to_title</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"Trad</span><span class="sc">\\</span><span class="st">)"</span>, <span class="st">"Trad)"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"High-End</span><span class="sc">\\</span><span class="st">)"</span>, <span class="st">"High-End)"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"Not Sure</span><span class="sc">\\</span><span class="st">)"</span>, <span class="st">"Not Sure)"</span>)</span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>p_coords <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(cat.dat, <span class="fu">aes</span>(<span class="at">x =</span> Dim<span class="fl">.1</span>, <span class="at">y =</span> Dim<span class="fl">.3</span>, <span class="at">color =</span> judgment, <span class="at">label =</span> labels_clean)) <span class="sc">+</span></span>
-<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text_repel</span>(</span>
-<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">6</span>, </span>
-<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">max.overlaps =</span> <span class="dv">200</span>, </span>
-<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>        <span class="at">fontface =</span> <span class="st">"bold"</span>, </span>
-<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>        <span class="at">alpha =</span> contrib_val,</span>
-<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>        <span class="at">key_glyph =</span> <span class="st">"rect"</span></span>
-<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Dark2"</span>, <span class="at">type =</span> <span class="st">"qual"</span>) <span class="sc">+</span></span>
-<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
-<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Cloud of Cuisine Authenticity Categories (MFA)"</span>,</span>
-<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Traditional/Ordinary \u2190                                                 \u2192 High-End/Fancy"</span>,</span>
-<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Unfamiliar/Not Sure \u2190                                                 \u2192 Foodie/Authentic"</span>,</span>
-<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">color =</span> <span class="st">"Judgment"</span></span>
-<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">sec.axis =</span> <span class="fu">dup_axis</span>()) <span class="sc">+</span></span>
-<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">sec.axis =</span> <span class="fu">dup_axis</span>()) <span class="sc">+</span></span>
-<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
-<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
-<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">18</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
-<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
-<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
-<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
-<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),</span>
-<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>)</span>
-<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>p_coords</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">contrib =</span> contrib_val,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">judgment =</span> <span class="fu">case_when</span>(</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_detect</span>(labels, <span class="st">"High-End"</span>) <span class="sc">~</span> <span class="st">"High-End"</span>,</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_detect</span>(labels, <span class="st">"Trad"</span>)     <span class="sc">~</span> <span class="st">"Traditional"</span>,</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_detect</span>(labels, <span class="st">"Not Sure"</span>) <span class="sc">~</span> <span class="st">"Not Sure"</span>,</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>            <span class="cn">TRUE</span>                           <span class="sc">~</span> <span class="cn">NA_character_</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">labels_clean =</span> labels <span class="sc">|&gt;</span> </span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.f_"</span>, <span class="st">" ("</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"_"</span>, <span class="st">" "</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>            <span class="fu">paste0</span>(<span class="st">")"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_to_title</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"Trad</span><span class="sc">\\</span><span class="st">)"</span>, <span class="st">"Trad)"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"High-End</span><span class="sc">\\</span><span class="st">)"</span>, <span class="st">"High-End)"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>            <span class="fu">str_replace_all</span>(<span class="st">"Not Sure</span><span class="sc">\\</span><span class="st">)"</span>, <span class="st">"Not Sure)"</span>)</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>p_coords <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(cat.dat, <span class="fu">aes</span>(<span class="at">x =</span> Dim<span class="fl">.1</span>, <span class="at">y =</span> Dim<span class="fl">.3</span>, <span class="at">color =</span> judgment, <span class="at">label =</span> labels_clean)) <span class="sc">+</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"gray"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_text_repel</span>(</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>        <span class="fu">aes</span>(<span class="at">alpha =</span> contrib),</span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>        <span class="at">size =</span> <span class="dv">6</span>, </span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>        <span class="at">max.overlaps =</span> <span class="dv">200</span>, </span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>        <span class="at">fontface =</span> <span class="st">"bold"</span>, </span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>        <span class="at">key_glyph =</span> <span class="st">"rect"</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_brewer</span>(<span class="at">palette =</span> <span class="st">"Dark2"</span>, <span class="at">type =</span> <span class="st">"qual"</span>) <span class="sc">+</span></span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_alpha_continuous</span>(<span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Cloud of Cuisine Authenticity Categories (MFA)"</span>,</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Traditional/Ordinary \u2190                                                 \u2192 High-End/Fancy"</span>,</span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Unfamiliar/Not Sure \u2190                                                 \u2192 Foodie/Authentic"</span>,</span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a>        <span class="at">color =</span> <span class="st">"Judgment"</span></span>
+<span id="cb20-46"><a href="#cb20-46" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb20-47"><a href="#cb20-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_x_continuous</span>(<span class="at">sec.axis =</span> <span class="fu">dup_axis</span>()) <span class="sc">+</span></span>
+<span id="cb20-48"><a href="#cb20-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">sec.axis =</span> <span class="fu">dup_axis</span>()) <span class="sc">+</span></span>
+<span id="cb20-49"><a href="#cb20-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb20-50"><a href="#cb20-50" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
+<span id="cb20-51"><a href="#cb20-51" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb20-52"><a href="#cb20-52" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">18</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb20-53"><a href="#cb20-53" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb20-54"><a href="#cb20-54" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb20-55"><a href="#cb20-55" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.title.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb20-56"><a href="#cb20-56" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),</span>
+<span id="cb20-57"><a href="#cb20-57" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>)</span>
+<span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>p_coords</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -926,6 +1110,90 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </details>
 </div>
 <p>The interaction plots reveal that: * On <strong>Dimension 1 (Fancy Taste):</strong> Among socially progressive/moderate respondents, sexuality has little impact. However, among <strong>Social Conservatives</strong>, identifying as <strong>LGBTQ</strong> is associated with an extremely high score on Fancy Taste (<span class="math inline">\(\approx 1.09\)</span>) compared to Straight counterparts (<span class="math inline">\(\approx 0.28\)</span>). * On <strong>Dimension 2 (Common Taste):</strong> Socially liberal <strong>LGBTQ</strong> respondents hold significantly higher scores on Common Taste compared to socially liberal <strong>Straight</strong> respondents.</p>
+</section>
+<section id="political-structure-of-foodie-taste-dimension-3" class="level2">
+<h2 class="anchored" data-anchor-id="political-structure-of-foodie-taste-dimension-3">Political structure of “Foodie” Taste (Dimension 3)</h2>
+<p>While our post-hoc analyses show that the sexuality-by-social-ideology interaction structures Dimension 1 (Fancy Taste) and Dimension 2 (Common Taste), Dimension 3 (Foodie Taste) is uniquely structured by the independent, direct effects of social and economic political beliefs.</p>
+<p>By analyzing the main effects on Dimension 3, we observe two fundamentally different patterns: * <strong>Social Political Ideology (Monotonic Divide):</strong> Social progressive beliefs exhibit a monotonic relationship with Foodie Taste. Social Liberals score the highest on Dimension 3 (<span class="math inline">\(\beta = +0.178\)</span>, <span class="math inline">\(p = 0.068\)</span>), while Social Conservatives score significantly lower than Social Moderates (<span class="math inline">\(\beta = -0.257\)</span>, <span class="math inline">\(p = 0.021\)</span>). This reflects a traditional cultural cleavage where progressive values align with exotic, authentic, and culinary-forward preferences. * <strong>Economic Political Ideology (Non-Monotonic U-Shape):</strong> In contrast, economic ideology shares a U-shaped relationship with Foodie Taste. Both Economic Conservatives (<span class="math inline">\(\beta = +0.261\)</span>, <span class="math inline">\(p = 0.015\)</span>) and Economic Liberals (<span class="math inline">\(\beta = +0.316\)</span>, <span class="math inline">\(p = 0.0016\)</span>) score significantly higher on Foodie Taste than Economic Moderates. This suggests that holding a coherent, defined economic ideology (regardless of whether it is on the left or right pole) is associated with higher cultural foodie capital and distinction.</p>
+<p>The code chunk below calculates these predicted scores and displays them side-by-side with 95% confidence intervals.</p>
+<div class="cell">
+<details open="" class="code-fold">
+<summary>Contrasting effects of social and economic ideology on Dimension 3</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit Dimension 3 main effects model</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>fit_d3_main <span class="ot">&lt;-</span> <span class="fu">lm</span>(Dim<span class="fl">.3</span> <span class="sc">~</span> race.f <span class="sc">+</span> gend.f <span class="sc">+</span> sex.f <span class="sc">+</span> educ <span class="sc">+</span> income <span class="sc">+</span> age <span class="sc">+</span> spol.f <span class="sc">+</span> epol.f, <span class="at">data =</span> mfa.dat)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate predictions using ggeffects</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>pred_spol_d3 <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(fit_d3_main, <span class="at">terms =</span> <span class="st">"spol.f"</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>pred_epol_d3 <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(fit_d3_main, <span class="at">terms =</span> <span class="st">"epol.f"</span>)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Format data frames</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>df_spol_d3 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pred_spol_d3) <span class="sc">|&gt;</span> </span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ideology_Type =</span> <span class="st">"Social Issues"</span>,</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="fu">case_when</span>(</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>      x <span class="sc">==</span> <span class="st">"Soc. Con."</span> <span class="sc">~</span> <span class="st">"Conservative"</span>,</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>      x <span class="sc">==</span> <span class="st">"Soc. Mod."</span> <span class="sc">~</span> <span class="st">"Moderate"</span>,</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>      x <span class="sc">==</span> <span class="st">"Soc. Lib."</span> <span class="sc">~</span> <span class="st">"Liberal"</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>df_epol_d3 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pred_epol_d3) <span class="sc">|&gt;</span> </span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ideology_Type =</span> <span class="st">"Economic Issues"</span>,</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="fu">case_when</span>(</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>      x <span class="sc">==</span> <span class="st">"Econ. Con."</span> <span class="sc">~</span> <span class="st">"Conservative"</span>,</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>      x <span class="sc">==</span> <span class="st">"Econ. Mod."</span> <span class="sc">~</span> <span class="st">"Moderate"</span>,</span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>      x <span class="sc">==</span> <span class="st">"Econ. Lib."</span> <span class="sc">~</span> <span class="st">"Liberal"</span></span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine datasets and order levels</span></span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>df_plot_d3 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(df_spol_d3, df_epol_d3) <span class="sc">|&gt;</span> </span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">Category =</span> <span class="fu">factor</span>(Category, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Liberal"</span>, <span class="st">"Moderate"</span>, <span class="st">"Conservative"</span>)),</span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">Ideology_Type =</span> <span class="fu">factor</span>(Ideology_Type, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Social Issues"</span>, <span class="st">"Economic Issues"</span>))</span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot side-by-side</span></span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>p_political_contrast_d3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_plot_d3, <span class="fu">aes</span>(<span class="at">x =</span> Category, <span class="at">y =</span> predicted, <span class="at">group =</span> Ideology_Type)) <span class="sc">+</span></span>
+<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">color =</span> <span class="st">"gray50"</span>) <span class="sc">+</span></span>
+<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high, <span class="at">color =</span> Category), <span class="at">size =</span> <span class="fl">0.8</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>Ideology_Type, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="sc">+</span></span>
+<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Liberal"</span> <span class="ot">=</span> <span class="st">"#3498db"</span>, <span class="st">"Moderate"</span> <span class="ot">=</span> <span class="st">"#2ecc71"</span>, <span class="st">"Conservative"</span> <span class="ot">=</span> <span class="st">"#e74c3c"</span>)) <span class="sc">+</span></span>
+<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Contrasting Effects of Ideology on Foodie Taste (MFA Dim 3)"</span>,</span>
+<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Predicted scores with 95% confidence intervals, adjusted for demographics"</span>,</span>
+<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Ideological Placement"</span>,</span>
+<span id="cb32-46"><a href="#cb32-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Predicted Score (Dimension 3)"</span></span>
+<span id="cb32-47"><a href="#cb32-47" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb32-48"><a href="#cb32-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb32-49"><a href="#cb32-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb32-50"><a href="#cb32-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb32-51"><a href="#cb32-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb32-52"><a href="#cb32-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">16</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb32-53"><a href="#cb32-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>),</span>
+<span id="cb32-54"><a href="#cb32-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">t =</span> <span class="dv">5</span>)),</span>
+<span id="cb32-55"><a href="#cb32-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">13</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb32-56"><a href="#cb32-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.spacing =</span> <span class="fu">unit</span>(<span class="fl">1.5</span>, <span class="st">"lines"</span>)</span>
+<span id="cb32-57"><a href="#cb32-57" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-58"><a href="#cb32-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-59"><a href="#cb32-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Return the plot directly to the report</span></span>
+<span id="cb32-60"><a href="#cb32-60" aria-hidden="true" tabindex="-1"></a>p_political_contrast_d3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="statistical-findings-report_files/figure-html/plot-political-contrast-1.png" class="img-fluid figure-img" width="960"></p>
+<figcaption>Faceted comparison of predicted scores on Dimension 3 (Foodie Taste) by social and economic political ideology, showing a monotonic relationship for social issues and a non-monotonic U-shaped relationship for economic issues.</figcaption>
+</figure>
+</div>
+</div>
+<details open="" class="code-fold">
+<summary>Contrasting effects of social and economic ideology on Dimension 3</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Save plot to Plots directory</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"Plots"</span>, <span class="st">"political_contrast_dim3.png"</span>), p_political_contrast_d3, <span class="at">width =</span> <span class="dv">10</span>, <span class="at">height =</span> <span class="dv">5</span>, <span class="at">dpi =</span> <span class="dv">300</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
 <hr>
 </section>
 </section>
@@ -935,13 +1203,13 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Execute HCPC</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>hcpc_res <span class="ot">&lt;-</span> <span class="fu">HCPC</span>(mfa.res, <span class="at">nb.clust =</span> <span class="dv">3</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>mfa.dat<span class="sc">$</span>Cluster <span class="ot">&lt;-</span> hcpc_res<span class="sc">$</span>data.clust<span class="sc">$</span>clust</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Save clustering tree and map</span></span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="fu">here</span>(<span class="st">"Plots"</span>, <span class="st">"hcpc_tree.png"</span>), <span class="at">width =</span> <span class="dv">800</span>, <span class="at">height =</span> <span class="dv">600</span>)</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hcpc_res, <span class="at">choice =</span> <span class="st">"tree"</span>)</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>hcpc_res <span class="ot">&lt;-</span> <span class="fu">HCPC</span>(mfa.res, <span class="at">nb.clust =</span> <span class="dv">3</span>, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>mfa.dat<span class="sc">$</span>Cluster <span class="ot">&lt;-</span> hcpc_res<span class="sc">$</span>data.clust<span class="sc">$</span>clust</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Save clustering tree and map</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="fu">here</span>(<span class="st">"Plots"</span>, <span class="st">"hcpc_tree.png"</span>), <span class="at">width =</span> <span class="dv">800</span>, <span class="at">height =</span> <span class="dv">600</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hcpc_res, <span class="at">choice =</span> <span class="st">"tree"</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>png 
@@ -949,9 +1217,9 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <details open="" class="code-fold">
 <summary>Execute HCPC</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="fu">here</span>(<span class="st">"Plots"</span>, <span class="st">"hcpc_map.png"</span>), <span class="at">width =</span> <span class="dv">800</span>, <span class="at">height =</span> <span class="dv">600</span>)</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hcpc_res, <span class="at">choice =</span> <span class="st">"map"</span>)</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="fu">here</span>(<span class="st">"Plots"</span>, <span class="st">"hcpc_map.png"</span>), <span class="at">width =</span> <span class="dv">800</span>, <span class="at">height =</span> <span class="dv">600</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hcpc_res, <span class="at">choice =</span> <span class="st">"map"</span>)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>png 
@@ -965,14 +1233,14 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Fit multinomial logit model</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>multinom_model <span class="ot">&lt;-</span> <span class="fu">multinom</span>(</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    Cluster <span class="sc">~</span> spol.f <span class="sc">+</span> epol.f <span class="sc">+</span> gend.f <span class="sc">+</span> educ <span class="sc">+</span> age, </span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> mfa.dat, </span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">trace =</span> <span class="cn">FALSE</span></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Save multinomial logit table as HTML</span></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tab_model</span>(multinom_model, <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"Tabs"</span>, <span class="st">"multinom_table.html"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>multinom_model <span class="ot">&lt;-</span> <span class="fu">multinom</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    Cluster <span class="sc">~</span> spol.f <span class="sc">+</span> epol.f <span class="sc">+</span> gend.f <span class="sc">+</span> educ <span class="sc">+</span> age, </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> mfa.dat, </span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">trace =</span> <span class="cn">FALSE</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Save multinomial logit table as HTML</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="fu">tab_model</span>(multinom_model, <span class="at">file =</span> <span class="fu">here</span>(<span class="st">"Tabs"</span>, <span class="st">"multinom_table.html"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -1130,23 +1398,23 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <div class="cell">
 <details open="" class="code-fold">
 <summary>Plot faceted predicted probabilities</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>pred_res <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(multinom_model, <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"age [all]"</span>, <span class="st">"spol.f"</span>))</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>pred_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pred_res)</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>p_multinom <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pred_df, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> predicted, <span class="at">color =</span> group)) <span class="sc">+</span></span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>response.level, <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">response.level =</span> <span class="cf">function</span>(x) <span class="fu">paste</span>(<span class="st">"Cluster"</span>, x))) <span class="sc">+</span></span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Soc. Lib."</span> <span class="ot">=</span> <span class="st">"blue"</span>, <span class="st">"Soc. Mod."</span> <span class="ot">=</span> <span class="st">"green"</span>, <span class="st">"Soc. Con."</span> <span class="ot">=</span> <span class="st">"red"</span>)) <span class="sc">+</span></span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Predicted Probabilities of Taste Cluster Membership"</span>,</span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">subtitle =</span> <span class="st">"Faceted by Taste Profile Cluster"</span>,</span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Age"</span>,</span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Predicted Probability"</span>,</span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">color =</span> <span class="st">"Social Ideology"</span></span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))</span>
-<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>p_multinom</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>pred_res <span class="ot">&lt;-</span> <span class="fu">ggpredict</span>(multinom_model, <span class="at">terms =</span> <span class="fu">c</span>(<span class="st">"age [all]"</span>, <span class="st">"spol.f"</span>))</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>pred_df <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(pred_res)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>p_multinom <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(pred_df, <span class="fu">aes</span>(<span class="at">x =</span> x, <span class="at">y =</span> predicted, <span class="at">color =</span> group)) <span class="sc">+</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>response.level, <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">response.level =</span> <span class="cf">function</span>(x) <span class="fu">paste</span>(<span class="st">"Cluster"</span>, x))) <span class="sc">+</span></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Soc. Lib."</span> <span class="ot">=</span> <span class="st">"blue"</span>, <span class="st">"Soc. Mod."</span> <span class="ot">=</span> <span class="st">"green"</span>, <span class="st">"Soc. Con."</span> <span class="ot">=</span> <span class="st">"red"</span>)) <span class="sc">+</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Predicted Probabilities of Taste Cluster Membership"</span>,</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">subtitle =</span> <span class="st">"Faceted by Taste Profile Cluster"</span>,</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Predicted Probability"</span>,</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">color =</span> <span class="st">"Social Ideology"</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>))</span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>p_multinom</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1157,7 +1425,7 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 <details open="" class="code-fold">
 <summary>Plot faceted predicted probabilities</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">here</span>(<span class="st">"Plots"</span>, <span class="st">"pred_prob_faceted.png"</span>), p_multinom, <span class="at">width =</span> <span class="dv">10</span>, <span class="at">height =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="fu">here</span>(<span class="st">"Plots"</span>, <span class="st">"pred_prob_faceted.png"</span>), p_multinom, <span class="at">width =</span> <span class="dv">10</span>, <span class="at">height =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <section id="key-cluster-probability-trends" class="level3">

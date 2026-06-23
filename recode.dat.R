@@ -122,10 +122,10 @@ recode.dat <- function() {
         epol.f, relig.f, inc.f, japanese.f:lebanese.f), factor)) |>
     mutate(gend.f = factor(gender, labels = c("Woman", "Man", "Nonbinary/Other"))) |> 
     mutate(sex.f = factor(sexuality, labels = c("Straight", "LGBTQ"))) |> 
-    rowwise() |> 
-        mutate(var.photo = var(c_across(landscape:snake))) |> 
-    ungroup() |> 
-    mutate(across(landscape:snake, ~factor(., labels = c("Be", "In", "Me", "Ug")))) |>
+    mutate(var.photo = apply(across(landscape:snake), 1, var, na.rm = TRUE)) |> 
+
+
+    mutate(across(landscape:snake, ~factor(., levels = 1:4, labels = c("Be", "In", "Me", "Ug")))) |>
     mutate(workarts = if_else(field !=14 | is.na(field), 0, 1)) |> 
     rename(artpol_y = bestartpolitical, 
            artmoral_y = bestartmoral,

@@ -86,6 +86,7 @@ date: "`r Sys.Date()`"
         dplyr::select(Dim.1, Dim.3) |> 
         tibble::rownames_to_column(var = "labels") |> 
         mutate(
+            contrib = contrib_val,
             judgment = case_when(
                 str_detect(labels, "High-End") ~ "High-End",
                 str_detect(labels, "Trad")     ~ "Traditional",
@@ -106,13 +107,14 @@ date: "`r Sys.Date()`"
         geom_vline(xintercept = 0, color = "gray", linewidth = 1) +
         geom_hline(yintercept = 0, color = "gray", linewidth = 1) +
         geom_text_repel(
+            aes(alpha = contrib),
             size = 6, 
             max.overlaps = 200, 
             fontface = "bold", 
-            alpha = contrib_val,
             key_glyph = "rect"
         ) +
         scale_color_brewer(palette = "Dark2", type = "qual") +
+        scale_alpha_continuous(guide = "none") +
         labs(
             title = "Cloud of Cuisine Authenticity Categories (MFA)",
             x = "Traditional/Ordinary \u2190                                                 \u2192 High-End/Fancy",
@@ -151,7 +153,7 @@ date: "`r Sys.Date()`"
     corr_limits <- c(-max_corr, max_corr)
 
     p_varcor <- ggplot(plot.mat_df, aes(y = Variable, x = Dimension, fill = Correlation)) + 
-        geom_tile(color = "white", lwd = 1.5, linetype = 1) + coord_fixed() +
+        geom_tile(color = "white", linewidth = 1.5, linetype = 1) + coord_fixed() +
         scale_fill_gradient2(
                     low = "#FF0000",
                     mid = "#FFFFCC",

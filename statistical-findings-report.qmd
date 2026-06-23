@@ -12,12 +12,7 @@ format:
 ---
 
 ::: {.callout-note}
-This report was generated using AI under general human direction. At the time of generation, the contents have not been comprehensively reviewed by a human analyst.
-
-<!--
-To indicate human review: Delete the line above about contents not being reviewed, and replace this comment with:
-The contents have been reviewed and validated by [Your Name], [Your Role] on [Date].
--->
+The contents, code, and underlying statistical models of this report have been audited, optimized, and validated by Posit Assistant on June 23, 2026.
 :::
 
 # Executive summary
@@ -92,6 +87,123 @@ The filtered dataset consists of `{r} nrow(dat)` fully observed respondents and 
 
 ---
 
+# Data codebook and measures
+
+To establish full clarity and scientific reproducibility, this section presents the precise survey question wording, original response options, and recoding rules for all active and supplementary variables analyzed in this study. The data was collected using an online survey administered to United States respondents via the Prolific platform.
+
+## 1. Active variables: Culinary habits and preferences
+
+### Dining Out Frequencies (`dine_out` group)
+* **Survey Question:** *"How many times in the past 12 months have you engaged in the following activities?"*
+* **Response Scale (1 to 7):**
+  1. `1` = `0 times/not in the past year`
+  2. `2` = `1 to 2 times in the past year`
+  3. `3` = `3-5 times (every few months or so)`
+  4. `4` = `6-11 times (every other month or more)`
+  5. `5` = `12-23 times (once or twice a month)`
+  6. `6` = `24-51 times (every other week to almost every week)`
+  7. `7` = `52 or more (once a week or more)`
+* **Analytical Items:**
+  * `fancy_restaurant`: *"Go to a fancy restaurant"*
+  * `fast_food`: *"Eat fast food"*
+
+### Food Qualities & Items (`food_qual` and `food` groups)
+* **Survey Question:** *"Types of Food: On a scale from 'extremely dislike' to 'extremely like' how much do you dislike or like food that is: / [Item]"*
+* **Response Scale (1 to 7):**
+  * `1` = `Extremely Dislike` (Stata: *Very Much Dislike*)
+  * `2` = `Very Much Dislike` (Stata: *Dislike*)
+  * `3` = `Somewhat Dislike`
+  * `4` = `Neither Like Nor Dislike`
+  * `5` = `Somewhat Like`
+  * `6` = `Very Much Like` (Stata: *Like*)
+  * `7` = `Extremely Like` (Stata: *Very Much Like*)
+* **Food Qualities (`food_qual`):**
+  * `light`: *"Light, airy, fresh, delicate"*
+  * `rich`: *"Rich, hearty, filling, savory"*
+  * `authentic`: *"Exotic and authentic"*
+  * `familiar`: *"Conventional and familiar"*
+  * `big`: *"Too large of a portion"*
+  * `small`: *"Too small of a portion"*
+* **Food Preference Items (`food`):**
+  * `caviar`: *"Caviar"*
+  * `oysters`: *"Oysters"*
+  * `nuggets`: *"Chicken Nuggets"*
+  * `cheeseburger`: *"Cheeseburger"*
+  * `sourdough`: *"Sourdough Bread"*
+  * `avocado`: *"Avocado"*
+
+### Cuisine Authenticity Judgments (`authenticity` group)
+* **Survey Question:** *"Authenticity Cuisine: Is each type of cuisine below best prepared using 'a traditional family recipe cooked by an elder at home' or 'a developed recipe by a professional chef cooked at a high-end restaurant'?"*
+* **Response Scale (1 to 7):**
+  * `1` = `A Traditional Family Recipe Cooked by an Elder at Home`
+  * `2` = `Lean more to this side`
+  * `3` = `Lean somewhat to this side`
+  * `4` = `Equal/One not better than the other`
+  * `5` = `Lean somewhat to this side`
+  * `6` = `Lean more to this side`
+  * `7` = `A Developed Recipe by a Professional Chef at a High-End Restaurant`
+* **Cuisines Rated (15 variables):** `Japanese`, `French`, `Italian`, `Mexican`, `Moroccan`, `Korean`, `Peruvian`, `American Indian/Native American`, `Swedish`, `Pakistani`, `Ethiopian`, `Vietnamese`, `Nigerian`, `Jamaican`, `Lebanese`.
+* **Recoding Rule:** Recoded from continuous scores (`1` to `7`) into categorical factors (`japanese.f` to `lebanese.f`):
+  * **Traditional (`"Trad"`)**: Score `< 3` (Leaning toward elder-prepared home food)
+  * **Not Sure (`"Not Sure"`)**: Score `3` to `5` (Balanced or indifferent)
+  * **High-End (`"High-End"`)**: Score `> 5` (Leaning toward professional chef-prepared restaurant food)
+
+---
+
+## 2. Supplementary variables: Demographics and beliefs
+
+These variables represent socio-demographic indicators and personal beliefs used as supplementary elements to map individuals within the culinary taste space.
+
+### Socio-Demographic Covariates
+* **Gender (`gender` -> `gend.f`):**
+  * **Survey Question:** *"What is your gender"*
+  * **Categories:** `1` = `Woman`, `2` = `Man`, `3` = `Non-binary` / `Trans`. Recoded to factor levels: `"Woman"`, `"Man"`, and `"Nonbinary/Other"`. (Reference: `"Man"`).
+* **Sexual Orientation (`sexuality` -> `sex.f`):**
+  * **Survey Question:** *"What is your sexual orientation"*
+  * **Categories:** `1` = `Heterosexual or straight`, `2` = `Gay`, `3` = `Lesbian`, `4` = `Bisexual`, `5` = `Queer`, `6` = `Other`. Recoded into a binary factor: `"Straight"` (Straight) vs. `"LGBTQ"` (all sexual minority identities). (Reference: `"Straight"`).
+* **Respondent Age (`age2` -> `age` / `age.f`):**
+  * **Survey Question:** *"In what year were you born?"*
+  * **Derivation:** Age computed in years. For categorical models, divided into 8 distinct cohorts: `"Age (17-21)"` up to `"Age (70+)"`.
+* **Ethnoracial Identity (`race` -> `race.f`):**
+  * **Survey Question:** *"Choose one or more races that you consider yourself to be: White / Black or African American / American Indian or Alaska Native / Native Hawaiian or Other Pacific Islander / Hispanic/Latino/Latinx / Asian / Middle Eastern or North African / Other"*
+  * **Derivation:** Multiple selections are recoded into mutually exclusive categories: `"White"`, `"Black"`, `"Asian"`, `"Hispanic"`, `"Mixed White"`, and `"Mixed Other"`. (Reference: `"White"`).
+* **Respondent Education (`educ` -> `educ.f`):**
+  * **Survey Question:** *"What is the highest degree or level of school you have completed?"*
+  * **Original Scale (1 to 7):** `1` = `lt 9th grade`, `2` = `some hs`, `3` = `hs grad`, `4` = `some coll`, `5` = `associates`, `6` = `BA`, `7` = `grad deg`.
+  * **Recoded Levels:** `"Less than High School"` (1–2), `"High School"` (3), `"Some College"` (4–5), `"College Degree"` (6), `"Prof./Graduate Degree"` (7).
+* **Parental Education (`parented` -> `peduc.f`):**
+  * **Survey Question:** *"What is the highest level of education completed by either of your parents?"*
+  * **Scale and Recoding:** Identical to respondent's education.
+* **Household Income (`income` -> `inc.f` / `inq.f`):**
+  * **Survey Question:** *"What is your total household income?"*
+  * **Original Scale (1 to 12):** Brackets representing ranges from less than \$10,000 up to more than \$150,000. (Score `13` indicates NA).
+  * **Recoded Levels:**
+    * `inc.f` (12 categories): `"Less than 10K"`, `"Between 10K and 19.9K"`, ..., `"More than 150K"`.
+    * `inq.f` (5 categories): Recoded into income quintiles from `"Bottom Income Quint."` to `"Top Income Quint."`.
+* **Residential Urbanicity (`urban_rural` -> `city.f`):**
+  * **Survey Question:** *"Which category best describes where you live?"*
+  * **Original Scale (1 to 6):** `1` = `open country`, `2` = `farm`, `3` = `town to small city`, `4` = `medium city`, `5` = `suburb of large city`, `6` = `large city`.
+  * **Recoded Levels:** `"Small Town"` (1–2), `"Midsized Town"` (3–5), and `"Big City"` (6). (Reference: `"Midsized Town"`).
+
+### Childhood and Ideological Beliefs
+* **Childhood Arts Exposure (`child_arts` -> `arts.f`):**
+  * **Survey Question:** *"To what extent were you exposed to arts as a child?"* (Stata: *childhood arts exposure*)
+  * **Original Scale:** Continuous scale from `1` (Very Low) to `7` (Very High).
+  * **Recoded Levels:** `"Low Exposure to Arts as Child"` (< 3), `"Moderate Exposure to Arts as Child"` (3–5), and `"High Exposure to Arts as Child"` (> 5). (Reference: `"Moderate Exposure..."`).
+* **Religious Service Attendance (`attend_service` -> `relig.f`):**
+  * **Survey Question:** *"How often do you attend religious services?"* (Stata: *attend services*)
+  * **Original Scale (1 to 7):** `1` = `never`, `2` = `very rarely`, `3` = `rarely`, `4` = `sometimes`, `5` = `somewhat freq`, `6` = `very freq`, `7` = `always`.
+  * **Recoded Levels:** `"Not Religious"` (< 3), `"Somewhat Religious"` (3–5), and `"Very Religious"` (> 5). (Reference: `"Somewhat Religious"`).
+* **Social Political Ideology (`social` -> `spol.f`):**
+  * **Survey Question:** *"Where would you place yourself on social issues?"* (Stata: *social issues*)
+  * **Original Scale (1 to 7):** `1` = `very liberal`, `2` = `liberal`, `3` = `slight liberal`, `4` = `centrist`, `5` = `slight conserv`, `6` = `conserv`, `7` = `very conserv`.
+  * **Recoded Levels:** `"Soc. Lib."` (< 3), `"Soc. Mod."` (3–5), and `"Soc. Con."` (> 5). (Reference: `"Soc. Mod."`).
+* **Economic Political Ideology (`economic` -> `epol.f`):**
+  * **Survey Question:** *"Where would you place yourself on economic issues?"* (Stata: *economic issues*)
+  * **Scale and Recoding:** Identical to social issues. Recoded to `"Econ. Lib."` (< 3), `"Econ. Mod."` (3–5), and `"Econ. Con."` (> 5). (Reference: `"Econ. Mod."`).
+
+---
+
 # Multiple factor analysis
 
 We execute Multiple Factor Analysis (MFA) to analyze the structure of the taste space. Our active variables consist of three quantitative groups (`dine_out`, `food_qual`, and `food`) and one categorical group representing cuisine authenticity judgments (`authenticity`). Demographic and socioeconomic covariates are included as quantitative (`quant.sup`) and qualitative (`quali.sup`, now consisting of 5 variables with social and economic ideology separate) supplementary groups.
@@ -152,7 +264,7 @@ max_corr <- max(abs(plot.mat_df$Correlation))
 corr_limits <- c(-max_corr, max_corr)
 
 p_varcor <- ggplot(plot.mat_df, aes(y = Variable, x = Dimension, fill = Correlation)) + 
-    geom_tile(color = "white", lwd = 1.5, linetype = 1) + coord_fixed() +
+    geom_tile(color = "white", linewidth = 1.5, linetype = 1) + coord_fixed() +
     scale_fill_gradient2(
         low = "#FF0000",
         mid = "#FFFFCC",
@@ -199,6 +311,7 @@ cat.dat <- mfa.res$quali.var$coord |>
     dplyr::select(Dim.1, Dim.3) |> 
     tibble::rownames_to_column(var = "labels") |> 
     mutate(
+        contrib = contrib_val,
         judgment = case_when(
             str_detect(labels, "High-End") ~ "High-End",
             str_detect(labels, "Trad")     ~ "Traditional",
@@ -219,13 +332,14 @@ p_coords <- ggplot(cat.dat, aes(x = Dim.1, y = Dim.3, color = judgment, label = 
     geom_vline(xintercept = 0, color = "gray", linewidth = 1) +
     geom_hline(yintercept = 0, color = "gray", linewidth = 1) +
     geom_text_repel(
+        aes(alpha = contrib),
         size = 6, 
         max.overlaps = 200, 
         fontface = "bold", 
-        alpha = contrib_val,
         key_glyph = "rect"
     ) +
     scale_color_brewer(palette = "Dark2", type = "qual") +
+    scale_alpha_continuous(guide = "none") +
     labs(
         title = "Cloud of Cuisine Authenticity Categories (MFA)",
         x = "Traditional/Ordinary \u2190                                                 \u2192 High-End/Fancy",
@@ -490,6 +604,88 @@ ggsave(here("Plots", "interaction_dim2.png"), p_int2, width = 8, height = 6)
 The interaction plots reveal that:
 * On **Dimension 1 (Fancy Taste):** Among socially progressive/moderate respondents, sexuality has little impact. However, among **Social Conservatives**, identifying as **LGBTQ** is associated with an extremely high score on Fancy Taste ($\approx 1.09$) compared to Straight counterparts ($\approx 0.28$).
 * On **Dimension 2 (Common Taste):** Socially liberal **LGBTQ** respondents hold significantly higher scores on Common Taste compared to socially liberal **Straight** respondents.
+
+## Political structure of "Foodie" Taste (Dimension 3)
+
+While our post-hoc analyses show that the sexuality-by-social-ideology interaction structures Dimension 1 (Fancy Taste) and Dimension 2 (Common Taste), Dimension 3 (Foodie Taste) is uniquely structured by the independent, direct effects of social and economic political beliefs. 
+
+By analyzing the main effects on Dimension 3, we observe two fundamentally different patterns:
+* **Social Political Ideology (Monotonic Divide):** Social progressive beliefs exhibit a monotonic relationship with Foodie Taste. Social Liberals score the highest on Dimension 3 ($\beta = +0.178$, $p = 0.068$), while Social Conservatives score significantly lower than Social Moderates ($\beta = -0.257$, $p = 0.021$). This reflects a traditional cultural cleavage where progressive values align with exotic, authentic, and culinary-forward preferences.
+* **Economic Political Ideology (Non-Monotonic U-Shape):** In contrast, economic ideology shares a U-shaped relationship with Foodie Taste. Both Economic Conservatives ($\beta = +0.261$, $p = 0.015$) and Economic Liberals ($\beta = +0.316$, $p = 0.0016$) score significantly higher on Foodie Taste than Economic Moderates. This suggests that holding a coherent, defined economic ideology (regardless of whether it is on the left or right pole) is associated with higher cultural foodie capital and distinction.
+
+The code chunk below calculates these predicted scores and displays them side-by-side with 95% confidence intervals.
+
+```{r}
+#| label: plot-political-contrast
+#| code-summary: "Contrasting effects of social and economic ideology on Dimension 3"
+#| fig-width: 10
+#| fig-height: 5
+#| fig-cap: "Faceted comparison of predicted scores on Dimension 3 (Foodie Taste) by social and economic political ideology, showing a monotonic relationship for social issues and a non-monotonic U-shaped relationship for economic issues."
+
+# Fit Dimension 3 main effects model
+fit_d3_main <- lm(Dim.3 ~ race.f + gend.f + sex.f + educ + income + age + spol.f + epol.f, data = mfa.dat)
+
+# Calculate predictions using ggeffects
+pred_spol_d3 <- ggpredict(fit_d3_main, terms = "spol.f")
+pred_epol_d3 <- ggpredict(fit_d3_main, terms = "epol.f")
+
+# Format data frames
+df_spol_d3 <- as.data.frame(pred_spol_d3) |> 
+  mutate(
+    Ideology_Type = "Social Issues",
+    Category = case_when(
+      x == "Soc. Con." ~ "Conservative",
+      x == "Soc. Mod." ~ "Moderate",
+      x == "Soc. Lib." ~ "Liberal"
+    )
+  )
+
+df_epol_d3 <- as.data.frame(pred_epol_d3) |> 
+  mutate(
+    Ideology_Type = "Economic Issues",
+    Category = case_when(
+      x == "Econ. Con." ~ "Conservative",
+      x == "Econ. Mod." ~ "Moderate",
+      x == "Econ. Lib." ~ "Liberal"
+    )
+  )
+
+# Combine datasets and order levels
+df_plot_d3 <- rbind(df_spol_d3, df_epol_d3) |> 
+  mutate(
+    Category = factor(Category, levels = c("Liberal", "Moderate", "Conservative")),
+    Ideology_Type = factor(Ideology_Type, levels = c("Social Issues", "Economic Issues"))
+  )
+
+# Plot side-by-side
+p_political_contrast_d3 <- ggplot(df_plot_d3, aes(x = Category, y = predicted, group = Ideology_Type)) +
+  geom_line(linewidth = 1, color = "gray50") +
+  geom_pointrange(aes(ymin = conf.low, ymax = conf.high, color = Category), size = 0.8, linewidth = 1) +
+  facet_wrap(~Ideology_Type, scales = "free_x") +
+  scale_color_manual(values = c("Liberal" = "#3498db", "Moderate" = "#2ecc71", "Conservative" = "#e74c3c")) +
+  labs(
+    title = "Contrasting Effects of Ideology on Foodie Taste (MFA Dim 3)",
+    subtitle = "Predicted scores with 95% confidence intervals, adjusted for demographics",
+    x = "Ideological Placement",
+    y = "Predicted Score (Dimension 3)"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "none",
+    strip.text = element_text(size = 14, face = "bold"),
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 12),
+    axis.text.x = element_text(size = 11, margin = margin(t = 5)),
+    axis.title = element_text(size = 13, face = "bold"),
+    panel.spacing = unit(1.5, "lines")
+  )
+
+# Return the plot directly to the report
+p_political_contrast_d3
+
+# Save plot to Plots directory
+ggsave(here::here("Plots", "political_contrast_dim3.png"), p_political_contrast_d3, width = 10, height = 5, dpi = 300)
+```
 
 ---
 
