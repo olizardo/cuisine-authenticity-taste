@@ -18,7 +18,6 @@
     library(factoextra)
     library(FactoMineR)
     library(ggrepel)
-    library(patchwork)
     library(stringr)
     library(corrplot)
     conflicts_prefer(dplyr::filter)
@@ -30,18 +29,20 @@
     source(here("recode.dat.R"))
     dat <- recode.dat() |> 
         select(
-            fancy_restaurant:fast_food,
-            light:avocado, 
+            # dine_out (2 variables)
+            fancy_restaurant, fast_food,
+            # food_qual (6 variables)
+            light, rich, authentic, familiar, big, small,
+            # food (6 variables)
+            caviar, oysters, nuggets, cheeseburger, sourdough, avocado,
+            # authenticity (15 variables)
             japanese.f:lebanese.f,
-            -ends_with("count"),
-            c(age, income, educ, peduc, arts, city, relig), 
-            c(race.f, sex.f, gend.f, pol.f)
-            ) |> 
-        na.omit() |> 
-        relocate(authentic, .before = caviar) |> 
-        relocate(familiar, .before = caviar) |> 
-        relocate(big, .before = caviar) |> 
-        relocate(small, .before = caviar) 
+            # quant.sup (7 variables)
+            age, income, educ, peduc, arts, city, relig,
+            # quali.sup (4 variables)
+            race.f, sex.f, gend.f, pol.f
+        ) |> 
+        na.omit()
     names(dat)
 ```
 
@@ -59,11 +60,8 @@
 ```{r}
     cat.dat <- mfa.res$quali.var$coord |> 
         data.frame() |> 
-        select(c(1,3))
-    names(cat.dat) <- c("Dim.1", "Dim.2")
-    contrib <- rowSums(cat.dat)
-    contrib <- contrib/max(contrib)
-    p <- ggplot(cat.dat, aes(x = Dim.1, y = Dim.2, label = rownames(cat.dat)))
+        select(Dim.1, Dim.3)
+    p <- ggplot(cat.dat, aes(x = Dim.1, y = Dim.3, label = rownames(cat.dat)))
     p <- p + geom_vline(xintercept = 0, color = "gray", linewidth = 1)
     p <- p + geom_hline(yintercept = 0, color = "gray", linewidth = 1)
     p <- p + geom_text_repel(
@@ -86,25 +84,24 @@
 
 ```{r}
     plot.mat <- get_mfa_var(mfa.res)$cor
-    plot.mat <- plot.mat %>%
-        as_tibble() |> 
+    plot.mat_df <- plot.mat |> 
+        as.data.frame() |> 
+        tibble::rownames_to_column(var = "Variable") |> 
         pivot_longer(
-            cols = colnames(plot.mat), # Columns to gather
-            names_to = "Dimension",     # New column for original column names
-            values_to = "Correlation"          # New column for the values
+            cols = -Variable,
+            names_to = "Dimension",
+            values_to = "Correlation"
         ) |> 
-        mutate(Variable = rep(rownames(plot.mat), each = 5)) |> 
-        mutate(Variable = factor(Variable, levels = rownames(plot.mat)))  #|> 
-        #filter(Dimension != "Dim.4" & Dimension != "Dim.5")
+        mutate(Variable = factor(Variable, levels = rownames(plot.mat)))
     a <- 0.75
     b <- -0.62
-    ggplot(plot.mat, aes(y = Variable, x = Dimension, fill = Correlation)) + 
+    ggplot(plot.mat_df, aes(y = Variable, x = Dimension, fill = Correlation)) + 
         geom_tile(color = "white", lwd = 2, linetype = 1) + coord_fixed() +
         scale_fill_gradient2(
                     low = "darkred",
                     mid = "#FFFFCC",
                     high = "darkblue",
-                    midpoint = 0, limit = c(a,b)) +
+                    midpoint = 0, limits = c(b, a)) +
         geom_text(aes(label = sprintf("%.2f", Correlation)), 
                     vjust = 0.6, 
                     fontface = "bold", 
@@ -128,18 +125,133 @@
     f1 <- as.formula(paste("Dim.1 ~", paste(spec1, collapse = " + ")))
     f2 <- as.formula(paste("Dim.2 ~", paste(spec1, collapse = " + ")))
     f3 <- as.formula(paste("Dim.3 ~", paste(spec1, collapse = " + ")))
-    m1 <- glm(f1, family = "gaussian", data = mfa.dat)
-    m2 <- glm(f2, family = "gaussian", data = mfa.dat)
-    m3 <- glm(f3, family = "gaussian", data = mfa.dat)
+    m1 <- lm(f1, data = mfa.dat)
+    m2 <- lm(f2, data = mfa.dat)
+    m3 <- lm(f3, data = mfa.dat)
     tab_model(m1, m2, m3,
             file = here("Tabs", "pca-reg-tab1.html"), 
             dv.labels = c("Fancy Taste <br> (Dim. 1)", 
                           "Common Taste <br> (Dim. 2)",
-                          "Foodie Taste <br> (Dim. 1)"
+                          "Foodie Taste <br> (Dim. 3)"
                         ), 
             CSS = list(css.table = 'font-size: 12px;', css.td = 'border-bottom: 0px;'), 
             show.ci = FALSE,  show.se = TRUE, collapse.se = TRUE, p.style = "numeric_stars", show.std = "std2", show.est = FALSE, digits = 3,
             pred.labels = ind.vars,
-            title = "Table 1. Coefficient estimates of generalized linear models predicting scores on the first three MFA dimensions."
+            title = "Table 1. Coefficient estimates of ordinary least squares linear models predicting scores on the first three MFA dimensions."
             )
+```
+
+## Multivariate Analysis of Variance (MANOVA)
+Here we test whether there are statistically significant differences in the multivariate centroids of the first three MFA dimensions across key demographic groups (race, gender, and political ideology) simultaneously.
+
+```{r MANOVA}
+    # Fit MANOVA model
+    manova_model <- manova(
+        cbind(Dim.1, Dim.2, Dim.3) ~ race.f + gend.f + pol.f, 
+        data = mfa.dat
+    )
+    
+    # Multivariate test results (Pillai's Trace is robust to assumption violations)
+    print(summary(manova_model, test = "Pillai"))
+    
+    # Univariate follow-up ANOVAs
+    print(summary.aov(manova_model))
+```
+
+## Linear Discriminant Analysis (LDA)
+Having found that political ideology (`pol.f`) is a strong predictor of tastes in both regression and MANOVA, we use Linear Discriminant Analysis (LDA) to identify how the continuous taste dimensions (`Dim.1`, `Dim.2`, `Dim.3`) best discriminate between Liberals, Moderates, and Conservatives.
+
+```{r LDA}
+    library(MASS)
+    
+    # Fit the LDA model
+    lda_model <- lda(
+        pol.f ~ Dim.1 + Dim.2 + Dim.3, 
+        data = mfa.dat
+    )
+    
+    # Print the model results
+    print(lda_model)
+    
+    # Predict discriminant scores
+    lda_pred <- predict(lda_model)
+    
+    # Create an LDA score dataframe for plotting
+    lda_plot_dat <- mfa.dat |> 
+        mutate(
+            LD1 = lda_pred$x[, 1],
+            LD2 = lda_pred$x[, 2],
+            predicted_pol = lda_pred$class
+        )
+    
+    # Plot discriminant space
+    ggplot(lda_plot_dat, aes(x = LD1, y = LD2, color = pol.f)) +
+        geom_point(alpha = 0.4, size = 1.5) +
+        stat_ellipse(linewidth = 1) +
+        scale_color_manual(values = c("Liberal" = "blue", "Moderate" = "green", "Conservative" = "red")) +
+        labs(
+            title = "Linear Discriminant Analysis of Tastes by Political Ideology",
+            x = "Linear Discriminant 1 (LD1)",
+            y = "Linear Discriminant 2 (LD2)",
+            color = "Ideology"
+        ) +
+        theme_minimal()
+```
+
+## Hierarchical Clustering on Principal Components (HCPC)
+To discover distinct "taste profiles" or "food consumer subcultures" within the sample, we perform Hierarchical Clustering on Principal Components (HCPC) on our MFA individual coordinates.
+
+```{r HCPC}
+    # Run HCPC clustering (using 3 clusters)
+    hcpc_res <- HCPC(mfa.res, nb.clust = 3, graph = FALSE)
+    
+    # Extract cluster membership back into our main dataset
+    mfa.dat$Cluster <- hcpc_res$data.clust$clust
+    
+    # Visualize the hierarchical tree of clusters
+    plot(hcpc_res, choice = "tree", main = "Hierarchical Clustering Tree")
+    
+    # Visualize the individuals on the principal component map colored by cluster
+    plot(hcpc_res, choice = "map", main = "Individual Factor Map by Cluster")
+```
+
+### Profiling the Clusters using Multinomial Logit Analysis
+To understand how socioeconomic, demographic, and ideological variables predict membership in these three taste clusters, we fit a Multinomial Logit Model predicting cluster membership.
+
+To facilitate pattern detection and avoid visual clutter, we compute the predicted probabilities of being in each cluster across the life course (age) for different political ideologies, and present them in faceted plots for each of the clusters.
+
+```{r Multinomial Logit}
+    library(nnet)
+    library(ggeffects)
+    
+    # Fit the Multinomial Logit Model
+    multinom_model <- multinom(
+        Cluster ~ pol.f + gend.f + educ + age, 
+        data = mfa.dat, 
+        trace = FALSE
+    )
+    
+    # Print the model coefficients as Relative Risk Ratios (Exponentiated Coefficients)
+    print(exp(coef(multinom_model)))
+    
+    # Calculate predicted probabilities across age and political ideology
+    pred_res <- ggpredict(multinom_model, terms = c("age [all]", "pol.f"))
+    pred_df <- as.data.frame(pred_res)
+    
+    # Plot predicted probabilities faceted by cluster to reduce visual clutter
+    ggplot(pred_df, aes(x = x, y = predicted, color = group)) +
+        geom_line(linewidth = 1.2) +
+        facet_wrap(~response.level, labeller = labeller(response.level = function(x) paste("Cluster", x))) +
+        scale_color_manual(values = c("Liberal" = "blue", "Moderate" = "green", "Conservative" = "red")) +
+        labs(
+            title = "Predicted Probabilities of Cluster Membership by Age and Political Ideology",
+            x = "Age",
+            y = "Predicted Probability",
+            color = "Political Ideology"
+        ) +
+        theme_minimal() +
+        theme(text = element_text(size = 14))
+    
+    # Save the faceted probability plot
+    save_plot(here("Plots", "pred_prob_faceted.png"), height = 15, width = 25)
 ```
