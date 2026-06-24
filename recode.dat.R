@@ -78,6 +78,7 @@ recode.dat <- function() {
             child_arts > 5 ~ "High Exposure to Arts as Child"
         )
     ) |> 
+    mutate(poli = (social + economic) / 2) |> 
     mutate(pol.f = 
         case_when(
             poli < 2.5 ~ "Liberal",
