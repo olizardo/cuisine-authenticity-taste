@@ -42,161 +42,121 @@ date: "`r Sys.Date()`"
             # food (6 variables)
             caviar, oysters, nuggets, cheeseburger, sourdough, avocado,
             # authenticity (15 variables)
-            japanese.f:lebanese.f,
+            japanese:lebanese,
             # quant.sup (7 variables)
             age, income, educ, peduc, arts, city, relig,
-            # quali.sup (5 variables)
-            race.f, sex.f, gend.f, spol.f, epol.f
+            # quali.sup (12 variables)
+            race.f, sex.f, gend.f, spol.f, epol.f, educ.f, arts.f, inc.f, age.f, peduc.f, city.f, relig.f
         ) |> 
         na.omit()
     names(dat)
 ```
 
-# Multiple Factor Analysis
-```{r Multiple Factor Analysis}
-    mfa.res <- MFA(dat, 
-        group = c(2, 6, 6, 15, 7, 5), 
-        type = c("c", "c", "c", "n", "c", "n"),
-        name.group = c("dine_out", "food_qual", "food", "authenticity", "quant.sup", "quali.sup"), 
-        graph = FALSE,
-        num.group.sup = (5:6)
+# Principal Component Analysis
+```{r Principal Component Analysis}
+    mfa.res <- PCA(dat, 
+        graph = FALSE, 
+        scale.unit = TRUE, 
+        quanti.sup = 30:36, 
+        quali.sup = 37:48
         )
     mfa.dat <- dat |> cbind(mfa.res$ind$coord)
 ```
 
-# MFA scree plot & coordinates
+# PCA scree plot & coordinates
 ```{r Scree Plot}
     p_eig <- fviz_eig(mfa.res, choice = "eigenvalue", ncp = 10) +
         geom_hline(yintercept = 1, linetype = 2, color = "red", linewidth = 1) +
         theme_minimal() +
         theme(text = element_text(size = 14, face = "bold")) +
-        ggtitle("MFA Scree Plot")
+        ggtitle("PCA Scree Plot")
     ggsave(here("Plots", "eig.png"), p_eig, width = 8, height = 6)
-```
-
-```{r Qualitative Coordinates Plot}
-    # Calculate contribution and normalize
-    contrib_val <- log(mfa.res$quali.var$contrib[, "Dim.1"] + mfa.res$quali.var$contrib[, "Dim.3"])
-    contrib_val[is.infinite(contrib_val) | is.nan(contrib_val)] <- min(contrib_val[!is.infinite(contrib_val) & !is.nan(contrib_val)], na.rm=TRUE)
-    contrib_val <- contrib_val - min(contrib_val)
-    contrib_val <- contrib_val / max(contrib_val)
-
-    cat.dat <- mfa.res$quali.var$coord |> 
-        data.frame() |> 
-        dplyr::select(Dim.1, Dim.3) |> 
-        tibble::rownames_to_column(var = "labels") |> 
-        mutate(
-            contrib = contrib_val,
-            judgment = case_when(
-                str_detect(labels, "High-End") ~ "High-End",
-                str_detect(labels, "Trad")     ~ "Traditional",
-                str_detect(labels, "Not Sure") ~ "Not Sure",
-                TRUE                           ~ NA_character_
-            ),
-            labels_clean = labels |> 
-                str_replace_all("\\.f_", " (") |> 
-                str_replace_all("_", " ") |> 
-                paste0(")") |> 
-                str_to_title() |> 
-                str_replace_all("Trad\\)", "Trad)") |> 
-                str_replace_all("High-End\\)", "High-End)") |> 
-                str_replace_all("Not Sure\\)", "Not Sure)")
-        )
-
-    p_coords <- ggplot(cat.dat, aes(x = Dim.1, y = Dim.3, color = judgment, label = labels_clean)) +
-        geom_vline(xintercept = 0, color = "gray", linewidth = 1) +
-        geom_hline(yintercept = 0, color = "gray", linewidth = 1) +
-        geom_text_repel(
-            aes(alpha = contrib),
-            size = 6, 
-            max.overlaps = 200, 
-            fontface = "bold", 
-            key_glyph = "rect"
-        ) +
-        scale_color_brewer(palette = "Dark2", type = "qual") +
-        scale_alpha_continuous(guide = "none") +
-        labs(
-            title = "Cloud of Cuisine Authenticity Categories (MFA)",
-            x = "Traditional/Ordinary \u2190                                                 \u2192 High-End/Fancy",
-            y = "Unfamiliar/Not Sure \u2190                                                 \u2192 Foodie/Authentic",
-            color = "Judgment"
-        ) +
-        scale_x_continuous(sec.axis = dup_axis()) +
-        scale_y_continuous(sec.axis = dup_axis()) +
-        theme_minimal() +
-        theme(
-            legend.position = "bottom",
-            title = element_text(size = 18, face = "bold"),
-            legend.text = element_text(size = 12),
-            axis.title.x = element_text(size = 12, face = "bold"),
-            axis.title.y = element_text(size = 12, face = "bold"),
-            axis.text.x = element_text(size = 11),
-            axis.text.y = element_text(size = 11)
-        )
-    ggsave(here("Plots", "cat_coords.png"), p_coords, width = 12, height = 10, dpi = 300)
 ```
 
 # Correlation matrix heatmap
 ```{r Correlation Heatmap}
-    plot.mat <- get_mfa_var(mfa.res)$cor
+    plot.mat <- get_pca_var(mfa.res)$cor
     plot.mat_df <- plot.mat |> 
         as.data.frame() |> 
         tibble::rownames_to_column(var = "Variable") |> 
         pivot_longer(
-            cols = -Variable,
+            cols = starts_with("Dim"),
             names_to = "Dimension",
             values_to = "Correlation"
         ) |> 
+        filter(Dimension %in% c("Dim.1", "Dim.2", "Dim.3", "Dim.4", "Dim.5")) |> 
         mutate(Variable = factor(Variable, levels = rownames(plot.mat)))
     
-    max_corr <- max(abs(plot.mat_df$Correlation))
-    corr_limits <- c(-max_corr, max_corr)
+    # Split variables into two parts: practices/flavors (up to avocado) and the 15 cuisines (starting with japanese)
+    vars <- levels(plot.mat_df$Variable)
+    idx_avocado <- which(vars == "avocado")
+    vars1 <- vars[1:idx_avocado]
+    vars2 <- vars[(idx_avocado + 1):length(vars)]
 
-    p_varcor <- ggplot(plot.mat_df, aes(y = Variable, x = Dimension, fill = Correlation)) + 
-        geom_tile(color = "white", linewidth = 1.5, linetype = 1) + coord_fixed() +
-        scale_fill_gradient2(
-                    low = "#FF0000",
-                    mid = "#FFFFCC",
-                    high = "#075AFF",
-                    midpoint = 0, limits = corr_limits) +
-        geom_text(aes(label = sprintf("%.2f", Correlation)), 
-                    vjust = 0.5, 
-                    fontface = "bold", 
-                    color = "black", size = 4.5) +
-        scale_x_discrete(position = "top") +
-        scale_y_discrete(limits = rev) +
-        theme_minimal() +
-        theme(
-            axis.title = element_blank(),
-            text = element_text(size = 12, face = "bold"),
-            legend.position = "right",
-            legend.title = element_blank(),
-            legend.key.height = unit(1.5, "cm"),
-            panel.grid = element_blank()
-        ) 
-    ggsave(here("Plots", "varcor.png"), p_varcor, width = 8, height = 10, dpi = 300) 
+    plot_corr_subset <- function(subset_vars, filename) {
+        df_subset <- plot.mat_df |> filter(Variable %in% subset_vars)
+        max_corr <- max(abs(plot.mat_df$Correlation))
+        corr_limits <- c(-max_corr, max_corr)
+        
+        p <- ggplot(df_subset, aes(y = Variable, x = Dimension, fill = Correlation)) + 
+            geom_tile(color = "white", linewidth = 1.5, linetype = 1) + coord_fixed() +
+            scale_fill_gradient2(
+                        low = "#FF0000",
+                        mid = "#FFFFCC",
+                        high = "#075AFF",
+                        midpoint = 0, limits = corr_limits) +
+            geom_text(aes(label = sprintf("%.2f", Correlation)), 
+                        vjust = 0.5, 
+                        fontface = "bold", 
+                        color = "black", size = 4.5) +
+            scale_x_discrete(position = "top") +
+            scale_y_discrete(limits = rev) +
+            theme_minimal() +
+            theme(
+                axis.title = element_blank(),
+                text = element_text(size = 12, face = "bold"),
+                legend.position = "right",
+                legend.title = element_blank(),
+                panel.grid = element_blank()
+            ) 
+        ggsave(here("Plots", filename), p, width = 8, height = 8, dpi = 300)
+    }
+
+    plot_corr_subset(vars1, "varcor_1.png")
+    plot_corr_subset(vars2, "varcor_2.png")
 ```
 
 # Multivariate Analysis of Variance (MANOVA)
 ```{r MANOVA}
-    # Fit MANOVA model with interactions between sexuality and social ideology
+    # Fit MANOVA model with comprehensive demographic, ideological, and interaction terms
     manova_model <- manova(
-        cbind(Dim.1, Dim.2, Dim.3) ~ race.f + gend.f + sex.f * spol.f + epol.f, 
+        cbind(Dim.1, Dim.2, Dim.3) ~ race.f + age.f + educ.f + peduc.f + city.f + arts.f + spol.f + epol.f + relig.f + inc.f + gend.f + sex.f + 
+            educ.f:spol.f + gend.f:sex.f, 
         data = mfa.dat
     )
     
     # Save MANOVA table as HTML (Beautiful custom CSS table)
     sum_manova <- summary(manova_model, test = "Pillai")
     stats_df <- as.data.frame(sum_manova$stats)
-    rownames(stats_df) <- c(
+    
+    clean_labels <- c(
       "race.f" = "Ethnoracial ID",
+      "age.f" = "Age / Generation",
+      "educ.f" = "Education Level",
+      "peduc.f" = "Parent's Education",
+      "city.f" = "City Size (Urbanicity)",
+      "arts.f" = "Childhood Arts Exposure",
+      "spol.f" = "Pol. Ideology (Social)",
+      "epol.f" = "Pol. Ideology (Econ.)",
+      "relig.f" = "Religiosity Service Freq.",
+      "inc.f" = "Household Income",
       "gend.f" = "Gender ID",
-      "sex.f" = "Sexuality",
-      "spol.f" = "Social Ideology",
-      "epol.f" = "Economic Ideology",
-      "sex.f:spol.f" = "Sexuality x Social Ideology Interaction",
+      "sex.f" = "Sexual ID",
+      "educ.f:spol.f" = "Education x Social Ideology Interaction",
+      "gend.f:sex.f" = "Gender x Sexuality Interaction",
       "Residuals" = "Residuals"
-    )[rownames(stats_df)]
+    )
+    rownames(stats_df) <- clean_labels[rownames(stats_df)]
 
     html_content <- paste0(
       "<!DOCTYPE html>\n<html>\n<head>\n",
@@ -363,14 +323,37 @@ date: "`r Sys.Date()`"
     hcpc_res <- HCPC(mfa.res, nb.clust = 3, graph = FALSE)
     mfa.dat$Cluster <- hcpc_res$data.clust$clust
     
-    # Save trees and maps to Plots folder
-    png(here("Plots", "hcpc_tree.png"), width = 800, height = 600)
-    plot(hcpc_res, choice = "tree")
-    dev.off()
+    # Intuitive labels for clusters
+    cluster_labels <- c(
+        "1" = "Everyday Convenience Seekers",
+        "2" = "Traditional/Conservative Homebody",
+        "3" = "Culinary Explorer/High-End Enthusiast"
+    )
+    mfa.dat$ClusterName <- factor(cluster_labels[as.character(mfa.dat$Cluster)], levels = cluster_labels)
     
-    png(here("Plots", "hcpc_map.png"), width = 800, height = 600)
-    plot(hcpc_res, choice = "map")
-    dev.off()
+    # Calculate centroids for plotting
+    centroids_plot <- mfa.dat |> 
+        group_by(ClusterName) |> 
+        summarize(Dim.1 = mean(Dim.1), Dim.2 = mean(Dim.2))
+
+    # Custom cloud plot using ggplot2 following aesthetic_politics style
+    p_hcpc_map <- ggplot(mfa.dat, aes(x = Dim.1, y = Dim.2, color = ClusterName)) +
+        geom_point(alpha = 0.4, size = 1.5) +
+        geom_point(data = centroids_plot, aes(x = Dim.1, y = Dim.2), size = 6, shape = 21, fill = "white", stroke = 2) +
+        scale_color_brewer(palette = "Set1", name = "Taste Subculture") +
+        labs(
+            title = "Culinary Taste Subcultures",
+            x = "Fancy Taste Axis (Dim 1)",
+            y = "Common Taste Axis (Dim 2)"
+        ) +
+        theme_minimal() +
+        theme(
+            text = element_text(size = 14, face = "bold"),
+            legend.position = "bottom"
+        ) +
+        guides(color = guide_legend(nrow = 2, byrow = TRUE))
+    
+    ggsave(here("Plots", "hcpc_map.png"), p_hcpc_map, width = 10, height = 8, dpi = 300)
 ```
 
 ## Profiling the Clusters using Multinomial Logit Analysis
@@ -389,20 +372,24 @@ date: "`r Sys.Date()`"
     pred_res <- ggpredict(multinom_model, terms = c("age [all]", "spol.f"))
     pred_df <- as.data.frame(pred_res)
     
-    # Plot predicted probabilities faceted by cluster to reduce visual clutter
-    p_multinom <- ggplot(pred_df, aes(x = x, y = predicted, color = group)) +
-        geom_line(linewidth = 1.2) +
+    # Plot predicted probabilities faceted by cluster
+    p_multinom <- ggplot(pred_df, aes(x = x, y = predicted, color = group, fill = group)) +
+        geom_line(linewidth = 1) +
         facet_wrap(~response.level, labeller = labeller(response.level = function(x) paste("Cluster", x))) +
-        scale_color_manual(values = c("Soc. Lib." = "blue", "Soc. Mod." = "green", "Soc. Con." = "red")) +
+        scale_color_brewer(palette = "Set1", name = "Social Ideology") +
+        scale_fill_brewer(palette = "Set1", name = "Social Ideology") +
         labs(
-            title = "Predicted Probabilities of Cluster Membership by Age and Social Ideology",
+            title = "Predicted Probabilities of Cluster Membership",
+            subtitle = "by Age and Social Ideology",
             x = "Age",
-            y = "Predicted Probability",
-            color = "Social Ideology"
+            y = "Predicted Probability"
         ) +
         theme_minimal() +
-        theme(text = element_text(size = 12))
+        theme(
+            text = element_text(size = 12, face = "bold"),
+            legend.position = "bottom"
+        )
     
     # Save the faceted probability plot
-    ggsave(here("Plots", "pred_prob_faceted.png"), p_multinom, width = 10, height = 6)
+    ggsave(here("Plots", "pred_prob_faceted.png"), p_multinom, width = 10, height = 6, dpi = 300)
 ```

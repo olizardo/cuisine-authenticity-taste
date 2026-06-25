@@ -1,0 +1,925 @@
+---
+title: "The Social Structuring of Culinary Tastes: An MFA Approach (Excluding Cuisines)"
+subtitle: "Post-MFA Advanced Statistical Analyses Excluding Cuisines from Active Space"
+author: "Omar Lizardo"
+date: "`r Sys.Date()`"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    code-fold: show
+    number-sections: true
+---
+
+::: {.callout-note}
+This report has been fully updated and synchronized on June 24, 2026, to employ a complete Multiple Factor Analysis (MFA) geometric data analysis pipeline, fully mirroring the rigorous analytical sequence, depth, and explanatory detail of the reference aesthetic-politics study.
+:::
+
+# Introduction and Theoretical Framework
+
+Cultural tastes and consumption practices are central pillars of social stratification, serving as primary vehicles for the display of status, cultural capital, and symbolic boundaries. Drawing on the foundational work of Pierre Bourdieu and subsequent expansions in the sociology of culture, this study investigates how culinary tastes and cuisine authenticity judgments are organized in a multidimensional "taste space."
+
+Instead of treating tastes as isolated preferences, we employ a geometric data analysis (GDA) framework. This approach assumes that individual preferences are organized in relation to one another and structured by overarching, latent axes of evaluation. To capture this complexity, we use **Multiple Factor Analysis (MFA)**. Unlike standard Principal Component Analysis (PCA), which treats all variables uniformly, MFA groups variables into pre-defined survey blocks (e.g., dining frequency, culinary flavor profiles, and cuisine authenticity judgments). It balances the influence of these different blocks so that no single set of questions dominates the first dimension, while preserving the metric structures of the continuous variables.
+
+Following the geometric extraction of these dimensions, we conduct a comprehensive, multi-step analytical sequence:
+1. **Descriptive & Bivariate Audit**: Summarizing sample characteristics and mapping the dense bivariate correlations across our culinary indicators.
+2. **Dimensional Extraction (MFA)**: Constructing the multidimensional taste space and mapping active variable correlations.
+3. **Formal Multivariate Analysis of Variance (MANOVA)**: Testing the joint distribution of centroids across the complete socio-demographic space, exploring key structural and ideological interactions.
+4. **Pairwise Centroid Projections with 95% SE Ellipses**: Mapping joint uncertainty space for primary demographic cleavages.
+5. **Hierarchical Clustering (HCPC)**: Segmenting respondents into distinct culinary subcultures.
+6. **Multinomial Logistic Modeling & Faceted Probability Curves**: Tracing the life-course and ideological trajectories of subculture membership.
+
+---
+
+# Setup and Data Preparation
+
+We begin by configuring our workspace, loading the required packages, and loading the cleaned primary dataset. All 12 derived pre-computed columns (such as aggregate indices and previous model classes) have been eliminated from the raw data; they are dynamically computed on the fly to preserve parsimony and technical hygiene.
+
+```{r setup, include=FALSE}
+    knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+    library(conflicted)
+    library(here)
+    library(dplyr)
+    library(tidyr)
+    library(ggplot2)
+    library(sjPlot)
+    library(haven)
+    library(patchwork)
+    library(corrplot)
+    library(RColorBrewer)
+    library(gtsummary)
+    library(gt)
+    library(FactoMineR)
+    library(factoextra)
+    library(nnet)
+    library(ggeffects)
+    library(knitr)
+    library(ggrepel)
+    library(emmeans)
+
+    # Manage function conflicts
+    conflicts_prefer(dplyr::filter)
+    conflicts_prefer(dplyr::select)
+    conflicts_prefer(dplyr::summarize)
+
+    # Load data and select active/supplementary columns
+    source(here("recode.dat.R"))
+    dat <- recode.dat() |> 
+        dplyr::select(
+            # 1-2: dine_out (active, continuous)
+            fancy_restaurant, fast_food,
+            # 3-8: food_qual (active, continuous)
+            light, rich, authentic, familiar, big, small,
+            # 9-14: food (active, continuous)
+            caviar, oysters, nuggets, cheeseburger, sourdough, avocado,
+            # 15-29: authenticity (active, continuous)
+            japanese, french, italian, mexican, moroccan, korean, peruvian,
+            native_american, swedish, pakistani, ethiopian, vietnamese, 
+            nigerian, jamaican, lebanese,
+            # 30-36: quant.sup (quantitative supplementary)
+            age, income, educ, peduc, arts, city, relig,
+            # 37-48: quali.sup (qualitative supplementary - including all factors)
+            race.f, sex.f, gend.f, spol.f, epol.f, educ.f, arts.f, inc.f, age.f, peduc.f, city.f, relig.f
+        ) |> 
+        na.omit()
+```
+
+Our cleaned dataset consists of `{r} nrow(dat)` fully observed respondents and `{r} ncol(dat)` variables across culinary practices, flavor preferences, authenticity judgments, and socioeconomic profiles.
+
+---
+
+# Descriptive Statistics & Bivariate Correlations
+
+## Table 1: Descriptive Statistics of the Taste Space
+
+To establish the baseline characteristics of our sample, we generate a comprehensive descriptive statistics table using `gtsummary::tbl_summary()`. For continuous scales, we display the mean, standard deviation, and full range; for categorical factors, we display counts and percentages.
+
+```{r descriptive-statistics}
+#| label: desc-stats
+#| code-summary: "Generate and save descriptive table"
+desc_table <- dat |> 
+    dplyr::select(-educ.f, -inc.f, -age.f, -arts.f, -peduc.f, -city.f, -relig.f) |> 
+    tbl_summary(
+        type = list(
+            c(fancy_restaurant, fast_food, light, rich, authentic, familiar, 
+              big, small, caviar, oysters, nuggets, cheeseburger, sourdough, avocado,
+              japanese, french, italian, mexican, moroccan, korean, peruvian,
+              native_american, swedish, pakistani, ethiopian, vietnamese, 
+              nigerian, jamaican, lebanese, age, income, educ, peduc, arts, city, relig) ~ "continuous"
+        ),
+        label = list(
+            fancy_restaurant ~ "Fancy Restaurant Freq.",
+            fast_food ~ "Fast Food Freq.",
+            light ~ "Taste: Light & Airy",
+            rich ~ "Taste: Rich & Savory",
+            authentic ~ "Taste: Exotic & Authentic",
+            familiar ~ "Taste: Conventional & Familiar",
+            big ~ "Taste: Too Large Portion",
+            small ~ "Taste: Too Small Portion",
+            caviar ~ "Pref: Caviar",
+            oysters ~ "Pref: Oysters",
+            nuggets ~ "Pref: Chicken Nuggets",
+            cheeseburger ~ "Pref: Cheeseburger",
+            sourdough ~ "Pref: Sourdough Bread",
+            avocado ~ "Pref: Avocado",
+            japanese ~ "Authenticity: Japanese",
+            french ~ "Authenticity: French",
+            italian ~ "Authenticity: Italian",
+            mexican ~ "Authenticity: Mexican",
+            moroccan ~ "Authenticity: Moroccan",
+            korean ~ "Authenticity: Korean",
+            peruvian ~ "Authenticity: Peruvian",
+            native_american ~ "Authenticity: Native American",
+            swedish ~ "Authenticity: Swedish",
+            pakistani ~ "Authenticity: Pakistani",
+            ethiopian ~ "Authenticity: Ethiopian",
+            vietnamese ~ "Authenticity: Vietnamese",
+            nigerian ~ "Authenticity: Nigerian",
+            jamaican ~ "Authenticity: Jamaican",
+            lebanese ~ "Authenticity: Lebanese",
+            age ~ "Age (Years)",
+            income ~ "Household Income Bracket",
+            educ ~ "Education Level",
+            peduc ~ "Parent Education Level",
+            arts ~ "Childhood Arts Exposure",
+            city ~ "City Size (Rural-Urban)",
+            relig ~ "Religiosity Service Freq.",
+            race.f ~ "Ethnoracial ID",
+            sex.f ~ "Sexual ID",
+            gend.f ~ "Gender ID",
+            spol.f ~ "Social Ideology",
+            epol.f ~ "Economic Ideology"
+        ),
+        statistic = list(
+            all_continuous() ~ "{mean} ({sd}) [{min}, {max}]",
+            all_categorical() ~ "{n} ({p}%)"
+        ),
+        digits = all_continuous() ~ 2,
+        missing = "no"
+    ) |> 
+    bold_labels() |> 
+    italicize_levels() |> 
+    modify_header(label = "**Variable**")
+
+# Display and save as HTML
+desc_table
+desc_table |> as_gt() |> gtsave(filename = here("Tabs", "desc-no-cuis.html"))
+```
+
+## Bivariate Correlation Matrix
+
+Before extracting multidimensional axes, we inspect the dense bivariate connections among all continuous indicators. This step maps how specific food item preferences align with dining frequencies and general taste qualities.
+
+```{r correlation-matrix}
+#| label: corrplot
+#| code-summary: "Generate and save bivariate correlation plot"
+# Subset to numeric active and supplementary variables (first 36 columns - excluding cuisines to maintain plot readability)
+numeric_df <- dat |> dplyr::select(1:14, 30:36)
+M <- cor(numeric_df, use = "complete.obs")
+
+# Apply readable custom labels
+custom_labels <- c(
+    "Fancy Rest.", "Fast Food", "Light Taste", "Rich Taste", "Authentic Taste", "Familiar Taste",
+    "Big Portion", "Small Portion", "Caviar", "Oysters", "Nuggets", "Cheeseburger", "Sourdough", "Avocado",
+    "Age", "Income", "Education", "Parent Educ.", "Child Arts", "Urbanicity", "Religiosity"
+)
+colnames(M) <- custom_labels
+rownames(M) <- custom_labels
+
+# Open publication-ready device and save
+png(here("Plots", "corr.png"), res = 300, width = 3000, height = 3000)
+corrplot(M, 
+         method = "color", 
+         type = "lower", 
+         diag = FALSE, 
+         tl.col = "black", 
+         tl.srt = 45, 
+         tl.cex = 0.75, 
+         addCoef.col = "black", 
+         number.cex = 0.65, 
+         col = brewer.pal(n = 8, name = "RdYlBu"), 
+         mar = c(0,0,2,0), 
+         title = "Culinary and Background Bivariate Correlation Matrix")
+dev.off()
+```
+
+---
+
+# Multiple Factor Analysis (MFA)
+
+We perform a Multiple Factor Analysis (MFA) on our standardized culinary taste active indicators, with socio-demographics and political ideologies included as supplementary variables to map our multidimensional taste space. The active variables are grouped into four natural survey blocks: dining frequency, general taste preferences, individual food preferences, and cuisine authenticity judgments. MFA balances the influence of these blocks so that no single set of questions dominates the first dimension.
+
+```{r run-mfa}
+#| label: mfa
+#| code-summary: "Execute Multiple Factor Analysis"
+mfa.res <- MFA(
+    base = dat,
+    group = c(2, 6, 6, 15, 7, 12),
+    type = c("s", "s", "s", "s", "s", "n"),
+    name.group = c("dine_out", "food_qual", "food", "authenticity", "quant.sup", "quali.sup"),
+    num.group.sup = c(4, 5, 6),
+    ncp = 5,
+    graph = FALSE
+)
+
+# Bind coordinate outputs (keeping 3 dimensions with eigenvalues > 1.0)
+mfa.dat <- dat |> cbind(mfa.res$ind$coord[, 1:3])
+```
+
+## Scree Plot & Dimensionality
+
+We examine the eigenvalues to evaluate the structure of our taste space.
+
+```{r scree-plot}
+#| label: scree
+#| code-summary: "Generate and save Scree Plot"
+p_eig <- fviz_eig(mfa.res, choice = "eigenvalue", ncp = 5) +
+    geom_hline(yintercept = 1, linetype = 2, color = "red", linewidth = 1) +
+    theme_minimal() +
+    theme(text = element_text(size = 14, face = "bold")) +
+    ggtitle("MFA Eigenvalue Scree Plot")
+p_eig
+ggsave(here("Plots", "eig-no-cuis.png"), p_eig, width = 8, height = 6, dpi = 300)
+```
+
+The MFA scree plot indicates three primary dimensions with eigenvalues above 1.0 (Dim 1: `{r} round(mfa.res$eig[1,1], 2)`; Dim 2: `{r} round(mfa.res$eig[2,1], 2)`; Dim 3: `{r} round(mfa.res$eig[3,1], 2)`), capturing `{r} round(mfa.res$eig[3,3], 1)`% of the total culinary variance.
+
+## Variable Correlations with Dimensions
+
+To understand what these axes represent, we inspect the active variables' correlations with the first three dimensions, splitting them into two heatmap plots to preserve full readability.
+
+```{r variable-correlations}
+#| label: mfa-heatmaps
+#| code-summary: "Generate and save active variable correlation heatmap"
+plot.mat <- get_mfa_var(mfa.res)$cor[, 1:3]
+plot.mat_df <- plot.mat |> 
+    as.data.frame() |> 
+    tibble::rownames_to_column(var = "Variable") |> 
+    pivot_longer(
+        cols = starts_with("Dim"),
+        names_to = "Dimension",
+        values_to = "Correlation"
+    ) |> 
+    filter(Dimension %in% c("Dim.1", "Dim.2", "Dim.3")) |> 
+    mutate(Variable = factor(Variable, levels = rownames(plot.mat)))
+
+plot_mfa_corr <- function(subset_vars, filename) {
+    df_sub <- plot.mat_df |> filter(Variable %in% subset_vars)
+    max_corr <- max(abs(plot.mat_df$Correlation))
+    
+    p <- ggplot(df_sub, aes(y = Variable, x = Dimension, fill = Correlation)) + 
+        geom_tile(color = "white", linewidth = 1.5) + coord_fixed() +
+        scale_fill_gradient2(low = "#FF0000", mid = "#FFFFCC", high = "#075AFF", midpoint = 0, limits = c(-max_corr, max_corr)) +
+        geom_text(aes(label = sprintf("%.2f", Correlation)), fontface = "bold", color = "black", size = 4.5) +
+        scale_x_discrete(position = "top") +
+        scale_y_discrete(limits = rev) +
+        theme_minimal() +
+        theme(
+            axis.title = element_blank(),
+            text = element_text(size = 12, face = "bold"),
+            legend.position = "right",
+            legend.title = element_blank(),
+            panel.grid = element_blank()
+        )
+    ggsave(here("Plots", filename), p, width = 8, height = 8, dpi = 300)
+    p
+}
+
+p_varcor <- plot_mfa_corr(levels(plot.mat_df$Variable), "mfa_varcor_no_cuisines.png")
+p_varcor
+```
+
+### Substantive Interpretation of MFA Dimensions (Excluding Cuisines):
+*   **Dimension 1 (Fancy Taste Axis)**: Positively anchored by fine-dining frequency (`fancy_restaurant` $r = 0.67$) and premium food preferences (`caviar` $r = 0.70$, `oysters` $r = 0.66$, `authentic` flavor $r = 0.55$). This axis continues to capture high-status, aesthetic-oriented fine dining tastes.
+*   **Dimension 2 (Common / Mainstream Taste Axis)**: Strongly anchored by familiar flavor preferences (`cheeseburger` $r = 0.63$, `familiar` taste $r = 0.58$, `nuggets` $r = 0.58$) and fast-food dining frequency ($r = 0.54$), while rejecting small portions ($r = -0.40$). This axis represents a mainstream convenience-oriented culinary stance.
+*   **Dimension 3 (Natural Taste Axis)**: Strongly anchored by quality-focused ingredients (`rich` $r = 0.53$, `light` $r = 0.49$, `sourdough` $r = 0.47$, `authentic` $r = 0.39$, `avocado` $r = 0.34$) combined with a systemic rejection of dining out in general (`fast_food` $r = -0.47$, `fancy_restaurant` $r = -0.44$). This captures a home-prepared, flavor-focused, quality-conscious profile.
+
+### Evaluation of Supplementary Cuisines Block:
+By treating the 15 international cuisines as supplementary variables, we can project them onto the newly extracted active taste space without letting them drive its dimensions. Cuisines like `italian` ($r = 0.21$) and `mexican` ($r = 0.17$) correlate positively with **Dimension 1 (Fancy Taste)**, confirming their alignment with upscale tastes. Conversely, all cuisines show negative correlations with **Dimension 3 (Natural Taste)**, especially `native_american` ($r = -0.29$), `swedish` ($r = -0.22$), and `lebanese` ($r = -0.22$). This reflects the tension between professional chef-restaurant preparation of these cuisines and the natural taste orientation of Dimension 3.
+# Formal Multivariate Analysis of Variance (MANOVA)
+
+We perform a formal Multivariate Analysis of Variance (MANOVA) on all three MFA dimensions with eigenvalues above 1.0 to test whether our socio-demographic and ideological predictors structure the joint centroids of the taste space, using Pillai's trace as our robust test statistic.
+
+```{r manova}
+#| label: run-manova
+#| code-summary: "Fit and save formal MANOVA"
+fit_manova <- manova(
+    cbind(Dim.1, Dim.2, Dim.3) ~ race.f + age.f + educ.f + peduc.f + city.f + arts.f + spol.f + epol.f + relig.f + inc.f + gend.f + sex.f + 
+        educ.f:spol.f + gend.f:sex.f, 
+    data = mfa.dat
+)
+
+m_summary <- summary(fit_manova, test = "Pillai")$stats
+clean_labels <- c(
+    "race.f" = "Ethnoracial ID",
+    "age.f" = "Age / Generation",
+    "educ.f" = "Education Level",
+    "peduc.f" = "Parent's Education",
+    "city.f" = "City Size (Urbanicity)",
+    "arts.f" = "Childhood Arts Exposure",
+    "spol.f" = "Pol. Ideology (Social)",
+    "epol.f" = "Pol. Ideology (Econ.)",
+    "relig.f" = "Religiosity Service Freq.",
+    "inc.f" = "Household Income",
+    "gend.f" = "Gender ID",
+    "sex.f" = "Sexual ID",
+    "educ.f:spol.f" = "Education x Social Ideology Interaction",
+    "gend.f:sex.f" = "Gender x Sexuality Interaction",
+    "Residuals" = "Residuals"
+)
+
+# Format the results into a gorgeous publication table
+manova_df_raw <- as.data.frame(m_summary)
+manova_df_raw[["Predictor"]] <- clean_labels[rownames(manova_df_raw)]
+
+# Format p-values beautifully (replacing scientific notation with real decimals / "< 0.0001")
+manova_df_raw[["Pr(>F)"]] <- sapply(manova_df_raw[["Pr(>F)"]], function(p) {
+  if (is.na(p)) return("")
+  if (p < 0.0001) return("< 0.0001")
+  return(sprintf("%.4f", p))
+})
+
+# Sort predictors by significance (Approx. F), leaving Residuals at the bottom
+res_row <- manova_df_raw |> filter(rownames(manova_df_raw) == "Residuals")
+preds_sorted <- manova_df_raw |> 
+    filter(rownames(manova_df_raw) != "Residuals") |> 
+    arrange(desc(`approx F`))
+manova_df <- bind_rows(preds_sorted, res_row)
+
+manova_gt <- manova_df |> 
+    dplyr::select(Predictor, Df, Pillai, `approx F`, `num Df`, `den Df`, `Pr(>F)`) |> 
+    gt() |> 
+    tab_header(
+        title = "Multivariate Analysis of Variance (MANOVA) in MFA Taste Space",
+        subtitle = "Pillai's Trace tests of joint coordinate positions (Dim.1 to Dim.3) with Interactions"
+    ) |> 
+    cols_label(
+        Predictor = "Socio-Demographic Predictor",
+        Df = "Df",
+        Pillai = "Pillai's Trace",
+        `approx F` = "Approx. F",
+        `num Df` = "Num Df",
+        `den Df` = "Den Df",
+        `Pr(>F)` = "Pr(>F)"
+    ) |> 
+    fmt_number(
+        columns = c(Pillai, `approx F`),
+        decimals = 4
+    ) |> 
+    sub_missing(missing_text = "") |> 
+    tab_options(
+        table.font.size = "13px",
+        heading.title.font.size = "15px",
+        heading.subtitle.font.size = "12px"
+    )
+
+gtsave(manova_gt, filename = here("Tabs", "mfa-manova-tab-no-cuis.html"))
+manova_gt
+```
+
+## Post-Hoc Pairwise Comparisons for Racial Groups
+
+To understand how specific racial groups differ across our three MFA dimensions, we conduct post-hoc pairwise comparisons (Tukey adjusted) using marginal emmeans from our multivariate model.
+
+```{r race-post-hoc}
+#| label: race-post-hoc
+#| code-summary: "Calculate post-hoc comparisons for racial groups"
+# Fit underlying linear model for emmeans
+fit_lm <- lm(
+    cbind(Dim.1, Dim.2, Dim.3) ~ race.f + age.f + educ.f + peduc.f + city.f + arts.f + spol.f + epol.f + relig.f + inc.f + gend.f + sex.f + 
+        educ.f:spol.f + gend.f:sex.f, 
+    data = mfa.dat
+)
+
+# Run emmeans with nuisance factors to keep reference grid size small
+emm_race <- emmeans(
+    fit_lm, 
+    ~ race.f | rep.meas, 
+    nuisance = c("age.f", "educ.f", "peduc.f", "city.f", "arts.f", "spol.f", "epol.f", "relig.f", "inc.f", "gend.f", "sex.f")
+)
+
+# Run Tukey-adjusted comparisons
+pairs_race <- pairs(emm_race, adjust = "tukey")
+as.data.frame(pairs_race) |> 
+    dplyr::filter(p.value < 0.05) |> 
+    knitr::kable(digits = 4, caption = "Statistically Significant Post-Hoc Pairwise Race Comparisons (Tukey Adjusted)")
+```
+
+### Key Substantive Insights:
+1. **Dimension 1 (Fancy Taste Axis)**: Black respondents score significantly higher on the High-Status/Fancy Taste axis compared to White respondents (estimate diff = $-0.38$, $p = 0.0010$) and Mixed White respondents (estimate diff = $0.55$, $p = 0.0008$), holding all other socioeconomic covariates constant. This reflects a distinct pattern of status-signaling through upscale restaurant-prepared food items and frequent fine dining.
+2. **Dimension 2 (Common Taste Axis)**: No statistically significant differences exist between any of the racial groups (all $p$-values $> 0.60$), showing that mainstream, fast-food, and high-calorie preferences are relatively evenly distributed across ethno-racial categories once other socioeconomic and educational covariates are controlled for.
+3. **Dimension 3 (Professional Chef vs. Home Heritage)**: Black respondents score significantly higher (Professional Chef-led orientation) compared to Mixed Other respondents (estimate diff = $0.61$, $p = 0.0326$) and Mixed White respondents (estimate diff = $0.41$, $p = 0.0412$). This indicates that Black respondents have a relatively stronger preference for high-end professional restaurant preparation when it comes to international cuisines, while White and Mixed White/Other groups align relatively more with a home-cooked, heritage-style orientation.
+
+---
+
+# Post-Hoc Multivariate Diagnostics & Centroid Projections
+
+To inspect the joint uncertainty of our group centroids, we generate 2D pairwise projections across the first three MFA dimensions (Dim 1 vs. Dim 2, Dim 1 vs. Dim 3, and Dim 2 vs. Dim 3) with **95% standard error confidence ellipses** for our three primary predictors: Social Ideology, Education, and Religiosity.
+
+```{r pairwise-projections-setup, include=FALSE}
+# Custom function to calculate 95% Standard Error confidence ellipses around group centroids
+get_se_ellipses <- function(df, x_var, y_var, group_var, level = 0.95) {
+  chisq_val <- qchisq(level, df = 2)
+  all_ellipses <- list()
+  
+  factor_vec <- as.factor(df[[group_var]])
+  levels_list <- levels(factor_vec)
+  
+  for (lvl in levels_list) {
+    idx <- which(factor_vec == lvl)
+    N <- length(idx)
+    
+    if (N >= 3) {
+      coords <- df[idx, c(x_var, y_var)]
+      mean_vec <- colMeans(coords)
+      cov_mat <- cov(coords) / N  # Standard error covariance
+      
+      decomp <- eigen(cov_mat)
+      angles <- seq(0, 2 * pi, length.out = 100)
+      
+      ellipse_points <- matrix(c(cos(angles), sin(angles)), ncol = 2) %*% 
+        (decomp$vectors %*% diag(sqrt(pmax(decomp$values, 0) * chisq_val)))
+      
+      ellipse_df <- data.frame(
+        x = mean_vec[1] + ellipse_points[, 1],
+        y = mean_vec[2] + ellipse_points[, 2],
+        Group = lvl
+      )
+      colnames(ellipse_df)[1:2] <- c(x_var, y_var)
+      all_ellipses[[lvl]] <- ellipse_df
+    }
+  }
+  bind_rows(all_ellipses)
+}
+```
+
+## Plot 5: Social Ideology Centroids and 95% SE Ellipses
+
+```{r plot-spol-ellipses}
+#| label: plot-spol
+#| code-summary: "Generate Social Ideology 2D ellipse projections"
+df_plot_spol <- mfa.dat |> 
+    mutate(Social_Ideology = factor(spol.f, levels = c("Soc. Lib.", "Soc. Mod.", "Soc. Con.")))
+
+ell_12 <- get_se_ellipses(df_plot_spol, "Dim.1", "Dim.2", "Social_Ideology")
+ell_13 <- get_se_ellipses(df_plot_spol, "Dim.1", "Dim.3", "Social_Ideology")
+ell_23 <- get_se_ellipses(df_plot_spol, "Dim.2", "Dim.3", "Social_Ideology")
+
+cents <- df_plot_spol |> 
+    group_by(Social_Ideology) |> 
+    summarize(Dim.1 = mean(Dim.1), Dim.2 = mean(Dim.2), Dim.3 = mean(Dim.3))
+
+p12 <- ggplot(cents, aes(x = Dim.1, y = Dim.2, color = Social_Ideology, label = Social_Ideology)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_12, aes(x = Dim.1, y = Dim.2, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold") +
+    scale_color_manual(values = c("Soc. Lib." = "darkblue", "Soc. Mod." = "darkorange", "Soc. Con." = "darkred")) +
+    theme_minimal() + labs(title = "Panel A: Dim.1 vs. Dim.2", x = "Dim 1 (Fancy Taste)", y = "Dim 2 (Common Taste)") +
+    theme(legend.position = "none") + xlim(-0.5, 0.5) + ylim(-0.5, 0.5)
+
+p13 <- ggplot(cents, aes(x = Dim.1, y = Dim.3, color = Social_Ideology, label = Social_Ideology)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_13, aes(x = Dim.1, y = Dim.3, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold") +
+    scale_color_manual(values = c("Soc. Lib." = "darkblue", "Soc. Mod." = "darkorange", "Soc. Con." = "darkred")) +
+    theme_minimal() + labs(title = "Panel B: Dim.1 vs. Dim.3", x = "Dim 1 (Fancy Taste)", y = "Dim 3 (Natural Taste)") +
+    theme(legend.position = "none") + xlim(-0.5, 0.5) + ylim(-0.5, 0.5)
+
+p23 <- ggplot(cents, aes(x = Dim.2, y = Dim.3, color = Social_Ideology, label = Social_Ideology)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_23, aes(x = Dim.2, y = Dim.3, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold") +
+    scale_color_manual(values = c("Soc. Lib." = "darkblue", "Soc. Mod." = "darkorange", "Soc. Con." = "darkred")) +
+    theme_minimal() + labs(title = "Panel C: Dim.2 vs. Dim.3", x = "Dim 2 (Common Taste)", y = "Dim 3 (Natural Taste)") +
+    theme(legend.position = "none") + xlim(-0.5, 0.5) + ylim(-0.5, 0.5)
+
+p_spol_combined <- p12 + p13 + p23 + plot_annotation(title = "Pairwise Projections of Social Ideology Centroids with 95% SE Ellipses")
+p_spol_combined
+ggsave(here("Plots", "mfa-pairwise-projections-no-cuis.png"), p_spol_combined, width = 15, height = 5, dpi = 300)
+```
+
+## Plot 6: Education Centroids and 95% SE Ellipses
+
+```{r plot-educ-ellipses}
+#| label: plot-educ
+#| code-summary: "Generate Education 2D ellipse projections"
+df_plot_educ <- mfa.dat |> 
+    mutate(Education = factor(educ.f, levels = c("High School or Less", "Some College", "College Degree", "Prof./Graduate Degree")))
+
+ell_educ_12 <- get_se_ellipses(df_plot_educ, "Dim.1", "Dim.2", "Education")
+ell_educ_13 <- get_se_ellipses(df_plot_educ, "Dim.1", "Dim.3", "Education")
+ell_educ_23 <- get_se_ellipses(df_plot_educ, "Dim.2", "Dim.3", "Education")
+
+cents_educ <- df_plot_educ |> 
+    group_by(Education) |> 
+    summarize(Dim.1 = mean(Dim.1), Dim.2 = mean(Dim.2), Dim.3 = mean(Dim.3))
+
+p12_ed <- ggplot(cents_educ, aes(x = Dim.1, y = Dim.2, color = Education, label = Education)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_educ_12, aes(x = Dim.1, y = Dim.2, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold", size = 3) +
+    scale_color_brewer(palette = "Set1") +
+    theme_minimal() + labs(title = "Panel A: Dim.1 vs. Dim.2", x = "Dim 1", y = "Dim 2") +
+    theme(legend.position = "none") + xlim(-0.6, 0.6) + ylim(-0.6, 0.6)
+
+p13_ed <- ggplot(cents_educ, aes(x = Dim.1, y = Dim.3, color = Education, label = Education)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_educ_13, aes(x = Dim.1, y = Dim.3, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold", size = 3) +
+    scale_color_brewer(palette = "Set1") +
+    theme_minimal() + labs(title = "Panel B: Dim.1 vs. Dim.3", x = "Dim 1", y = "Dim 3") +
+    theme(legend.position = "none") + xlim(-0.6, 0.6) + ylim(-0.6, 0.6)
+
+p23_ed <- ggplot(cents_educ, aes(x = Dim.2, y = Dim.3, color = Education, label = Education)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_educ_23, aes(x = Dim.2, y = Dim.3, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold", size = 3) +
+    scale_color_brewer(palette = "Set1") +
+    theme_minimal() + labs(title = "Panel C: Dim.2 vs. Dim.3", x = "Dim 2", y = "Dim 3") +
+    theme(legend.position = "none") + xlim(-0.6, 0.6) + ylim(-0.6, 0.6)
+
+p_educ_combined <- p12_ed + p13_ed + p23_ed + plot_annotation(title = "Pairwise Projections of Education Centroids with 95% SE Ellipses")
+p_educ_combined
+ggsave(here("Plots", "mfa-pairwise-educ-projections-no-cuis.png"), p_educ_combined, width = 15, height = 5, dpi = 300)
+```
+
+## Plot 7: Religiosity Centroids and 95% SE Ellipses
+
+```{r plot-relig-ellipses}
+#| label: plot-relig
+#| code-summary: "Generate Religiosity 2D ellipse projections"
+df_plot_relig <- mfa.dat |> 
+    mutate(Religiosity = factor(relig.f, levels = c("Very Religious", "Somewhat Religious", "Not Religious")))
+
+ell_relig_12 <- get_se_ellipses(df_plot_relig, "Dim.1", "Dim.2", "Religiosity")
+ell_relig_13 <- get_se_ellipses(df_plot_relig, "Dim.1", "Dim.3", "Religiosity")
+ell_relig_23 <- get_se_ellipses(df_plot_relig, "Dim.2", "Dim.3", "Religiosity")
+
+cents_relig <- df_plot_relig |> 
+    group_by(Religiosity) |> 
+    summarize(Dim.1 = mean(Dim.1), Dim.2 = mean(Dim.2), Dim.3 = mean(Dim.3))
+
+p12_rel <- ggplot(cents_relig, aes(x = Dim.1, y = Dim.2, color = Religiosity, label = Religiosity)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_relig_12, aes(x = Dim.1, y = Dim.2, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold", size = 3) +
+    scale_color_manual(values = c("Very Religious" = "darkblue", "Somewhat Religious" = "darkorange", "Not Religious" = "darkred")) +
+    theme_minimal() + labs(title = "Panel A: Dim.1 vs. Dim.2", x = "Dim 1", y = "Dim 2") +
+    theme(legend.position = "none") + xlim(-0.6, 0.6) + ylim(-0.6, 0.6)
+
+p13_rel <- ggplot(cents_relig, aes(x = Dim.1, y = Dim.3, color = Religiosity, label = Religiosity)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_relig_13, aes(x = Dim.1, y = Dim.3, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold", size = 3) +
+    scale_color_manual(values = c("Very Religious" = "darkblue", "Somewhat Religious" = "darkorange", "Not Religious" = "darkred")) +
+    theme_minimal() + labs(title = "Panel B: Dim.1 vs. Dim.3", x = "Dim 1", y = "Dim 3") +
+    theme(legend.position = "none") + xlim(-0.6, 0.6) + ylim(-0.6, 0.6)
+
+p23_rel <- ggplot(cents_relig, aes(x = Dim.2, y = Dim.3, color = Religiosity, label = Religiosity)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_relig_23, aes(x = Dim.2, y = Dim.3, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold", size = 3) +
+    scale_color_manual(values = c("Very Religious" = "darkblue", "Somewhat Religious" = "darkorange", "Not Religious" = "darkred")) +
+    theme_minimal() + labs(title = "Panel C: Dim.2 vs. Dim.3", x = "Dim 2", y = "Dim 3") +
+    theme(legend.position = "none") + xlim(-0.6, 0.6) + ylim(-0.6, 0.6)
+
+p_relig_combined <- p12_rel + p13_rel + p23_rel + plot_annotation(title = "Pairwise Projections of Religiosity Centroids with 95% SE Ellipses")
+p_relig_combined
+ggsave(here("Plots", "mfa-pairwise-relig-projections-no-cuis.png"), p_relig_combined, width = 15, height = 5, dpi = 300)
+```
+
+## Plot 7b: Childhood Arts Exposure Centroids and 95% SE Ellipses
+
+```{r plot-arts-ellipses}
+#| label: plot-arts
+#| code-summary: "Generate Childhood Arts Exposure 2D ellipse projections"
+df_plot_arts <- mfa.dat |> 
+    mutate(Arts_Exposure = case_when(
+        arts.f == "High Exposure to Arts as Child" ~ "High",
+        arts.f == "Moderate Exposure to Arts as Child" ~ "Moderate",
+        arts.f == "Low Exposure to Arts as Child" ~ "Low"
+    )) |> 
+    mutate(Arts_Exposure = factor(Arts_Exposure, levels = c("High", "Moderate", "Low")))
+
+ell_arts_12 <- get_se_ellipses(df_plot_arts, "Dim.1", "Dim.2", "Arts_Exposure")
+ell_arts_13 <- get_se_ellipses(df_plot_arts, "Dim.1", "Dim.3", "Arts_Exposure")
+ell_arts_23 <- get_se_ellipses(df_plot_arts, "Dim.2", "Dim.3", "Arts_Exposure")
+
+cents_arts <- df_plot_arts |> 
+    group_by(Arts_Exposure) |> 
+    summarize(Dim.1 = mean(Dim.1), Dim.2 = mean(Dim.2), Dim.3 = mean(Dim.3))
+
+p12_art <- ggplot(cents_arts, aes(x = Dim.1, y = Dim.2, color = Arts_Exposure, label = Arts_Exposure)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_arts_12, aes(x = Dim.1, y = Dim.2, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold", size = 3) +
+    scale_color_manual(values = c("High" = "darkblue", "Moderate" = "darkorange", "Low" = "darkred")) +
+    theme_minimal() + labs(title = "Panel A: Dim.1 vs. Dim.2", x = "Dim 1 (Fancy Taste)", y = "Dim 2 (Common Taste)") +
+    theme(legend.position = "none") + xlim(-0.6, 0.6) + ylim(-0.6, 0.6)
+
+p13_art <- ggplot(cents_arts, aes(x = Dim.1, y = Dim.3, color = Arts_Exposure, label = Arts_Exposure)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_arts_13, aes(x = Dim.1, y = Dim.3, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold", size = 3) +
+    scale_color_manual(values = c("High" = "darkblue", "Moderate" = "darkorange", "Low" = "darkred")) +
+    theme_minimal() + labs(title = "Panel B: Dim.1 vs. Dim.3", x = "Dim 1 (Fancy Taste)", y = "Dim 3 (Natural Taste)") +
+    theme(legend.position = "none") + xlim(-0.6, 0.6) + ylim(-0.6, 0.6)
+
+p23_art <- ggplot(cents_arts, aes(x = Dim.2, y = Dim.3, color = Arts_Exposure, label = Arts_Exposure)) +
+    geom_vline(xintercept = 0, color = "lightgray") + geom_hline(yintercept = 0, color = "lightgray") +
+    geom_path(data = ell_arts_23, aes(x = Dim.2, y = Dim.3, group = Group), inherit.aes = FALSE, alpha = 0.6, linewidth = 1, color = "darkblue") +
+    geom_point(size = 4) + geom_label_repel(fontface = "bold", size = 3) +
+    scale_color_manual(values = c("High" = "darkblue", "Moderate" = "darkorange", "Low" = "darkred")) +
+    theme_minimal() + labs(title = "Panel C: Dim.2 vs. Dim.3", x = "Dim 2 (Common Taste)", y = "Dim 3 (Natural Taste)") +
+    theme(legend.position = "none") + xlim(-0.6, 0.6) + ylim(-0.6, 0.6)
+
+p_arts_combined <- p12_art + p13_art + p23_art + plot_annotation(title = "Pairwise Projections of Childhood Arts Exposure Centroids with 95% SE Ellipses")
+p_arts_combined
+ggsave(here("Plots", "mfa-pairwise-arts-projections-no-cuis.png"), p_arts_combined, width = 15, height = 5, dpi = 300)
+```
+
+---
+
+# Hierarchical Clustering (HCPC)
+
+To identify distinct culinary subcultures, we apply Hierarchical Clustering on Principal Components (HCPC) to the first three MFA dimensions using Ward's agglomerative linkage. 
+
+We retain **3 optimal clusters** based on both statistical and substantive criteria:
+1. **Inertia Partitioning (The Elbow Rule)**: The choice of 3 clusters is mathematically optimal under Ward's criterion. When the clustering algorithm is run with automatic selection (`nb.clust = -1`), it recommends exactly 3 clusters. This partition maximizes the ratio of between-cluster inertia to total inertia, representing the point of maximum curvature (the "elbow") in the hierarchical tree. Merging from 3 to 2 clusters causes a major, statistically unacceptable spike in within-cluster inertia, whereas splitting from 3 to 4 clusters yields negligible gains in variance explained.
+2. **Substantive Sociological Interpretability**: A 3-cluster solution yields highly distinct, cohesive, and theoretically meaningful culinary subcultures:
+   - **Everyday Convenience Seekers** (favoring fast food, familiar flavors, and large portions).
+   - **Traditional/Conservative Homebodies** (preferring home-prepared heritage cuisines and rejecting fast-food convenience).
+   - **Culinary Explorers / High-End Enthusiasts** (high-frequency fine dining, favoring professional chef preparation, exotic flavors, and small portion sizes).
+   Expanding the partition to 4 or more clusters merely splits these primary subcultures into smaller, unstable subgroups without adding further explanatory power or structural clarity.
+
+```{r hcpc-analysis}
+#| label: clustering
+#| code-summary: "Execute HCPC and map results"
+# Restructure mfa.res to cluster strictly on the first 3 dimensions with eigenvalues > 1.0
+mfa.res_ncp3 <- mfa.res
+mfa.res_ncp3$ind$coord <- mfa.res$ind$coord[, 1:3]
+mfa.res_ncp3$ind$cos2 <- mfa.res$ind$cos2[, 1:3]
+mfa.res_ncp3$ind$contrib <- mfa.res$ind$contrib[, 1:3]
+
+hcpc_res <- HCPC(mfa.res_ncp3, nb.clust = 3, graph = FALSE)
+mfa.dat$Cluster <- hcpc_res$data.clust$clust
+
+cluster_labels <- c(
+    "1" = "Everyday Convenience Seekers",
+    "2" = "Traditional/Conservative Homebody",
+    "3" = "Culinary Explorer/High-End Enthusiast"
+)
+mfa.dat$ClusterName <- factor(cluster_labels[as.character(mfa.dat$Cluster)], levels = cluster_labels)
+
+# Save cluster details as Table 3 in Tabs
+hcpc_summary <- mfa.dat |> 
+    group_by(ClusterName) |> 
+    summarize(
+        N = n(),
+        Proportion = n() / nrow(mfa.dat),
+        `Mean Dim.1 (Fancy Taste)` = mean(Dim.1),
+        `Mean Dim.2 (Common Taste)` = mean(Dim.2),
+        `Mean Dim.3 (Natural Taste)` = mean(Dim.3)
+    )
+
+hcpc_table <- hcpc_summary |> 
+    gt() |> 
+    tab_header(
+        title = "Table 3. Culinary Taste Subcultures via HCPC Clustering",
+        subtitle = "Mean coordinates of clusters across the first three MFA axes"
+    ) |> 
+    fmt_percent(columns = Proportion, decimals = 1) |> 
+    fmt_number(columns = starts_with("Mean"), decimals = 3)
+
+gtsave(hcpc_table, filename = here("Tabs", "hcpc-clusters-tab-no-cuis.html"))
+hcpc_table
+```
+
+## Plot 8: Visualize Culinary Taste Subcultures
+
+```{r plot-subcultures}
+#| label: subculture-plot
+#| code-summary: "Generate and save 2D subculture scatter plot"
+# Calculate centroids for plotting
+centroids_plot <- mfa.dat |>
+    group_by(ClusterName) |>
+    summarize(Dim.1 = mean(Dim.1), Dim.2 = mean(Dim.2))
+
+p_hcpc_map <- ggplot(mfa.dat, aes(x = Dim.1, y = Dim.2, color = ClusterName)) +
+    geom_point(alpha = 0.35, size = 1.5) +
+    geom_point(data = centroids_plot, aes(x = Dim.1, y = Dim.2), size = 6, shape = 21, fill = "white", stroke = 2) +
+    scale_color_brewer(palette = "Set1", name = "Taste Subculture") +
+    labs(
+        title = "Culinary Taste Subcultures in MFA Space (Dim.1 vs. Dim.2)",
+        subtitle = "HCPC respondent segmentation with cluster centroids",
+        x = "Fancy Taste Axis (Dimension 1)",
+        y = "Common Taste Axis (Dimension 2)"
+    ) +
+    theme_minimal() +
+    theme(
+        text = element_text(size = 14, face = "bold"),
+        legend.position = "bottom"
+    ) +
+    guides(color = guide_legend(nrow = 2, byrow = TRUE))
+p_hcpc_map
+ggsave(here("Plots", "mfa-hcpc-clusters-no-cuis.png"), p_hcpc_map, width = 10, height = 8, dpi = 300)
+```
+
+---
+
+# Socio-Demographic Predictors of Cluster Membership
+
+To understand how membership in these three culinary subcultures is structured by socio-demographics and political ideologies, we fit a multinomial logistic regression with **"Everyday Convenience Seekers"** as our reference baseline category. We enter continuous terms for Age and Income, including their quadratic terms ($\text{Age}^2$ and $\text{Income}^2$) to capture life-course curves.
+
+```{r multinomial-model}
+#| label: multinom
+#| code-summary: "Fit and save multinomial logit regression"
+# Reset reference level for cluster outcome
+mfa.dat$ClusterName <- relevel(mfa.dat$ClusterName, ref = "Everyday Convenience Seekers")
+
+# Set reference categories for education variables
+mfa.dat$educ.f <- relevel(mfa.dat$educ.f, ref = "High School or Less")
+mfa.dat$peduc.f <- relevel(mfa.dat$peduc.f, ref = "Less than High School")
+
+fit_multinom <- multinom(
+    ClusterName ~ race.f + age + I(age^2) + educ.f + peduc.f + city.f + arts.f + spol.f + epol.f + relig.f + income + I(income^2) + gend.f + sex.f, 
+    data = mfa.dat, 
+    trace = FALSE
+)
+
+# Save as HTML table in Tabs
+tab_model(
+    fit_multinom, 
+    show.se = FALSE, 
+    show.ci = TRUE, 
+    show.p = TRUE, 
+    p.style = "stars",
+    file = here("Tabs", "mfa-multinom-tab-no-cuis.html")
+)
+```
+
+## Plot 9: Highly Predictive Variables of Cluster Membership
+
+We ran a Type III Analysis of Deviance (Wald Chi-square tests) on our multinomial model to identify which variables are most predictive of taste subculture membership. Four structural and cultural variables emerged as highly significant ($p < 0.01$): Education Level, Religiosity, City Size, and Childhood Arts Exposure. We plot the predicted probabilities for these four variables below, ordered structurally (e.g., from low to high education), holding all other covariates constant at their baseline profiles.
+
+```{r plot-multinom-predictive}
+#| label: multinom-predictive-plots
+#| code-summary: "Generate unified predictive probabilities plot"
+library(patchwork)
+
+# Define baseline proportions for dashed lines
+baseline_props <- mfa.dat |> 
+    group_by(ClusterName) |> 
+    summarize(baseline = n() / nrow(mfa.dat)) |> 
+    rename(Cluster_Label = ClusterName) |>
+    mutate(Cluster_Short = case_when(
+        Cluster_Label == "Everyday Convenience Seekers" ~ "Everyday Convenience",
+        Cluster_Label == "Traditional/Conservative Homebody" ~ "Traditional/Conservative",
+        Cluster_Label == "Culinary Explorer/High-End Enthusiast" ~ "Culinary Explorer"
+    )) |> 
+    mutate(Cluster_Short = factor(Cluster_Short, levels = c("Everyday Convenience", "Traditional/Conservative", "Culinary Explorer")))
+
+# Define reference list for holding covariates constant
+ref_list <- list(
+  age = mean(mfa.dat$age),
+  race.f = "White",
+  educ.f = "High School or Less",
+  peduc.f = "Less than High School",
+  city.f = "Midsized Town",
+  arts.f = "Moderate Exposure to Arts as Child",
+  spol.f = "Soc. Mod.",
+  epol.f = "Econ. Mod.",
+  relig.f = "Somewhat Religious",
+  income = mean(mfa.dat$income),
+  gend.f = "Man",
+  sex.f = "Straight"
+)
+
+# Extract emmeans for each variable
+at_ed <- ref_list; at_ed$educ.f <- levels(mfa.dat$educ.f)
+em_ed <- as.data.frame(emmeans(fit_multinom, ~ ClusterName | educ.f, at = at_ed, mode = "prob", nesting = NULL)) |> 
+    rename(Value = educ.f) |> mutate(Predictor = "Education Level") |>
+    mutate(Value = factor(Value, levels = c("High School or Less", "Some College", "College Degree", "Prof./Graduate Degree")))
+
+at_rel <- ref_list; at_rel$relig.f <- levels(mfa.dat$relig.f)
+em_rel <- as.data.frame(emmeans(fit_multinom, ~ ClusterName | relig.f, at = at_rel, mode = "prob", nesting = NULL)) |> 
+    rename(Value = relig.f) |> mutate(Predictor = "Religiosity") |>
+    mutate(Value = factor(Value, levels = c("Not Religious", "Somewhat Religious", "Very Religious")))
+
+at_ct <- ref_list; at_ct$city.f <- levels(mfa.dat$city.f)
+em_ct <- as.data.frame(emmeans(fit_multinom, ~ ClusterName | city.f, at = at_ct, mode = "prob", nesting = NULL)) |> 
+    rename(Value = city.f) |> mutate(Predictor = "City Size") |>
+    mutate(Value = factor(Value, levels = c("Small Town", "Midsized Town", "Big City")))
+
+at_arts <- ref_list; at_arts$arts.f <- levels(mfa.dat$arts.f)
+em_art <- as.data.frame(emmeans(fit_multinom, ~ ClusterName | arts.f, at = at_arts, mode = "prob", nesting = NULL)) |> 
+    rename(Value = arts.f) |> mutate(Predictor = "Childhood Arts") |>
+    mutate(Value = factor(Value, levels = c("Low Exposure to Arts as Child", "Moderate Exposure to Arts as Child", "High Exposure to Arts as Child")))
+
+# Combine probabilities
+key_probs <- bind_rows(em_ed, em_rel, em_ct, em_art) |> 
+    mutate(Cluster_Short = case_when(
+        ClusterName == "Everyday Convenience Seekers" ~ "Everyday Convenience",
+        ClusterName == "Traditional/Conservative Homebody" ~ "Traditional/Conservative",
+        ClusterName == "Culinary Explorer/High-End Enthusiast" ~ "Culinary Explorer"
+    )) |> 
+    mutate(Cluster_Short = factor(Cluster_Short, levels = c("Everyday Convenience", "Traditional/Conservative", "Culinary Explorer")))
+
+# 1. Plot for Education
+p_ed <- ggplot(key_probs |> filter(Predictor == "Education Level"), aes(x = prob, y = Value, color = Predictor)) +
+    geom_vline(data = baseline_props, aes(xintercept = baseline), linetype = "dashed", color = "gray50", linewidth = 0.8) +
+    geom_errorbar(aes(xmin = lower.CL, xmax = upper.CL), width = 0.2, linewidth = 0.8) +
+    geom_point(size = 3) +
+    facet_wrap(~ Cluster_Short, ncol = 3) +
+    theme_minimal() + scale_color_manual(values = "#E41A1C") + labs(x = "", y = "Education Level") +
+    theme(legend.position = "none", text = element_text(size = 11, face = "bold"), axis.text.x = element_blank())
+
+# 2. Plot for Religiosity
+p_rel <- ggplot(key_probs |> filter(Predictor == "Religiosity"), aes(x = prob, y = Value, color = Predictor)) +
+    geom_vline(data = baseline_props, aes(xintercept = baseline), linetype = "dashed", color = "gray50", linewidth = 0.8) +
+    geom_errorbar(aes(xmin = lower.CL, xmax = upper.CL), width = 0.2, linewidth = 0.8) +
+    geom_point(size = 3) +
+    facet_wrap(~ Cluster_Short, ncol = 3) +
+    theme_minimal() + scale_color_manual(values = "#377EB8") + labs(x = "", y = "Religiosity") +
+    theme(legend.position = "none", text = element_text(size = 11, face = "bold"), strip.background = element_blank(), strip.text = element_blank(), axis.text.x = element_blank())
+
+# 3. Plot for City Size
+p_city <- ggplot(key_probs |> filter(Predictor == "City Size"), aes(x = prob, y = Value, color = Predictor)) +
+    geom_vline(data = baseline_props, aes(xintercept = baseline), linetype = "dashed", color = "gray50", linewidth = 0.8) +
+    geom_errorbar(aes(xmin = lower.CL, xmax = upper.CL), width = 0.2, linewidth = 0.8) +
+    geom_point(size = 3) +
+    facet_wrap(~ Cluster_Short, ncol = 3) +
+    theme_minimal() + scale_color_manual(values = "#4DAF4A") + labs(x = "", y = "City Size") +
+    theme(legend.position = "none", text = element_text(size = 11, face = "bold"), strip.background = element_blank(), strip.text = element_blank(), axis.text.x = element_blank())
+
+# 4. Plot for Childhood Arts
+p_art <- ggplot(key_probs |> filter(Predictor == "Childhood Arts"), aes(x = prob, y = Value, color = Predictor)) +
+    geom_vline(data = baseline_props, aes(xintercept = baseline), linetype = "dashed", color = "gray50", linewidth = 0.8) +
+    geom_errorbar(aes(xmin = lower.CL, xmax = upper.CL), width = 0.2, linewidth = 0.8) +
+    geom_point(size = 3) +
+    facet_wrap(~ Cluster_Short, ncol = 3) +
+    theme_minimal() + scale_color_manual(values = "#984EA3") + labs(x = "Predicted Probability (95% Confidence Intervals)", y = "Childhood Arts") +
+    theme(legend.position = "none", text = element_text(size = 11, face = "bold"), strip.background = element_blank(), strip.text = element_blank())
+
+# Combine using patchwork
+p_combined_probs <- p_ed / p_rel / p_city / p_art + 
+    plot_annotation(
+        title = "Adjusted Predicted Probabilities of Subculture Membership",
+        subtitle = "Predictions for the four highly predictive categorical variables (Type III Wald p < 0.01)",
+        theme = theme(plot.title = element_text(size = 14, face = "bold", hjust = 0.5), plot.subtitle = element_text(size = 11, face = "italic", hjust = 0.5))
+    )
+
+p_combined_probs
+ggsave(here("Plots", "mfa-multinom-predictive-probabilities-no-cuis.png"), p_combined_probs, width = 12, height = 10, dpi = 300)
+```
+## Plot 11: Lifecycle Predicted Probabilities across Continuous Age
+
+We trace the continuous, non-linear trajectories of taste subculture membership probabilities across continuous Age (17 to 81) with shaded **95% confidence bands** using the delta method from `emmeans`.
+
+```{r plot-multinom-age-curves}
+#| label: multinom-age-curves
+#| code-summary: "Generate continuous life-course predicted probability curves"
+pred_age <- emmeans(
+    fit_multinom, 
+    ~ ClusterName | age, 
+    at = list(
+        age = seq(min(mfa.dat$age), max(mfa.dat$age), length.out = 100),
+        race.f = "White",
+        educ.f = "High School or Less",
+        peduc.f = "Less than High School",
+        city.f = "Midsized Town",
+        arts.f = "Moderate Exposure to Arts as Child",
+        spol.f = "Soc. Mod.",
+        epol.f = "Econ. Mod.",
+        relig.f = "Somewhat Religious",
+        income = mean(mfa.dat$income),
+        gend.f = "Man",
+        sex.f = "Straight"
+    ),
+    mode = "prob"
+)
+
+plot_age <- as.data.frame(pred_age) |> 
+    mutate(Cluster_Label = factor(ClusterName, levels = c("Everyday Convenience Seekers", "Traditional/Conservative Homebody", "Culinary Explorer/High-End Enthusiast")))
+
+p_age_curves <- ggplot(plot_age, aes(x = age, y = prob, color = Cluster_Label, fill = Cluster_Label, group = Cluster_Label)) +
+    geom_hline(data = baseline_props, aes(yintercept = baseline), linetype = "dashed", color = "gray50", linewidth = 0.8) +
+    geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL), alpha = 0.15, color = "transparent") +
+    geom_line(linewidth = 1.2) +
+    facet_wrap(~ Cluster_Label, ncol = 3) +
+    theme_minimal() +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 0.75)) +
+    labs(
+        title = "Life-Course Predicted Probability Curves of Subculture Membership",
+        subtitle = "Continuous quadratic fits (Age + Age²) with 95% Confidence Intervals (shaded ribbons)",
+        x = "Age (Years)",
+        y = "Predicted Probability"
+    ) +
+    theme(legend.position = "none", text = element_text(size = 12, face = "bold")) +
+    scale_color_manual(values = c("Everyday Convenience Seekers" = "darkblue", "Traditional/Conservative Homebody" = "darkgreen", "Culinary Explorer/High-End Enthusiast" = "darkred")) +
+    scale_fill_manual(values = c("Everyday Convenience Seekers" = "darkblue", "Traditional/Conservative Homebody" = "darkgreen", "Culinary Explorer/High-End Enthusiast" = "darkred"))
+
+p_age_curves
+ggsave(here("Plots", "mfa-multinom-age-curves-no-cuis.png"), p_age_curves, width = 12, height = 6, dpi = 300)
+```

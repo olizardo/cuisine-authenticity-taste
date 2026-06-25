@@ -27,9 +27,9 @@ recode.dat <- function() {
     ) |> 
     mutate(educ.f = 
         case_when(
-            educ == 1 ~ "Less than High School",
-            educ == 2 ~ "Less than High School",
-            educ == 3 ~ "High School",
+            educ == 1 ~ "High School or Less",
+            educ == 2 ~ "High School or Less",
+            educ == 3 ~ "High School or Less",
             educ == 4 ~ "Some College",
             educ == 5 ~ "Some College",
             educ == 6 ~ "College Degree",
@@ -110,17 +110,13 @@ recode.dat <- function() {
     mutate(
         across(
         .cols = japanese:lebanese, 
-        .fns = ~case_when(
-            .x < 3 ~ "Trad",
-            .x >= 3 & .x <= 5 ~ "Not Sure",                
-            .x > 5 ~ "High-End",                                
-        ),
-        .names = "{.col}.f"         
+        .fns = ~as.numeric(.x),
+        .names = "{.col}"         
         )
     ) |> 
     mutate(pol.f = factor(pol.f, levels = c("Liberal", "Moderate", "Conservative"))) |> 
     mutate(across(c(race.f, age.f, educ.f, peduc.f, city.f, arts.f, spol.f, 
-        epol.f, relig.f, inc.f, japanese.f:lebanese.f), factor)) |>
+        epol.f, relig.f, inc.f), factor)) |>
     mutate(gend.f = factor(gender, labels = c("Woman", "Man", "Nonbinary/Other"))) |> 
     mutate(sex.f = factor(sexuality, labels = c("Straight", "LGBTQ"))) |> 
     mutate(var.photo = apply(across(landscape:snake), 1, var, na.rm = TRUE)) |> 
