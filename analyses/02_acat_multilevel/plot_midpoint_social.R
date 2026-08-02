@@ -46,7 +46,23 @@ for (c_name in names(contrasts_diff)) {
 
 plot_data <- plot_data %>%
   mutate(
-    Threshold = factor(Threshold, levels = rev(c("1 vs 4", "2 vs 4", "3 vs 4", "5 vs 4", "6 vs 4", "7 vs 4"))),
+    # Make the labels more descriptive for the plot
+    Threshold = case_when(
+      Threshold == "1 vs 4" ~ "1 (Elder at Home) vs 4",
+      Threshold == "2 vs 4" ~ "2 vs 4",
+      Threshold == "3 vs 4" ~ "3 vs 4",
+      Threshold == "5 vs 4" ~ "5 vs 4",
+      Threshold == "6 vs 4" ~ "6 vs 4",
+      Threshold == "7 vs 4" ~ "7 (Professional Chef) vs 4"
+    ),
+    Threshold = factor(Threshold, levels = rev(c(
+      "1 (Elder at Home) vs 4", 
+      "2 vs 4", 
+      "3 vs 4", 
+      "5 vs 4", 
+      "6 vs 4", 
+      "7 (Professional Chef) vs 4"
+    ))),
     # If the 95% CI doesn't cross zero, flag it as credible
     Credible = ifelse(conf.low > 0 | conf.high < 0, "Credible Shift", "No Credible Shift")
   )
@@ -60,10 +76,10 @@ p_midpoint <- ggplot(plot_data, aes(x = estimate, y = Threshold, shape = Credibl
   scale_shape_manual(values = c("Credible Shift" = 16, "No Credible Shift" = 1)) +
   theme_minimal() +
   labs(
-    title = "Effect of Social Conservatism on Cuisine Ratings",
-    subtitle = "Contrasts against the midpoint (Rating = 4). Positive value = higher conservatism increases probability of rating.",
+    title = "Effect of Social Conservatism on Authenticity Ratings",
+    subtitle = "Contrasts against neutral (4).\n1 = Elder at Home, 7 = Pro Chef at High-End Restaurant.",
     x = "Log-Odds Shift per 1-Unit Increase in Social Conservatism",
-    y = "Rating Contrast (vs 4)"
+    y = "Rating Contrast (vs Neutral 4)"
   ) +
   theme(
     legend.position = "bottom",
@@ -73,7 +89,7 @@ p_midpoint <- ggplot(plot_data, aes(x = estimate, y = Threshold, shape = Credibl
   )
 
 dir.create(here::here("Plots"), showWarnings = FALSE)
-out_file <- here::here("Plots", "social_midpoint_contrast.png")
+out_file <- here::here("Plots", "02_acat_multilevel", "social_midpoint_contrast.png")
 ggsave(out_file, plot = p_midpoint, width = 8, height = 6, bg = "white")
 
 cat("Plot successfully saved to", out_file, "\n")
