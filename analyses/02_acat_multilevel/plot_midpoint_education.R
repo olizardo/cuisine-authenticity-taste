@@ -15,19 +15,19 @@ cat("Calculating contrasts against the midpoint (4) for College Degree...\n")
 # The model gives us the effect of "High School or Less", "Some College", and "Grad Degree" 
 # RELATIVE to "College Degree".
 #
-# Let's plot the effect of having a Graduate Degree vs having a College Degree.
+# Let's plot the effect of having a Graduate Degree vs having High School or Less.
 
-# We extract the single 'strict' coefficient for Graduate Degree
-b_grad <- draws[["b_educ.fProf.DGraduateDegree"]]
+# We calculate the difference between the Grad Degree coefficient and the High School coefficient
+b_grad_vs_hs <- draws[["b_educ.fProf.DGraduateDegree"]] - draws[["b_educ.fHighSchoolorLess"]]
 
 # Because it's a strict effect, we just multiply it by the steps from the midpoint (4)
 contrasts_diff <- list(
-  "1 (Elder at Home) vs 4" = -3 * b_grad,
-  "2 vs 4" = -2 * b_grad,
-  "3 vs 4" = -1 * b_grad,
-  "5 vs 4" =  1 * b_grad,
-  "6 vs 4" =  2 * b_grad,
-  "7 (Professional Chef) vs 4" = 3 * b_grad
+  "1 (Elder at Home) vs 4" = -3 * b_grad_vs_hs,
+  "2 vs 4" = -2 * b_grad_vs_hs,
+  "3 vs 4" = -1 * b_grad_vs_hs,
+  "5 vs 4" =  1 * b_grad_vs_hs,
+  "6 vs 4" =  2 * b_grad_vs_hs,
+  "7 (Professional Chef) vs 4" = 3 * b_grad_vs_hs
 )
 
 plot_data <- data.frame()
@@ -67,8 +67,8 @@ p_midpoint <- ggplot(plot_data, aes(x = estimate, y = Threshold, shape = Credibl
   theme_minimal() +
   labs(
     title = "Effect of Graduate Degree on Authenticity Ratings",
-    subtitle = "Relative to College Degree. Contrasts against neutral (4).\n1 = Elder at Home, 7 = Pro Chef at High-End Restaurant.",
-    x = "Log-Odds Shift (Grad Degree vs College Degree)",
+    subtitle = "Relative to High School or Less. Contrasts against neutral (4).\n1 = Elder at Home, 7 = Pro Chef at High-End Restaurant.",
+    x = "Log-Odds Shift (Grad vs High School)",
     y = "Rating Contrast (vs Neutral 4)"
   ) +
   theme(
