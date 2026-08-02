@@ -13,7 +13,8 @@
       "mkdir *": "allow",
       "dmesg *": "allow",
       "grep *": "allow",
-      "tail *": "allow"
+      "tail *": "allow",
+      "quarto render *": "allow"
     }
   },
   "sandbox": {

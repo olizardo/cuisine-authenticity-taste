@@ -84,6 +84,14 @@ kable(waic_clean, digits = 2, caption = "Model Comparison using WAIC (Subsampled
 
 *   **Conclusion**: Because the difference in fit is more than three times the standard error, **the Category-Specific model provides a statistically significant, superior fit.** This confirms that the effect of social conservatism on cuisine ratings is *not* uniform across the 1-to-7 scale.
 
+### 4.1 Posterior Predictive Checks
+To ensure the ordinal model accurately captures the shape of the data, we perform a posterior predictive check (PPC). This compares the model's predicted counts for each ordinal rating category against the actual observed distribution.
+
+```{r, echo=FALSE, fig.align='center', out.width='80%'}
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ppc_bars.png"))
+```
+*If the light blue intervals tightly capture the dark blue observed bars, particularly for the central neutral category ("4") and the extremes, the model is successfully recovering the response process.*
+
 ---
 
 ## 5. Preliminary Findings: The Effect of Social Conservatism
@@ -99,6 +107,16 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "social_midpoi
 *   **Directionality**: A positive log-odds shift for a specific category indicates that higher conservatism *increases* the likelihood of choosing that rating (relative to a 4). A negative shift indicates a *decrease* in likelihood.
 *   **Extremes**: By looking at the 95% Credible Intervals for the "1 (Elder at Home) vs 4" and "7 (Professional Chef) vs 4" contrasts, we can directly observe how ideology pushes respondents toward or away from specific definitions of culinary authenticity.
 *   **Credible Shifts**: Thresholds where the error bars (95% CI) do not cross the zero-line are flagged as credible, meaning we have high Bayesian confidence in the ideological effect at that specific point on the scale.
+
+### 5.1 The Effect of Education (Class Dynamics)
+
+Concepts of "authenticity" and preference for "high-end chefs" versus "traditional elders" are heavily theorized as class-based (cultural capital). To investigate this, we computed similar midpoint contrasts comparing respondents with a **Graduate Degree** to those with **High School or Less** (relative to the baseline of a College Degree).
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "education_midpoint_contrast.png"))
+```
+
+This reveals whether highly educated respondents are drawn more toward the "traditional elder" for certain cuisines (a possible marker of omnivorous cultural capital) compared to less educated respondents, or if they lean toward professionalization.
 
 ## 6. Baseline Cuisine Leans (Random Effects)
 

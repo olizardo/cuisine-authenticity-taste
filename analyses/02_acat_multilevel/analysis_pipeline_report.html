@@ -87,9 +87,15 @@ window.Quarto = {
   <li><a href="#strict-vs.-category-specific-effects" id="toc-strict-vs.-category-specific-effects" class="nav-link" data-scroll-target="#strict-vs.-category-specific-effects">Strict vs.&nbsp;Category-Specific Effects</a></li>
   <li><a href="#computational-safeguards" id="toc-computational-safeguards" class="nav-link" data-scroll-target="#computational-safeguards">Computational Safeguards</a></li>
   </ul></li>
-  <li><a href="#model-comparison" id="toc-model-comparison" class="nav-link" data-scroll-target="#model-comparison">4. Model Comparison</a></li>
-  <li><a href="#preliminary-findings-the-effect-of-social-conservatism" id="toc-preliminary-findings-the-effect-of-social-conservatism" class="nav-link" data-scroll-target="#preliminary-findings-the-effect-of-social-conservatism">5. Preliminary Findings: The Effect of Social Conservatism</a></li>
-  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">6. Next Steps</a></li>
+  <li><a href="#model-comparison" id="toc-model-comparison" class="nav-link" data-scroll-target="#model-comparison">4. Model Comparison</a>
+  <ul class="collapse">
+  <li><a href="#posterior-predictive-checks" id="toc-posterior-predictive-checks" class="nav-link" data-scroll-target="#posterior-predictive-checks">4.1 Posterior Predictive Checks</a></li>
+  </ul></li>
+  <li><a href="#preliminary-findings-the-effect-of-social-conservatism" id="toc-preliminary-findings-the-effect-of-social-conservatism" class="nav-link" data-scroll-target="#preliminary-findings-the-effect-of-social-conservatism">5. Preliminary Findings: The Effect of Social Conservatism</a>
+  <ul class="collapse">
+  <li><a href="#the-effect-of-education-class-dynamics" id="toc-the-effect-of-education-class-dynamics" class="nav-link" data-scroll-target="#the-effect-of-education-class-dynamics">5.1 The Effect of Education (Class Dynamics)</a></li>
+  </ul></li>
+  <li><a href="#baseline-cuisine-leans-random-effects" id="toc-baseline-cuisine-leans-random-effects" class="nav-link" data-scroll-target="#baseline-cuisine-leans-random-effects">6. Baseline Cuisine Leans (Random Effects)</a></li>
   </ul>
 </nav>
 </div>
@@ -175,19 +181,52 @@ window.Quarto = {
 <p>Because standard Leave-One-Out Cross-Validation (LOO) requires allocating likelihood matrices that exceed system RAM, we utilized the <strong>Watanabe-Akaike Information Criterion (WAIC)</strong> subsetted to 1,000 random posterior draws.</p>
 <p><strong>Results:</strong></p>
 <div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>       model elpd_diff  se_diff   p_worse diag_diff diag_elpd elpd_waic
-1     fit_cs   0.00000 0.000000        NA                     -27620.33
-2 fit_strict -33.70414 9.800248 0.9997082                     -27654.04
-  se_elpd_waic   p_waic se_p_waic     waic  se_waic
-1     121.1069 1152.580  18.27891 55240.66 242.2137
-2     121.3197 1147.878  18.37457 55308.07 242.6395</code></pre>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Model Comparison using WAIC (Subsampled)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Model</th>
+<th style="text-align: right;">ELPD Difference</th>
+<th style="text-align: right;">SE Difference</th>
+<th style="text-align: right;">WAIC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Category-Specific (Model 2)</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">0.0</td>
+<td style="text-align: right;">55240.66</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Strict (Model 1)</td>
+<td style="text-align: right;">-33.7</td>
+<td style="text-align: right;">9.8</td>
+<td style="text-align: right;">55308.07</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <ul>
 <li><strong>Conclusion</strong>: Because the difference in fit is more than three times the standard error, <strong>the Category-Specific model provides a statistically significant, superior fit.</strong> This confirms that the effect of social conservatism on cuisine ratings is <em>not</em> uniform across the 1-to-7 scale.</li>
 </ul>
+<section id="posterior-predictive-checks" class="level3">
+<h3 class="anchored" data-anchor-id="posterior-predictive-checks">4.1 Posterior Predictive Checks</h3>
+<p>To ensure the ordinal model accurately captures the shape of the data, we perform a posterior predictive check (PPC). This compares the model’s predicted counts for each ordinal rating category against the actual observed distribution.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../Plots/02_acat_multilevel/ppc_bars.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>If the light blue intervals tightly capture the dark blue observed bars, particularly for the central neutral category (“4”) and the extremes, the model is successfully recovering the response process.</em></p>
 <hr>
+</section>
 </section>
 <section id="preliminary-findings-the-effect-of-social-conservatism" class="level2">
 <h2 class="anchored" data-anchor-id="preliminary-findings-the-effect-of-social-conservatism">5. Preliminary Findings: The Effect of Social Conservatism</h2>
@@ -196,19 +235,40 @@ window.Quarto = {
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="Plots/social_midpoint_contrast.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+<p><img src="../../Plots/02_acat_multilevel/social_midpoint_contrast.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
 </figure>
 </div>
 </div>
 </div>
 <p><strong>Key Takeaways from the Midpoint Contrasts:</strong> * <strong>Directionality</strong>: A positive log-odds shift for a specific category indicates that higher conservatism <em>increases</em> the likelihood of choosing that rating (relative to a 4). A negative shift indicates a <em>decrease</em> in likelihood. * <strong>Extremes</strong>: By looking at the 95% Credible Intervals for the “1 (Elder at Home) vs 4” and “7 (Professional Chef) vs 4” contrasts, we can directly observe how ideology pushes respondents toward or away from specific definitions of culinary authenticity. * <strong>Credible Shifts</strong>: Thresholds where the error bars (95% CI) do not cross the zero-line are flagged as credible, meaning we have high Bayesian confidence in the ideological effect at that specific point on the scale.</p>
+<section id="the-effect-of-education-class-dynamics" class="level3">
+<h3 class="anchored" data-anchor-id="the-effect-of-education-class-dynamics">5.1 The Effect of Education (Class Dynamics)</h3>
+<p>Concepts of “authenticity” and preference for “high-end chefs” versus “traditional elders” are heavily theorized as class-based (cultural capital). To investigate this, we computed similar midpoint contrasts comparing respondents with a <strong>Graduate Degree</strong> to those with <strong>High School or Less</strong> (relative to the baseline of a College Degree).</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../Plots/02_acat_multilevel/education_midpoint_contrast.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>This reveals whether highly educated respondents are drawn more toward the “traditional elder” for certain cuisines (a possible marker of omnivorous cultural capital) compared to less educated respondents, or if they lean toward professionalization.</p>
 </section>
-<section id="next-steps" class="level2">
-<h2 class="anchored" data-anchor-id="next-steps">6. Next Steps</h2>
-<ul>
-<li>Extend the midpoint contrast visualizations to other key predictors (e.g., education, income) to map out demographic class effects on culinary authenticity.</li>
-<li>Explore the <code>cuisine</code> random effects to see which specific cuisines have the highest baseline lean toward “Elder at Home” versus “Professional Chef.”</li>
-</ul>
+</section>
+<section id="baseline-cuisine-leans-random-effects" class="level2">
+<h2 class="anchored" data-anchor-id="baseline-cuisine-leans-random-effects">6. Baseline Cuisine Leans (Random Effects)</h2>
+<p>In addition to fixed effects like ideology, the model estimates a random intercept for each of the 15 cuisines. This shows us the baseline public consensus for where each cuisine “belongs” on the authenticity-to-professionalization spectrum, holding demographic and ideological differences constant.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../Plots/02_acat_multilevel/cuisine_random_effects.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Key Findings:</strong> * <strong>Most “Elder at Home”</strong>: Native American, Nigerian, Jamaican, and Ethiopian cuisines have statistically credible negative intercepts, meaning the average respondent views them as most authentically prepared by a traditional elder at home. * <strong>Most “Professional Chef”</strong>: French, Japanese, and Swedish cuisines have strong positive intercepts, firmly rooting them in the high-end professional/chef domain in the public eye. (French cuisine is the most extreme outlier in this direction). * <strong>Neutral / Contested</strong>: Cuisines like Mexican, Pakistani, Lebanese, Moroccan, Peruvian, Vietnamese, Italian, and Korean hover near zero (the intercept), suggesting either a true neutral midpoint view or high disagreement among respondents that washes out the aggregate baseline.</p>
 </section>
 
 </main>
