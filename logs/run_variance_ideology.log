@@ -1,0 +1,14 @@
+Starting model fitting process for Distributional Multi-Dimensional Ideology Model...
+Fitting Distributional Ideology Model (1 core to save RAM)...
+Compiling Stan program...
+Start sampling
+
+SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 1).
+Chain 1: 
+Chain 1: Gradient evaluation took 0.047354 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 473.54 seconds.
+Chain 1: Adjust your expectations accordingly!
+Chain 1: 
+Chain 1: 
+Chain 1: Iteration:    1 / 4000 [  0%]  (Warmup)
+Chain 1: Iteration:  400 / 4000 [ 10%]  (Warmup)

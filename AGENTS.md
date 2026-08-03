@@ -8,31 +8,33 @@ The core dependent variable is a 1-to-7 ordinal rating scale asking where the fo
 - **7** = A Developed Recipe by a Professional Chef at a High-End Restaurant
 
 ## Folder Structure
-The project was recently restructured to separate analytical streams:
-- `data/`: Contains raw data (`dat/`) and the universal prep script (`recode.dat.R`). `recode.dat.R` centers continuous predictors (like `social_c`).
-- `docs/`: Variable metadata and codebooks. Includes `survey_instruments/` for raw survey PDFs and txt files.
+- `data/`: Contains raw data (`dat/`) and the universal prep script (`recode.dat.R`).
 - `analyses/01_baseline_analysis/`: Standard descriptive, correspondence, and basic statistical reports.
-- `analyses/02_acat_multilevel/`: The Bayesian modeling pipeline using `brms`.
-- `cache/`: Ignored by Git. Stores massive `.rds` model objects (`fit_cs_acat.rds`) and saved criteria (`waic_comparison.rds`).
+- `analyses/02_acat_multilevel/`: The core Bayesian modeling pipeline using `brms`. Includes the finalized `analysis.qmd` Quarto report.
+- `cache/`: Stores massive `.rds` model objects.
 - `logs/`: Holds output from `nohup` background runs.
-- `Plots/` & `Tabs/`: Outputs are split into subfolders corresponding to the analysis streams (`01_baseline_analysis/`, `02_acat_multilevel/`).
+- `Plots/`: All generated plots, standardized to use Bayesian `stat_halfeye` density ribbons.
 
 ## The Bayesian Pipeline (`analyses/02_acat_multilevel/`)
-We pivoted the data to "long" format to use multilevel Adjacent Category (ACAT) models.
-1. **Model Specifications**: 
-   - We compared a Strict model (assumes predictors have the same effect across all rating transitions) against a Category-Specific (`cs()`) model (allows slopes to vary across thresholds).
-   - *Key File*: `run_models_3.R`
-2. **Computational Constraints**: 
-   - The ACAT models are massive. They require `iter = 6000` to prevent low Bulk ESS warnings.
-   - **CRITICAL WARNING**: Attempting to run sampling on >2 cores or calculating full `loo()` on this machine **will cause an Out-Of-Memory (OOM) crash**. 
-   - We use `waic(..., ndraws = 1000)` and `cores = 2` for sampling to survive RAM limits.
-3. **Current Status**: 
-   - Model 2 (Category-Specific) decisively won the WAIC comparison ($\Delta$ ELPD = 33.7). The fitted model is cached at `cache/fit_cs_acat.rds`.
-4. **Visualizations**: 
-   - ACAT category-specific slopes are very hard to interpret raw. We calculate **Midpoint Contrasts** mathematically recombining transition log-odds to plot the probability of choosing a specific rating *vs* the neutral midpoint (4). 
-   - See `plot_midpoint_social.R` for the logic template.
+We use multilevel Adjacent Category (ACAT) models. 
+
+### Recent Breakthroughs (Aug 3, 2026):
+1. **Variance/Consensus Models**: We discovered that the **Distributional Variance model** (which predicts the `disc` parameter, or inverse-variance) is massively superior in fit ($\Delta$ ELPD > 750). It proves that cultural *consensus* varies widely:
+   - *High Consensus*: Ethiopian, Pakistani, Lebanese (everyone agrees they belong on the "Elder" side).
+   - *Low Consensus/Chaos*: Italian, French, Japanese (massive disagreement on whether they are domestic or elite).
+2. **Competing Ideologies**: We split ideology into **Social** and **Economic** dimensions using a category-specific (`cs()`) model:
+   - *Social Conservatism* drives polarization (pushing people heavily toward the "Professional Chef" extreme).
+   - *Economic Conservatism* drives centrism (pulling people inward toward the neutral 4 rating).
+3. **Cultural vs. Economic Capital**: Graduate degrees strongly predict leaning toward "Professional Chef", but income is almost entirely non-significant across all brackets.
+4. **Childhood Arts Exposure** (`arts.f`) was integrated into the active formulas but proved entirely null in its effects on variance/consensus.
+
+### Computational Constraints & Active Queues:
+- **CRITICAL WARNING**: Compiling and running these models requires strict RAM management. Compiling `rstan` C++ code for complex models (especially with `cs()` thresholds) will trigger the Linux Out-Of-Memory (OOM) killer if RAM dips below ~4-5 GB.
+- **Current Active Queue**: `run_ideology_queue.sh` is currently running in the background (using `nohup`). 
+  - It contains two new Distributional Ideology models (testing if the two ideologies predict *variance* differences) followed by the Education Random Slopes and Interaction models.
+  - They are strictly set to `cores = 1` to survive the RAM limits.
 
 ## Next Steps / Directives for Future Agents
-- When generating reports, use `knitr::include_graphics()` and `readRDS()` to pull from `Plots/` and `cache/` rather than re-running the models.
-- Apply the midpoint contrast logic (`plot_midpoint_social.R`) to other key demographic variables (e.g., education, income) to map class effects on authenticity.
-- Do not attempt to run `add_criterion(fit, "loo")` on the `fit_cs_acat.rds` object without subsampling; the likelihood matrix is too large for the environment's RAM.
+- **Do not restart or kill `run_ideology_queue.sh`** unless absolutely necessary. Let it run on 1 core. Monitor progress in `logs/run_variance_ideology.log` etc.
+- When generating new visualizations, continue using `tidybayes::stat_halfeye()` for consistency with the rest of the report.
+- When reading cached models, utilize `brms::as_draws_df()` or `spread_draws()` to build custom contrasts (like the midpoint contrast scripts we developed).

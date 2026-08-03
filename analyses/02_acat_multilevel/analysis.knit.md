@@ -131,6 +131,37 @@ Concepts of "authenticity" and preference for "high-end chefs" versus "tradition
 
 This reveals whether highly educated respondents are drawn more toward the "traditional elder" for certain cuisines (a possible marker of omnivorous cultural capital) compared to less educated respondents, or if they lean toward professionalization.
 
+### 5.2 Competing Ideologies: Social vs. Economic Conservatism
+
+Often treated as a monolith, political ideology actually pulls cultural preferences in opposing directions depending on whether we measure social or economic conservatism. To disentangle this, we fit a category-specific model containing both predictors. 
+
+Instead of showing step-by-step thresholds, the plot below maps how a 1-unit increase in conservatism changes the probability of choosing a specific extreme over the neutral midpoint (4). 
+
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/ideology_cs_midpoint_effects.png){fig-align='center' width=100%}
+:::
+:::
+
+
+**Key Ideological Divergence:**
+*   **Social Conservatism Drives Polarization**: As social conservatism increases, respondents are wildly more likely to abandon the neutral midpoint for "7 - Professional Chef." They are simultaneously far less likely to choose "1 - Traditional Elder." They are decisively drawn to the high-end, professional definition of authenticity.
+*   **Economic Conservatism Drives Centrism**: Conversely, economic conservatism exerts an anti-polarizing gravitational pull. High economic conservatives are *less* likely to choose the extreme "Professional Chef" and slightly less likely to choose the extreme "Elder." They pull inward toward the neutral baseline (4), avoiding extreme categorizations of cultural goods altogether.
+
+To make these log-odds shifts more intuitive, we can translate them back into **Predicted Probabilities**. The ribbon plot below shows the absolute probability of a respondent choosing either of the two extremes (1 or 7) versus the exact midpoint (4) as their ideology shifts from liberal to conservative.
+
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/ideology_predicted_probs.png){fig-align='center' width=100%}
+:::
+:::
+
+
+*   **Social Ideology (Left Panel):** Look at the blue line (rating of 7 - Professional Chef). For highly liberal respondents, the probability of choosing 7 is near zero. As we move to the right (highly conservative), the probability sharply spikes upwards, while the red line (1 - Elder) is depressed. 
+*   **Economic Ideology (Right Panel):** As we move to the right (more economically conservative), the probability of choosing *either* extreme (the red line and the blue line) slopes slowly downward. Instead, the gray line (rating of 4 - Neutral) swells in the middle, visually confirming that economic conservatism exerts a centrist pull, pulling respondents away from absolute categories.
+
 ## 6. Baseline Cuisine Leans and Ideological Slopes (Random Effects)
 
 In addition to fixed effects like ideology, the model estimates a random intercept for each of the 15 cuisines. This shows us the baseline public consensus for where each cuisine "belongs" on the authenticity-to-professionalization spectrum, holding demographic and ideological differences constant.

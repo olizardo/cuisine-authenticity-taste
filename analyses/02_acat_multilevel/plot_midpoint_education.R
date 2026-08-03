@@ -4,6 +4,9 @@ suppressPackageStartupMessages({
   library(dplyr)
   library(brms)
   library(here)
+  library(tidybayes)
+  library(tidyr)
+  library(forcats)
 })
 
 cat("Loading category-specific model...\n")
@@ -11,71 +14,50 @@ fit <- readRDS(here::here("cache", "fit_cs_acat.rds"))
 draws <- as_draws_df(fit)
 
 cat("Calculating contrasts against the midpoint (4) for College Degree...\n")
-# The reference category for educ.f in the model is "College Degree". 
-# The model gives us the effect of "High School or Less", "Some College", and "Grad Degree" 
-# RELATIVE to "College Degree".
-#
-# Let's plot the effect of having a Graduate Degree vs having High School or Less.
 
 # We calculate the difference between the Grad Degree coefficient and the High School coefficient
 b_grad_vs_hs <- draws[["b_educ.fProf.DGraduateDegree"]] - draws[["b_educ.fHighSchoolorLess"]]
 
 # Because it's a strict effect, we just multiply it by the steps from the midpoint (4)
-contrasts_diff <- list(
+plot_data <- tibble::tibble(
+  .draw = draws$.draw,
   "1 (Elder at Home) vs 4" = -3 * b_grad_vs_hs,
   "2 vs 4" = -2 * b_grad_vs_hs,
   "3 vs 4" = -1 * b_grad_vs_hs,
   "5 vs 4" =  1 * b_grad_vs_hs,
   "6 vs 4" =  2 * b_grad_vs_hs,
   "7 (Professional Chef) vs 4" = 3 * b_grad_vs_hs
-)
-
-plot_data <- data.frame()
-
-for (c_name in names(contrasts_diff)) {
-  draws_diff <- contrasts_diff[[c_name]]
-  
-  plot_data <- rbind(plot_data, data.frame(
-    Threshold = c_name,
-    estimate = mean(draws_diff),
-    conf.low = quantile(draws_diff, 0.025),
-    conf.high = quantile(draws_diff, 0.975)
-  ))
-}
-
-plot_data <- plot_data %>%
+) %>%
+  pivot_longer(
+    cols = -c(.draw),
+    names_to = "Threshold",
+    values_to = ".value"
+  ) %>%
   mutate(
-    Threshold = factor(Threshold, levels = rev(c(
+    Threshold = factor(Threshold, levels = c(
       "1 (Elder at Home) vs 4", 
       "2 vs 4", 
       "3 vs 4", 
       "5 vs 4", 
       "6 vs 4", 
       "7 (Professional Chef) vs 4"
-    ))),
-    # If the 95% CI doesn't cross zero, flag it as credible
-    Credible = ifelse(conf.low > 0 | conf.high < 0, "Credible Shift", "No Credible Shift")
+    ))
   )
 
-cat("Creating plot...\n")
-p_midpoint <- ggplot(plot_data, aes(x = estimate, y = Threshold, shape = Credible, color = Credible)) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
-  geom_point(size = 4) +
-  geom_errorbar(aes(xmin = conf.low, xmax = conf.high), width = 0.2, linewidth = 1) +
-  scale_color_manual(values = c("Credible Shift" = "firebrick", "No Credible Shift" = "gray30")) +
-  scale_shape_manual(values = c("Credible Shift" = 16, "No Credible Shift" = 1)) +
-  theme_minimal() +
+cat("Creating half-eye plot...\n")
+p_midpoint <- ggplot(plot_data, aes(x = .value, y = fct_rev(Threshold))) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
+  stat_halfeye(fill = "mediumseagreen", alpha = 0.7, .width = c(0.8, 0.95)) +
+  theme_minimal(base_size = 14) +
   labs(
     title = "Effect of Graduate Degree on Authenticity Ratings",
-    subtitle = "Relative to High School or Less. Contrasts against neutral (4).\n1 = Elder at Home, 7 = Pro Chef at High-End Restaurant.",
+    subtitle = "Relative to High School or Less. Contrasts against neutral (4).\nPositive = More likely to choose rating than neutral.",
     x = "Log-Odds Shift (Grad vs High School)",
     y = "Rating Contrast (vs Neutral 4)"
   ) +
   theme(
-    legend.position = "bottom",
-    axis.text.y = element_text(face = "bold", size = 11),
-    axis.text.x = element_text(size = 11),
-    plot.title = element_text(face = "bold", size = 14)
+    plot.title = element_text(face = "bold"),
+    axis.text.y = element_text(face = "bold", size = 11)
   )
 
 out_file <- here::here("Plots", "02_acat_multilevel", "education_midpoint_contrast.png")
