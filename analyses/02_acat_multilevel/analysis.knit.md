@@ -62,41 +62,25 @@ Because standard Leave-One-Out Cross-Validation (LOO) requires allocating likeli
 
 **Results:**
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-library(knitr)
-library(dplyr)
 
-# Gather all cached WAIC comparisons to build a master table
-waic_files <- list.files(here::here("cache"), pattern = "waic_comparison.*\\.rds", full.names = TRUE)
+::: {.cell}
+::: {.cell-output-display}
 
-all_waics <- lapply(waic_files, function(f) {
-  readRDS(f) %>% as.data.frame()
-}) %>% bind_rows()
 
-# Get unique models and rank them by predictive performance (ELPD)
-waic_clean <- all_waics %>%
-  group_by(model) %>%
-  summarize(
-    ELPD = mean(elpd_waic),
-    WAIC = mean(waic),
-    `SE (WAIC)` = mean(se_waic)
-  ) %>%
-  arrange(desc(ELPD)) %>%
-  mutate(
-    `Δ ELPD (from best)` = max(ELPD) - ELPD,
-    Model = case_when(
-      model == "fit_variance" ~ "Distributional Variance",
-      model == "fit_cs_econ_soc" ~ "Econ/Soc Category-Specific",
-      model == "fit_cs" ~ "Category-Specific Baseline",
-      model == "fit_rs_strict" ~ "Random Slopes (Ideology)",
-      model == "fit_strict" ~ "Strict Baseline",
-      TRUE ~ model
-    )
-  ) %>%
-  select(Model, ELPD, `Δ ELPD (from best)`, WAIC, `SE (WAIC)`)
+Table: Comprehensive Model Comparison using WAIC (Ranked by Fit)
 
-kable(waic_clean, digits = 2, caption = "Comprehensive Model Comparison using WAIC (Ranked by Fit)")
-```
+|Model                      |      ELPD| Δ ELPD (from best)|     WAIC| SE (WAIC)|
+|:--------------------------|---------:|------------------:|--------:|---------:|
+|Distributional Variance    | -26844.81|               0.00| 53689.62|    249.46|
+|Econ/Soc Category-Specific | -27605.35|             760.53| 55210.69|    242.94|
+|Category-Specific Baseline | -27619.02|             774.21| 55238.04|    242.19|
+|Random Slopes (Ideology)   | -27633.32|             788.51| 55266.64|    242.81|
+|Strict Baseline            | -27653.03|             808.22| 55306.06|    242.53|
+
+
+:::
+:::
+
 
 *   **Conclusion**: 
     1. The **Distributional Variance model** provides a massively superior fit ($\Delta$ ELPD > 750) over all standard location models, indicating that modeling the *variance* (consensus) of authenticity ratings is just as crucial as predicting the average rating.
@@ -105,9 +89,13 @@ kable(waic_clean, digits = 2, caption = "Comprehensive Model Comparison using WA
 ### 4.1 Posterior Predictive Checks
 To ensure the ordinal model accurately captures the shape of the data, we perform a posterior predictive check (PPC). This compares the model's predicted counts for each ordinal rating category against the actual observed distribution.
 
-```{r, echo=FALSE, fig.align='center', out.width='80%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ppc_bars.png"))
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/ppc_bars.png){fig-align='center' width=80%}
+:::
+:::
+
 *If the light blue intervals tightly capture the dark blue observed bars, particularly for the central neutral category ("4") and the extremes, the model is successfully recovering the response process.*
 
 ---
@@ -116,10 +104,13 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ppc_bars.png"
 
 To interpret the category-specific effects, we extracted the posterior draws for each threshold step (1|2, 2|3, ..., 6|7) and mathematically recombined them into **contrasts against the neutral midpoint (4)**. This allows us to visualize how a 1-unit increase in Social Conservatism shifts the probability of choosing an extreme rating relative to staying neutral.
 
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-# Embed the pre-generated plot to ensure lightning-fast rendering
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "social_midpoint_contrast.png"))
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/social_midpoint_contrast.png){fig-align='center' width=100%}
+:::
+:::
+
 
 **Key Takeaways from the Midpoint Contrasts:**
 *   **Directionality**: A positive log-odds shift for a specific category indicates that higher conservatism *increases* the likelihood of choosing that rating (relative to a 4). A negative shift indicates a *decrease* in likelihood.
@@ -130,9 +121,13 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "social_midpoi
 
 Concepts of "authenticity" and preference for "high-end chefs" versus "traditional elders" are heavily theorized as class-based (cultural capital). To investigate this, we computed similar midpoint contrasts comparing respondents with a **Graduate Degree** to those with **High School or Less** (relative to the baseline of a College Degree).
 
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "education_midpoint_contrast.png"))
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/education_midpoint_contrast.png){fig-align='center' width=100%}
+:::
+:::
+
 
 This reveals whether highly educated respondents are drawn more toward the "traditional elder" for certain cuisines (a possible marker of omnivorous cultural capital) compared to less educated respondents, or if they lean toward professionalization.
 
@@ -140,10 +135,13 @@ This reveals whether highly educated respondents are drawn more toward the "trad
 
 In addition to fixed effects like ideology, the model estimates a random intercept for each of the 15 cuisines. This shows us the baseline public consensus for where each cuisine "belongs" on the authenticity-to-professionalization spectrum, holding demographic and ideological differences constant.
 
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-# Embed the pre-generated cuisine random effects plot
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_random_effects.png"))
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/cuisine_random_effects.png){fig-align='center' width=100%}
+:::
+:::
+
 
 **Key Baseline Findings:**
 *   **Most "Elder at Home"**: Native American, Nigerian, Jamaican, and Ethiopian cuisines have statistically credible negative intercepts, meaning the average respondent views them as most authentically prepared by a traditional elder at home.
@@ -155,10 +153,13 @@ We estimated a random slopes model, allowing the effect of social conservatism t
 
 The following plot combines the global fixed effect of social conservatism with the cuisine-specific deviations (random slopes) to show the total ideological push for each cuisine.
 
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-# Embed the random slopes plot
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_cuisine_slopes.png"))
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/rs_cuisine_slopes.png){fig-align='center' width=100%}
+:::
+:::
+
 
 A **negative slope** means that higher conservatism pulls that specific cuisine toward the "Traditional Elder at Home" (1) rating, while a **positive slope** pushes it toward the "Professional Chef" (7) rating.
 
@@ -172,9 +173,13 @@ To answer the question of whether there is widespread public agreement (consensu
 
 By extracting the random intercepts for the `disc` parameter, we can determine which cuisines generate the most cultural consensus in the US.
 
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_variance_baseline.png"))
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/cuisine_variance_baseline.png){fig-align='center' width=100%}
+:::
+:::
+
 
 *   **High Consensus (Blue)**: Cuisines like Ethiopian, Pakistani, and Lebanese are highly agreed upon by the public (they have very low variance in ratings). They generally map uniformly to the "Traditional Elder" side of the scale without much contestation.
 *   **Low Consensus (Red)**: Italian, French, and Japanese cuisines produce massive rating variance. Because these cuisines exist simultaneously as everyday domestic food and highly formalized, elite professional cuisine in the US, respondents exhibit fundamental disagreement about where their "authenticity" lies.
@@ -186,9 +191,13 @@ Do certain demographic groups have stronger consensus than others? The following
 *   **Blue Shaded Area**: The Bayesian posterior density (where the true effect is most likely to be).
 *   **Lines**: 80% and 95% Credible Intervals.
 
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "demographic_variance_effects_forest.png"))
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/demographic_variance_effects_forest.png){fig-align='center' width=100%}
+:::
+:::
+
 
 **Key Insights into Consensus:**
 *   **Education Drives Consensus:** Respondents with a High School education or less display significantly more consensus (lower variance) in their ratings. Conversely, those with Professional/Graduate degrees have the lowest consensus (widest variance). 
@@ -205,9 +214,13 @@ In this plot:
 *   **Negative Values** = Pushes ratings toward "1 - Traditional Elder at Home"
 *   **Positive Values** = Pushes ratings toward "7 - Professional Chef"
 
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "strict_demographic_effects_forest.png"))
-```
+
+::: {.cell layout-align="center"}
+::: {.cell-output-display}
+![](../../Plots/02_acat_multilevel/strict_demographic_effects_forest.png){fig-align='center' width=100%}
+:::
+:::
+
 
 **Core Demographic Patterns:**
 1.  **Gender**: Women are strongly more likely than men to view food authenticity as anchored in the "Traditional Elder at Home" (the entire posterior distribution is negative).

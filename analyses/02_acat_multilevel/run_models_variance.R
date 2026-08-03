@@ -58,9 +58,9 @@ fit_variance <- brm(
     prior(exponential(1), class = "sd", dpar = "disc")
   ),
   chains = 4,
-  cores = 2,
-  iter = 6000,
-  warmup = 3000,
+  cores = 1,
+  iter = 4000,
+  warmup = 2000,
   seed = 1234,
   control = list(adapt_delta = 0.95),
   backend = "rstan",

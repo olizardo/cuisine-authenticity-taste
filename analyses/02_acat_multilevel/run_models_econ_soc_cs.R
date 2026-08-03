@@ -18,7 +18,7 @@ cuisines_cols <- c("japanese", "french", "italian", "mexican", "moroccan",
                    "korean", "peruvian", "native_american", "swedish", 
                    "pakistani", "ethiopian", "vietnamese", "nigerian", 
                    "jamaican", "lebanese")
-demographics <- c("age.f", "race.f", "gend.f", "educ.f", "inc.f", "city.f")
+demographics <- c("age.f", "race.f", "gend.f", "educ.f", "inc.f", "city.f", "arts.f")
 
 dat_long <- dat |>
   select(respondent_id, all_of(cuisines_cols), all_of(demographics), social, economic) |>
@@ -33,7 +33,7 @@ dat_long <- dat |>
   )
 
 formula_cs_econ_soc <- bf(
-  rating_ord ~ 1 + cs(social_c) + cs(economic_c) + age.f + race.f + gend.f + educ.f + inc.f + 
+  rating_ord ~ 1 + cs(social_c) + cs(economic_c) + age.f + race.f + gend.f + educ.f + inc.f + arts.f + 
     (1 | respondent_id) + (1 | cuisine)
 )
 
@@ -48,9 +48,9 @@ fit_cs_econ_soc <- brm(
     prior(exponential(1), class = "sd")
   ),
   chains = 4,
-  cores = 2,
-  iter = 6000,
-  warmup = 3000,
+  cores = 1,
+  iter = 4000,
+  warmup = 2000,
   seed = 1234,
   control = list(adapt_delta = 0.95),
   backend = "rstan",

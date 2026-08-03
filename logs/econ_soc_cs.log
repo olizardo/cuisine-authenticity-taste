@@ -1,32 +1,32 @@
 - The project is out-of-sync -- use `renv::status()` for details.
-Starting model fitting process for Distributional (Variance) ACAT Model...
-Fitting Distributional Model...
+Starting model fitting process for Social + Economic Category-Specific Model...
+Fitting Model...
 Compiling Stan program...
 Start sampling
 
-SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 2).
-
 SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 1).
-Chain 2: 
-Chain 2: Gradient evaluation took 0.158232 seconds
-Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 1582.32 seconds.
-Chain 2: Adjust your expectations accordingly!
-Chain 2: 
-Chain 2: 
+
+SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 2).
 Chain 1: 
-Chain 1: Gradient evaluation took 0.123726 seconds
-Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 1237.26 seconds.
+Chain 1: Gradient evaluation took 0.17325 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 1732.5 seconds.
 Chain 1: Adjust your expectations accordingly!
 Chain 1: 
 Chain 1: 
-Chain 2: Iteration:    1 / 6000 [  0%]  (Warmup)
+Chain 2: 
+Chain 2: Gradient evaluation took 0.222977 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 2229.77 seconds.
+Chain 2: Adjust your expectations accordingly!
+Chain 2: 
+Chain 2: 
 Chain 1: Iteration:    1 / 6000 [  0%]  (Warmup)
-Chain 2: Iteration:  600 / 6000 [ 10%]  (Warmup)
+Chain 2: Iteration:    1 / 6000 [  0%]  (Warmup)
 Chain 1: Iteration:  600 / 6000 [ 10%]  (Warmup)
-Chain 2: Iteration: 1200 / 6000 [ 20%]  (Warmup)
+Chain 2: Iteration:  600 / 6000 [ 10%]  (Warmup)
 Chain 1: Iteration: 1200 / 6000 [ 20%]  (Warmup)
-Chain 2: Iteration: 1800 / 6000 [ 30%]  (Warmup)
+Chain 2: Iteration: 1200 / 6000 [ 20%]  (Warmup)
 Chain 1: Iteration: 1800 / 6000 [ 30%]  (Warmup)
+Chain 2: Iteration: 1800 / 6000 [ 30%]  (Warmup)
 Chain 2: Iteration: 2400 / 6000 [ 40%]  (Warmup)
 Chain 1: Iteration: 2400 / 6000 [ 40%]  (Warmup)
 Chain 2: Iteration: 3000 / 6000 [ 50%]  (Warmup)
@@ -43,30 +43,30 @@ Chain 2: Iteration: 5400 / 6000 [ 90%]  (Sampling)
 Chain 1: Iteration: 5400 / 6000 [ 90%]  (Sampling)
 Chain 2: Iteration: 6000 / 6000 [100%]  (Sampling)
 Chain 2: 
-Chain 2:  Elapsed Time: 11362.1 seconds (Warm-up)
-Chain 2:                9210.82 seconds (Sampling)
-Chain 2:                20572.9 seconds (Total)
+Chain 2:  Elapsed Time: 7527.95 seconds (Warm-up)
+Chain 2:                4837.23 seconds (Sampling)
+Chain 2:                12365.2 seconds (Total)
 Chain 2: 
 
 SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 3).
 Chain 3: 
-Chain 3: Gradient evaluation took 0.041079 seconds
-Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 410.79 seconds.
+Chain 3: Gradient evaluation took 0.047788 seconds
+Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 477.88 seconds.
 Chain 3: Adjust your expectations accordingly!
 Chain 3: 
 Chain 3: 
 Chain 3: Iteration:    1 / 6000 [  0%]  (Warmup)
 Chain 1: Iteration: 6000 / 6000 [100%]  (Sampling)
 Chain 1: 
-Chain 1:  Elapsed Time: 11696 seconds (Warm-up)
-Chain 1:                9241.29 seconds (Sampling)
-Chain 1:                20937.3 seconds (Total)
+Chain 1:  Elapsed Time: 7677.57 seconds (Warm-up)
+Chain 1:                4855.9 seconds (Sampling)
+Chain 1:                12533.5 seconds (Total)
 Chain 1: 
 
 SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 4).
 Chain 4: 
-Chain 4: Gradient evaluation took 0.033149 seconds
-Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 331.49 seconds.
+Chain 4: Gradient evaluation took 0.054998 seconds
+Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 549.98 seconds.
 Chain 4: Adjust your expectations accordingly!
 Chain 4: 
 Chain 4: 
@@ -93,25 +93,32 @@ Chain 3: Iteration: 5400 / 6000 [ 90%]  (Sampling)
 Chain 4: Iteration: 5400 / 6000 [ 90%]  (Sampling)
 Chain 3: Iteration: 6000 / 6000 [100%]  (Sampling)
 Chain 3: 
-Chain 3:  Elapsed Time: 7365.87 seconds (Warm-up)
-Chain 3:                8329.32 seconds (Sampling)
-Chain 3:                15695.2 seconds (Total)
+Chain 3:  Elapsed Time: 6379.41 seconds (Warm-up)
+Chain 3:                4772.35 seconds (Sampling)
+Chain 3:                11151.8 seconds (Total)
 Chain 3: 
 Chain 4: Iteration: 6000 / 6000 [100%]  (Sampling)
 Chain 4: 
-Chain 4:  Elapsed Time: 7839.12 seconds (Warm-up)
-Chain 4:                8891.22 seconds (Sampling)
-Chain 4:                16730.3 seconds (Total)
+Chain 4:  Elapsed Time: 6461.49 seconds (Warm-up)
+Chain 4:                4753.78 seconds (Sampling)
+Chain 4:                11215.3 seconds (Total)
 Chain 4: 
-Warning message:
-Rows containing NAs were excluded from the model. 
-Saving fit_variance_acat.rds...
-           used  (Mb) gc trigger   (Mb)  max used   (Mb)
-Ncells  7528463 402.1   22961424 1226.3  13983171  746.8
-Vcells 72487910 553.1  187086406 1427.4 187086406 1427.4
+Warning messages:
+1: Rows containing NAs were excluded from the model. 
+2: Bulk Effective Samples Size (ESS) is too low, indicating posterior means and medians may be unreliable.
+Running the chains for more iterations may help. See
+https://mc-stan.org/misc/warnings.html#bulk-ess 
+Saving fit_cs_econ_soc_acat.rds...
+           used (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells  7526582  402   20459652 1092.7  13866705  740.6
+Vcells 74568422  569  207649769 1584.3 207649769 1584.3
 Computing WAIC (subsampled)...
 Warning message:
 
-469 (2.6%) p_waic estimates greater than 0.4. We recommend trying loo instead. 
-Loading base strict model for comparison...
-Finished Variance Model!
+341 (1.9%) p_waic estimates greater than 0.4. We recommend trying loo instead. 
+Loading base CS model for comparison...
+Warning message:
+
+334 (1.8%) p_waic estimates greater than 0.4. We recommend trying loo instead. 
+Error: unexpected symbol in "cat("Finished Step 3!\n")inished"
+Execution halted
