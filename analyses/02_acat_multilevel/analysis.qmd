@@ -7,6 +7,7 @@ format:
   html:
     toc: true
     theme: cosmo
+    embed-resources: true
 ---
 
 ## 1. Introduction
@@ -118,7 +119,7 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "education_mid
 
 This reveals whether highly educated respondents are drawn more toward the "traditional elder" for certain cuisines (a possible marker of omnivorous cultural capital) compared to less educated respondents, or if they lean toward professionalization.
 
-## 6. Baseline Cuisine Leans (Random Effects)
+## 6. Baseline Cuisine Leans and Ideological Slopes (Random Effects)
 
 In addition to fixed effects like ideology, the model estimates a random intercept for each of the 15 cuisines. This shows us the baseline public consensus for where each cuisine "belongs" on the authenticity-to-professionalization spectrum, holding demographic and ideological differences constant.
 
@@ -127,7 +128,19 @@ In addition to fixed effects like ideology, the model estimates a random interce
 knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_random_effects.png"))
 ```
 
-**Key Findings:**
+**Key Baseline Findings:**
 *   **Most "Elder at Home"**: Native American, Nigerian, Jamaican, and Ethiopian cuisines have statistically credible negative intercepts, meaning the average respondent views them as most authentically prepared by a traditional elder at home.
 *   **Most "Professional Chef"**: French, Japanese, and Swedish cuisines have strong positive intercepts, firmly rooting them in the high-end professional/chef domain in the public eye. (French cuisine is the most extreme outlier in this direction).
-*   **Neutral / Contested**: Cuisines like Mexican, Pakistani, Lebanese, Moroccan, Peruvian, Vietnamese, Italian, and Korean hover near zero (the intercept), suggesting either a true neutral midpoint view or high disagreement among respondents that washes out the aggregate baseline.
+
+### 6.1 Do ideological effects vary by cuisine?
+
+We estimated a random slopes model, allowing the effect of social conservatism to vary independently for each cuisine. WAIC comparisons indicated this provided a statistically significant improvement in model fit ($\Delta$ ELPD = -19.2), confirming that ideology interacts with specific cuisines differently.
+
+The following plot combines the global fixed effect of social conservatism with the cuisine-specific deviations (random slopes) to show the total ideological push for each cuisine.
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+# Embed the random slopes plot
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_cuisine_slopes.png"))
+```
+
+A **negative slope** means that higher conservatism pulls that specific cuisine toward the "Traditional Elder at Home" (1) rating, while a **positive slope** pushes it toward the "Professional Chef" (7) rating.

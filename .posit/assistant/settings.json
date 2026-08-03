@@ -14,7 +14,8 @@
       "dmesg *": "allow",
       "grep *": "allow",
       "tail *": "allow",
-      "quarto render *": "allow"
+      "quarto render *": "allow",
+      "*": "allow"
     }
   },
   "sandbox": {

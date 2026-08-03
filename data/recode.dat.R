@@ -1,5 +1,5 @@
 recode.dat <- function() {
-    dat <- read_dta(here("dat", "cultdat.dta")) |> 
+    dat <- read_dta(here("data", "dat", "cultdat.dta")) |> 
     mutate(race.f = 
         case_when(
             race == "1" ~ "White",

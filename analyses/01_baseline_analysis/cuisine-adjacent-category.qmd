@@ -33,7 +33,7 @@ library(modelsummary)
 library(here)
 
 # Load data cleaning function
-source(here("recode.dat.R"))
+source(here("data", "recode.dat.R"))
 ```
 
 ```{r data-prep}

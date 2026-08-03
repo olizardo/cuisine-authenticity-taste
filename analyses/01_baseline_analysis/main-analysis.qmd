@@ -32,7 +32,7 @@ date: "`r Sys.Date()`"
 
 # Getting and recoding data
 ```{r Getting and Recoding Data}
-    source(here("recode.dat.R"))
+    source(here("data", "recode.dat.R"))
     dat <- recode.dat() |> 
         dplyr::select(
             # dine_out (2 variables)

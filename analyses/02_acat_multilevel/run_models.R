@@ -15,7 +15,7 @@ cat("Starting model fitting process for Model 2 only...\n")
 
 # 2. Data Preparation
 cat("Loading and preparing data...\n")
-source(here::here("recode.dat.R"))
+source(here::here("data", "recode.dat.R"))
 dat <- recode.dat()
 
 dat$respondent_id <- seq_len(nrow(dat))

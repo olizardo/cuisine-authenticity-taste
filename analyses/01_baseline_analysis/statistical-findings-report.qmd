@@ -64,7 +64,7 @@ We begin by configuring our workspace, loading the required packages, and loadin
     conflicts_prefer(dplyr::summarize)
 
     # Load data and select active/supplementary columns
-    source(here("recode.dat.R"))
+    source(here("data", "recode.dat.R"))
     dat <- recode.dat() |> 
         dplyr::select(
             # 1-2: dine_out (active, continuous)
