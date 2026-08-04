@@ -1,0 +1,125 @@
+Starting model fitting...
+Fitting Model 1: Baseline Strict...
+In file included from stan/src/stan/model/model_header.hpp:5:
+stan/src/stan/model/model_base_crtp.hpp:205:8: warning: 'void stan::model::model_base_crtp<M>::write_array(stan::rng_t&, std::vector<double>&, std::vector<int>&, std::vector<double>&, bool, bool, std::ostream*) const [with M = model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model; stan::rng_t = boost::random::mixmax_engine<17, 36, 0>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+  205 |   void write_array(stan::rng_t& rng, std::vector<double>& theta,
+      |        ^~~~~~~~~~~
+
+C:/TMP/RtmpKCcwh1/model-751427f53b28.hpp:1276:3: note:   by 'void model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model::write_array(RNG&, Eigen::Matrix<double, -1, 1>&, Eigen::Matrix<double, -1, 1>&, bool, bool, std::ostream*) const'
+ 1276 |   write_array(RNG& base_rng, Eigen::Matrix<double,-1,1>& params_r,
+      |   ^~~~~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:136:8: warning: 'void stan::model::model_base_crtp<M>::write_array(stan::rng_t&, Eigen::VectorXd&, Eigen::VectorXd&, bool, bool, std::ostream*) const [with M = model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model; stan::rng_t = boost::random::mixmax_engine<17, 36, 0>; Eigen::VectorXd = Eigen::Matrix<double, -1, 1>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+  136 |   void write_array(stan::rng_t& rng, Eigen::VectorXd& theta,
+      |        ^~~~~~~~~~~
+C:/TMP/RtmpKCcwh1/model-751427f53b28.hpp:1276:3: note:   by 'void model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model::write_array(RNG&, Eigen::Matrix<double, -1, 1>&, Eigen::Matrix<double, -1, 1>&, bool, bool, std::ostream*) const'
+ 1276 |   write_array(RNG& base_rng, Eigen::Matrix<double,-1,1>& params_r,
+      |   ^~~~~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:91:17: warning: 'double stan::model::model_base_crtp<M>::log_prob(Eigen::VectorXd&, std::ostream*) const [with M = model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model; Eigen::VectorXd = Eigen::Matrix<double, -1, 1>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+   91 |   inline double log_prob(Eigen::VectorXd& theta,
+      |                 ^~~~~~~~
+C:/TMP/RtmpKCcwh1/model-751427f53b28.hpp:1313:3: note:   by 'T_ model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model::log_prob(Eigen::Matrix<T_a
+, -1, 1>&, std::ostream*) const'
+ 1313 |   log_prob(Eigen::Matrix<T_,-1,1>& params_r, std::ostream* pstream = nullptr) const {
+      |   ^~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:159:20: warning: 'stan::math::var stan::model::model_base_crtp<M>::log_prob(std::vector<stan::math::var_value<double>, std::allocator<stan::math::var_value<double> > >&, std::vector<int>&, std::ostream*) const [with M = model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model; stan::math::var = stan::math::var_value<double>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+  159 |   inline math::var log_prob(std::vector<math::var>& theta,
+      |                    ^~~~~~~~
+C:/TMP/RtmpKCcwh1/model-751427f53b28.hpp:1313:3: note:   by 'T_ model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model::log_prob(Eigen::Matrix<T_a, -1, 1>&, std::ostream*) const'
+ 1313 |   log_prob(Eigen::Matrix<T_,-1,1>& params_r, std::ostream* pstream = nullptr) const {
+      |   ^~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:96:20: warning: 'stan::math::var stan::model::model_base_crtp<M>::log_prob(Eigen::Matrix<stan::math::var_value<double>, -1, 1>&, std::ostream*) const [with M = model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model; stan::math::var = stan::math::var_value<double>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+   96 |   inline math::var log_prob(Eigen::Matrix<math::var, -1, 1>& theta,
+      |                    ^~~~~~~~
+C:/TMP/RtmpKCcwh1/model-751427f53b28.hpp:1313:3: note:   by 'T_ model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model::log_prob(Eigen::Matrix<T_a, -1, 1>&, std::ostream*) const'
+ 1313 |   log_prob(Eigen::Matrix<T_,-1,1>& params_r, std::ostream* pstream = nullptr) const {
+      |   ^~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:154:17:
+ warning: 'double stan::model::model_base_crtp<M>::log_prob(std::vector<double>&, std::vector<int>&, std::ostream*) const [with M = model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+  154 |   inline double log_prob(std::vector<double>& theta, std::vector<int>& theta_i,
+      |                 ^~~~~~~~
+C:/TMP/RtmpKCcwh1/model-751427f53b28.hpp:1313:3: note:   by 'T_ model_7df7343e0dbaf48511ff9874da0424e1_model_namespace::model_7df7343e0dbaf48511ff9874da0424e1_model::log_prob(Eigen::Matrix<T_a, -1, 1>&, std::ostream*) const'
+ 1313 |   log_prob(Eigen::Matrix<T_,-1,1>& params_r, std::ostream* pstream = nullptr) const {
+      |   ^~~~~~~~
+
+Start sampling
+Running MCMC with 4 chains, at most 2 in parallel...
+
+Chain 2 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 1 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 1 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 2 Iteration:  100 / 4000 [  2%]  (Warmup) 
+Chain 1 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 1 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 1 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 1 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 1 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 1 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 2 Iteration:  200 / 4000 [  5%]  (Warmup) 
+Chain 1 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 2 Iteration:  300 / 4000 [  7%]  (Warmup) 
+Chain 2 Iteration:  400 / 4000 [ 10%]  (Warmup) 
+Chain 1 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 2 Iteration:  500 / 4000 [ 12%]  (Warmup) 
+Chain 1 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 2 Iteration:  600 / 4000 [ 15%]  (Warmup) 
+Chain 1 Iteration: 1100 / 4000 [ 27%]  (Warmup) 
+Chain 2 Iteration:  700 / 4000 [ 17%]  (Warmup) 
+Chain 1 Iteration: 1200 / 4000 [ 30%]  (Warmup) 
+Chain 2 Iteration:  800 / 4000 [ 20%]  (Warmup) 
+Chain 1 Iteration: 1300 / 4000 [ 32%]  (Warmup) 
+Chain 2 Iteration:  900 / 4000 [ 22%]  (Warmup) 
+Chain 1 Iteration: 1400 / 4000 [ 35%]  (Warmup) 
+Chain 2 Iteration: 1000 / 4000 [ 25%]  (Warmup) 
+Chain 1 Iteration: 1500 / 4000 [ 37%]  (Warmup) 
+Chain 2 Iteration: 1100 / 4000 [ 27%]  (Warmup) 
+Chain 2 Iteration: 1200 / 4000 [ 30%]  (Warmup) 
+Chain 1 Iteration: 1600 / 4000 [ 40%]  (Warmup) 
+Chain 2 Iteration: 1300 / 4000 [ 32%]  (Warmup) 
+Chain 1 Iteration: 1700 / 4000 [ 42%]  (Warmup) 
+Chain 2 Iteration: 1400 / 4000 [ 35%]  (Warmup) 
+Chain 1 Iteration: 1800 / 4000 [ 45%]  (Warmup) 
+Chain 2 Iteration: 1500 / 4000 [ 37%]  (Warmup) 
+Chain 1 Iteration: 1900 / 4000 [ 47%]  (Warmup) 
+Chain 2 Iteration: 1600 / 4000 [ 40%]  (Warmup) 
+Chain 2 Iteration: 1700 / 4000 [ 42%]  (Warmup) 
+Chain 1 Iteration: 2000 / 4000 [ 50%]  (Warmup) 
+Chain 1 Iteration: 2001 / 4000 [ 50%]  (Sampling) 
+Chain 2 Iteration: 1800 / 4000 [ 45%]  (Warmup) 
+Chain 1 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 2 Iteration: 1900 / 4000 [ 47%]  (Warmup) 
+Chain 1 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 2 Iteration: 2000 / 4000 [ 50%]  (Warmup) 
+Chain 2 Iteration: 2001 / 4000 [ 50%]  (Sampling) 
+Chain 1 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 2 Iteration: 2100 / 4000 [ 52%]  (Sampling) 
+Chain 1 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 2 Iteration: 2200 / 4000 [ 55%]  (Sampling) 
+Chain 1 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 2 Iteration: 2300 / 4000 [ 57%]  (Sampling) 
+Chain 1 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 2 Iteration: 2400 / 4000 [ 60%]  (Sampling) 
+Chain 1 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 2 Iteration: 2500 / 4000 [ 62%]  (Sampling) 
+Chain 1 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 2 Iteration: 2600 / 4000 [ 65%]  (Sampling) 
+Chain 1 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 2 Iteration: 2700 / 4000 [ 67%]  (Sampling) 
+Chain 1 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 2 Iteration: 2800 / 4000 [ 70%]  (Sampling) 
+Chain 1 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 2 Iteration: 2900 / 4000 [ 72%]  (Sampling) 
+Chain 1 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 2 Iteration: 3000 / 4000 [ 75%]  (Sampling) 
+Chain 1 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 2 Iteration: 3100 / 4000 [ 77%]  (Sampling) 
+Chain 1 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 2 Iteration: 3200 / 4000 [ 80%]  (Sampling) 
+Chain 1 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 2 Iteration: 3300 / 4000 [ 82%]  (Sampling) 
+Chain 1 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 2 Iteration: 3400 / 4000 [ 85%]  (Sampling) 
+Chain 1 Iteration: 3700 / 4000 [ 92%]  (Sampling) 
+Chain 2 Iteration: 3500 / 4000 [ 87%]  (Sampling) 
+Chain 1 Iteration: 3800 / 4000 [ 95%]  (Sampling) 
+Chain 2 Iteration: 3600 / 4000 [ 90%]  (Sampling) 
+Chain 1 Iteration: 3900 / 4000 [ 97%]  (Sampling) 

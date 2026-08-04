@@ -1,6 +1,0 @@
-- The project is out-of-sync -- use `renv::status()` for details.
-Loading models...
-Computing Subsampled LOO for strict model...
-Error in q[, 1] : incorrect number of dimensions
-Calls: loo_subsample ... compute_lpds -> lapply -> FUN -> llfun -> log_lik_fun -> cbind
-Execution halted

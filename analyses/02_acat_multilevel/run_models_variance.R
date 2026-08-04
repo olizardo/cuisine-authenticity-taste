@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-.libPaths(c("/home/omarlizardo/CULTURE PROJECTS/CLAYTON PROJECTS/childress-lizardo-cuisine-authenticity-taste/renv/library/linux-debian-trixie/R-4.5/x86_64-pc-linux-gnu", .libPaths()))
 
 suppressPackageStartupMessages({
   library(tidyverse)
@@ -63,7 +62,7 @@ fit_variance <- brm(
   warmup = 2000,
   seed = 1234,
   control = list(adapt_delta = 0.95),
-  backend = "rstan",
+  backend = "cmdstanr",
   save_pars = save_pars(all = FALSE)
 )
 

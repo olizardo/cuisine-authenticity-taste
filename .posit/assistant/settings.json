@@ -4,7 +4,8 @@
       "*.md": "allow",
       "*.qmd": "allow",
       "*.R": "allow",
-      "*.sh": "allow"
+      "*.sh": "allow",
+      "*": "allow"
     },
     "executeCode": {
       "*": "allow"

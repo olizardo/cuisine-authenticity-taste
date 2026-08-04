@@ -1,3 +1,0 @@
-      model elpd_diff se_diff p_worse diag_diff diag_elpd
-     fit_cs       0.0     0.0      NA                    
- fit_strict     -33.7     9.8    1.00                    
