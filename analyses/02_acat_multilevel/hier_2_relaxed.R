@@ -30,13 +30,13 @@ dat_long <- dat |>
     rating_ord = factor(rating, levels = 1:7, ordered = TRUE),
     cuisine = as.factor(cuisine),
     respondent_id = as.factor(respondent_id),
-    social_c = scale(social, center = TRUE, scale = FALSE),
-    economic_c = scale(economic, center = TRUE, scale = FALSE),
-    educ_c = scale(educ, center = TRUE, scale = FALSE),
-    peduc_c = scale(peduc, center = TRUE, scale = FALSE),
-    income_c = scale(income, center = TRUE, scale = FALSE),
-    age_c = scale(age, center = TRUE, scale = FALSE),
-    arts_c = scale(arts, center = TRUE, scale = FALSE)
+    social_c = as.numeric(scale(social, center = TRUE, scale = TRUE)),
+    economic_c = as.numeric(scale(economic, center = TRUE, scale = TRUE)),
+    educ_c = as.numeric(scale(educ, center = TRUE, scale = TRUE)),
+    peduc_c = as.numeric(scale(peduc, center = TRUE, scale = TRUE)),
+    income_c = as.numeric(scale(income, center = TRUE, scale = TRUE)),
+    age_c = as.numeric(scale(age, center = TRUE, scale = TRUE)),
+    arts_c = as.numeric(scale(arts, center = TRUE, scale = TRUE))
   )
 
 formula_mod <- bf(rating_ord ~ 1 + cs(educ_c) + cs(peduc_c) + cs(social_c) + cs(economic_c) + cs(arts_c) + income_c + age_c + gend.f + race.f + (1 | respondent_id) + (1 | cuisine))
@@ -51,11 +51,11 @@ fit <- brm(
     prior(normal(0, 1), class = "b")
   ),
   chains = 4,
-  cores = 2,
+  cores = 4,
   iter = 4000,
   warmup = 2000,
   seed = 1234,
-  control = list(adapt_delta = 0.95),
+  control = list(adapt_delta = 0.90),
   backend = "cmdstanr",
   save_pars = save_pars(all = FALSE)
 )

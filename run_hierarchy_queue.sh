@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Starting Hierarchy Model Queue..."
 
-RSCRIPT="C:/Program Files/R/R-4.5.3/bin/x64/Rscript.exe"
+RSCRIPT="Rscript"
 
 echo "1/5: Fitting Baseline Strict Model..."
 "$RSCRIPT" analyses/02_acat_multilevel/hier_1_baseline.R > logs/hier_1_baseline.log 2>&1
