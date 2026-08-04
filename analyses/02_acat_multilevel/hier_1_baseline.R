@@ -16,23 +16,30 @@ cuisines_cols <- c("japanese", "french", "italian", "mexican", "moroccan",
                    "korean", "peruvian", "native_american", "swedish", 
                    "pakistani", "ethiopian", "vietnamese", "nigerian", 
                    "jamaican", "lebanese")
-# Exclude educ.f, we will use the numerical "educ"
-demographics <- c("age.f", "race.f", "gend.f", "inc.f", "city.f", "arts.f")
 
 dat_long <- dat |>
-  select(respondent_id, all_of(cuisines_cols), all_of(demographics), social, economic, educ) |>
+  select(respondent_id, all_of(cuisines_cols), gend.f, race.f, social, economic, educ, peduc, income, age, arts) |>
   pivot_longer(cols = all_of(cuisines_cols), names_to = "cuisine", values_to = "rating") |>
-  filter(!is.na(rating), !is.na(social), !is.na(economic), !is.na(educ)) |>
+  mutate(income = ifelse(income == 13, NA, income)) |> 
+  filter(
+    !is.na(rating), !is.na(social), !is.na(economic), !is.na(educ), 
+    !is.na(peduc), !is.na(income), !is.na(age), !is.na(arts),
+    !is.na(gend.f), !is.na(race.f)
+  ) |>
   mutate(
     rating_ord = factor(rating, levels = 1:7, ordered = TRUE),
     cuisine = as.factor(cuisine),
     respondent_id = as.factor(respondent_id),
     social_c = scale(social, center = TRUE, scale = FALSE),
     economic_c = scale(economic, center = TRUE, scale = FALSE),
-    educ_c = scale(educ, center = TRUE, scale = FALSE)
+    educ_c = scale(educ, center = TRUE, scale = FALSE),
+    peduc_c = scale(peduc, center = TRUE, scale = FALSE),
+    income_c = scale(income, center = TRUE, scale = FALSE),
+    age_c = scale(age, center = TRUE, scale = FALSE),
+    arts_c = scale(arts, center = TRUE, scale = FALSE)
   )
 
-formula_mod <- bf(rating_ord ~ 1 + social_c + economic_c + educ_c + age.f + race.f + gend.f + inc.f + arts.f + (1 | respondent_id) + (1 | cuisine))
+formula_mod <- bf(rating_ord ~ 1 + educ_c + peduc_c + social_c + economic_c + income_c + age_c + arts_c + gend.f + race.f + (1 | respondent_id) + (1 | cuisine))
 
 cat("Fitting Model 1: Baseline Strict...\n")
 fit <- brm(
