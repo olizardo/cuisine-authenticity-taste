@@ -55,11 +55,12 @@ fit <- brm(
   ),
   chains = 4,
   cores = 4,
-  iter = 4000,
-  warmup = 2000,
+  iter = 2000,
+  warmup = 1000,
   seed = 1234,
   control = list(adapt_delta = 0.90),
   backend = "cmdstanr",
+  threads = threading(3),
   save_pars = save_pars(all = FALSE)
 )
 
