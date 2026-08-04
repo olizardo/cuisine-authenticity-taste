@@ -1,0 +1,48 @@
+Starting model fitting...
+Fitting Model 2: Relaxed CS...
+In file included from stan/src/stan/model/model_header.hpp:5:
+stan/src/stan/model/model_base_crtp.hpp:205:8: warning: 'void stan::model::model_base_crtp<M>::write_array(stan::rng_t&, std::vector<double>&, std::vector<int>&, std::vector<double>&, bool, bool, std::ostream*) const [with M = model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model; stan::rng_t = boost::random::mixmax_engine<17, 36, 0>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+  205 |   void write_array(stan::rng_t& rng, std::vector<double>& theta,
+      |        ^~~~~~~~~~~
+
+C:/TMP/RtmponuVxA/model-42fc161e2bea.hpp:1423:3: note:   by 'void model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model::write_array(RNG&, Eigen::Matrix<double, -1, 1>&, Eigen::Matrix<double, -1, 1>&, bool, bool, std::ostream*) const'
+ 1423 |   write_array(RNG& base_rng, Eigen::Matrix<double,-1,1>& params_r,
+      |   ^~~~~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:136:8: warning: 'void stan::model::model_base_crtp<M>::write_array(stan::rng_t&, Eigen::VectorXd&, Eigen::VectorXd&, bool, bool, std::ostream*) const [with M = model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model; stan::rng_t = boost::random::mixmax_engine<17, 36, 0>; Eigen::VectorXd = Eigen::Matrix<double, -1, 1>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+  136 |   void write_array(stan::rng_t& rng, Eigen::VectorXd& theta,
+      |        ^~~~~~~~~~~
+C:/TMP/RtmponuVxA/model-42fc161e2bea.hpp:1423:3: note:   by 'void model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model::write_array(RNG&, Eigen::Matrix<double, -1, 1>&, Eigen::Matrix<double, -1, 1>&, bool, bool, std::ostream*) const'
+ 1423 |   write_array(RNG& base_rng, Eigen::Matrix<double,-1,1>& params_r,
+      |   ^~~~~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:91:17: warning: 'double stan::model::model_base_crtp<M>::log_prob(Eigen::VectorXd&, std::ostream*) const [with M = model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model; Eigen::VectorXd = Eigen::Matrix<double, -1, 1>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+   91 |   inline double log_prob(Eigen::VectorXd& theta,
+      |                 ^~~~~~~~
+C:/TMP/RtmponuVxA/model-42fc161e2bea.hpp:1460:3: note:   by 'T_ model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model::log_prob(Eigen::Matrix<T_a
+, -1, 1>&, std::ostream*) const'
+ 1460 |   log_prob(Eigen::Matrix<T_,-1,1>& params_r, std::ostream* pstream = nullptr) const {
+      |   ^~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:159:20: warning: 'stan::math::var stan::model::model_base_crtp<M>::log_prob(std::vector<stan::math::var_value<double>, std::allocator<stan::math::var_value<double> > >&, std::vector<int>&, std::ostream*) const [with M = model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model; stan::math::var = stan::math::var_value<double>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+  159 |   inline math::var log_prob(std::vector<math::var>& theta,
+      |                    ^~~~~~~~
+C:/TMP/RtmponuVxA/model-42fc161e2bea.hpp:1460:3: note:   by 'T_ model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model::log_prob(Eigen::Matrix<T_a, -1, 1>&, std::ostream*) const'
+ 1460 |   log_prob(Eigen::Matrix<T_,-1,1>& params_r, std::ostream* pstream = nullptr) const {
+      |   ^~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:96:20: warning: 'stan::math::var stan::model::model_base_crtp<M>::log_prob(Eigen::Matrix<stan::math::var_value<double>, -1, 1>&, std::ostream*) const [with M = model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model; stan::math::var = stan::math::var_value<double>; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+   96 |   inline math::var log_prob(Eigen::Matrix<math::var, -1, 1>& theta,
+      |                    ^~~~~~~~
+C:/TMP/RtmponuVxA/model-42fc161e2bea.hpp:1460:3: note:   by 'T_ model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model::log_prob(Eigen::Matrix<T_a, -1, 1>&, std::ostream*) const'
+ 1460 |   log_prob(Eigen::Matrix<T_,-1,1>& params_r, std::ostream* pstream = nullptr) const {
+      |   ^~~~~~~~
+stan/src/stan/model/model_base_crtp.hpp:154:17:
+ warning: 'double stan::model::model_base_crtp<M>::log_prob(std::vector<double>&, std::vector<int>&, std::ostream*) const [with M = model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model; std::ostream = std::basic_ostream<char>]' was hidden [-Woverloaded-virtual=]
+  154 |   inline double log_prob(std::vector<double>& theta, std::vector<int>& theta_i,
+      |                 ^~~~~~~~
+C:/TMP/RtmponuVxA/model-42fc161e2bea.hpp:1460:3: note:   by 'T_ model_029619445d58db2301e8abffc7f392ac_model_namespace::model_029619445d58db2301e8abffc7f392ac_model::log_prob(Eigen::Matrix<T_a, -1, 1>&, std::ostream*) const'
+ 1460 |   log_prob(Eigen::Matrix<T_,-1,1>& params_r, std::ostream* pstream = nullptr) const {
+      |   ^~~~~~~~
+
+Start sampling
+Running MCMC with 4 chains, at most 2 in parallel...
+
+Chain 2 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 1 Iteration:    1 / 4000 [  0%]  (Warmup) 
