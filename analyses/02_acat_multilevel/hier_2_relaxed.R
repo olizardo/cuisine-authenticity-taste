@@ -49,7 +49,7 @@ fit <- brm(
   warmup = 2000,
   seed = 1234,
   control = list(adapt_delta = 0.95),
-  backend = "rstan",
+  backend = "cmdstanr",
   save_pars = save_pars(all = FALSE)
 )
 

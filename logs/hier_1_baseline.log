@@ -1,22 +1,7 @@
 Starting model fitting...
 Fitting Model 1: Baseline Strict...
-Compiling Stan program...
 Start sampling
+Running MCMC with 4 chains, at most 2 in parallel...
 
-SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 1).
-
-SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 2).
-Chain 2: 
-Chain 2: Gradient evaluation took 0.033765 seconds
-Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 337.65 seconds.
-Chain 2: Adjust your expectations accordingly!
-Chain 2: 
-Chain 2: 
-Chain 1: 
-Chain 1: Gradient evaluation took 0.032831 seconds
-Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 328.31 seconds.
-Chain 1: Adjust your expectations accordingly!
-Chain 1: 
-Chain 1: 
-Chain 1: Iteration:    1 / 4000 [  0%]  (Warmup)
-Chain 2: Iteration:    1 / 4000 [  0%]  (Warmup)
+Chain 1 Iteration:    1 / 4000 [  0%]  (Warmup) 
+Chain 2 Iteration:    1 / 4000 [  0%]  (Warmup) 
