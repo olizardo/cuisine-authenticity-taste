@@ -87,9 +87,21 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "model_fit_com
 
 ---
 
-## 5. Preliminary Findings: Baseline and Category-Specific Effects
+## 5. Preliminary Findings: Baseline and Fixed Effects
 
-### 5.1 Baseline Authenticity by Cuisine
+### 5.1 Global Demographic Fixed Effects
+
+Before looking at specific cuisines or non-linear effects, we can extract the global fixed effects from the best-fitting model (Model 5: Variance + Random Slopes). These coefficients represent the average structural "push" of demographic and ideological traits across all cuisines.
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "demographic_fixed_effects.png"))
+```
+
+**Key Baseline Drivers:**
+*   **Ideology and Capital**: Social Conservatism and Education are the strongest positive structural forces, pushing respondents to associate authenticity with high-end "Professional Chefs" (Rating 7).
+*   **Gender and Race**: Women and respondents identifying as Mixed White or Mixed Other exert a negative push relative to men and white respondents, leaning slightly more toward the "Traditional Elder at Home" (Rating 1) definition globally.
+
+### 5.2 Baseline Authenticity by Cuisine
 
 In addition to fixed effects like ideology, the model estimates a random intercept for each of the 15 cuisines. This shows us the baseline public consensus for where each cuisine "belongs" on the authenticity-to-professionalization spectrum, holding demographic and ideological differences constant.
 
@@ -106,7 +118,7 @@ To interpret the non-linear Category-Specific (CS) effects from Model 2, we extr
 
 This allows us to visualize how a 1-standard-deviation increase in a given demographic trait shifts the probability of choosing an extreme rating relative to staying neutral.
 
-### 5.2 Ideological Effects: Polarization vs. Centrism
+### 5.3 Ideological Effects: Polarization vs. Centrism
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 # Embed the pre-generated plot to ensure lightning-fast rendering
@@ -126,7 +138,7 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_cs_e
 *   **The Social Slingshot**: At the lower thresholds, the effect of Social Conservatism is muted. But at the final threshold (6 vs 7), it applies an enormous positive push (+0.51 log-odds), throwing respondents aggressively into the absolute extreme "Professional Chef" category.
 *   **The Economic Wall**: Economic conservatism weakly pushes people rightward away from 1 (+0.09). But crucially, at the upper thresholds (5 vs 6, and 6 vs 7), the coefficients flip negative (-0.10 and -0.30). This acts as a mathematical wall—blocking respondents from choosing extreme "Chef" ratings and trapping them in the middle of the scale.
 
-### 5.3 Cultural Capital Effects
+### 5.4 Cultural Capital Effects
 
 Concepts of "authenticity" and preference for "high-end chefs" versus "traditional elders" are heavily theorized as class-based (cultural capital).
 
