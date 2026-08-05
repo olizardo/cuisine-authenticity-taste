@@ -8,17 +8,17 @@ suppressPackageStartupMessages({
   library(tidyr)
 })
 
-cat("Loading Random Slopes model...\n")
-fit_rs <- readRDS(here::here("cache", "hier_3_rs.rds"))
+cat("Loading Variance Random Slopes model...\n")
+fit_var_rs <- readRDS(here::here("cache", "hier_5_var_rs.rds"))
 
-cat("Extracting posterior draws for all cuisine-specific slopes...\n")
-draws_rs <- fit_rs |>
-  gather_draws(r_cuisine[cuisine, term]) |>
+cat("Extracting posterior draws for all cuisine-specific variance slopes...\n")
+draws_rs <- fit_var_rs |>
+  gather_draws(r_cuisine__disc[cuisine, term]) |>
   filter(term %in% c("social_c", "economic_c", "educ_c", "peduc_c", "arts_c"))
 
-draws_b <- fit_rs |>
-  gather_draws(b_social_c, b_economic_c, b_educ_c, b_peduc_c, b_arts_c) |>
-  mutate(term = sub("^b_", "", .variable)) |>
+draws_b <- fit_var_rs |>
+  gather_draws(b_disc_social_c, b_disc_economic_c, b_disc_educ_c, b_disc_peduc_c, b_disc_arts_c) |>
+  mutate(term = sub("^b_disc_", "", .variable)) |>
   ungroup() |>
   select(.draw, term, global_effect = .value)
 
@@ -45,7 +45,7 @@ draws <- draws_rs |>
 draws <- draws |>
   mutate(cuisine_label = factor(cuisine_label, levels = rev(sort(unique(cuisine_label)))))
 
-cat("Creating ideology plot...\n")
+cat("Creating variance ideology plot...\n")
 draws_ideology <- draws |> filter(term %in% c("social_c", "economic_c"))
 p_ideology <- ggplot(draws_ideology, aes(x = cuisine_slope, y = cuisine_label)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50", linewidth = 1) +
@@ -53,9 +53,9 @@ p_ideology <- ggplot(draws_ideology, aes(x = cuisine_slope, y = cuisine_label)) 
   facet_wrap(~Term_Label, ncol = 2, scales = "free_x") +
   theme_minimal(base_size = 14) +
   labs(
-    title = "Ideological Effects by Cuisine (Random Slopes)",
-    subtitle = "Positive value: Variable pushes ratings toward 'Professional Chef' (7)\nNegative value: Variable pushes ratings toward 'Traditional Elder' (1)",
-    x = "Log-Odds Shift (Per 1-unit increase)",
+    title = "Ideological Effects on Consensus by Cuisine",
+    subtitle = "Positive value: Variable INCREASES consensus (lowers variance)\nNegative value: Variable DECREASES consensus (raises variance)",
+    x = "Log-Odds Shift (Discrimination Parameter)",
     y = "Cuisine"
   ) +
   theme(
@@ -64,10 +64,10 @@ p_ideology <- ggplot(draws_ideology, aes(x = cuisine_slope, y = cuisine_label)) 
     strip.text = element_text(face = "bold", size = 12)
   )
 
-out_file_ideology <- here::here("Plots", "02_acat_multilevel", "rs_cuisine_slopes_ideology.png")
+out_file_ideology <- here::here("Plots", "02_acat_multilevel", "rs_variance_ideology.png")
 ggsave(out_file_ideology, plot = p_ideology, width = 10, height = 7, bg = "white")
 
-cat("Creating cultural capital plot...\n")
+cat("Creating variance cultural capital plot...\n")
 draws_cultural <- draws |> filter(term %in% c("educ_c", "peduc_c", "arts_c"))
 p_cultural <- ggplot(draws_cultural, aes(x = cuisine_slope, y = cuisine_label)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50", linewidth = 1) +
@@ -75,9 +75,9 @@ p_cultural <- ggplot(draws_cultural, aes(x = cuisine_slope, y = cuisine_label)) 
   facet_wrap(~Term_Label, ncol = 3, scales = "free_x") +
   theme_minimal(base_size = 14) +
   labs(
-    title = "Cultural Capital Effects by Cuisine (Random Slopes)",
-    subtitle = "Positive value: Variable pushes ratings toward 'Professional Chef' (7)\nNegative value: Variable pushes ratings toward 'Traditional Elder' (1)",
-    x = "Log-Odds Shift (Per 1-unit increase)",
+    title = "Cultural Capital Effects on Consensus by Cuisine",
+    subtitle = "Positive value: Variable INCREASES consensus (lowers variance)\nNegative value: Variable DECREASES consensus (raises variance)",
+    x = "Log-Odds Shift (Discrimination Parameter)",
     y = "Cuisine"
   ) +
   theme(
@@ -86,7 +86,7 @@ p_cultural <- ggplot(draws_cultural, aes(x = cuisine_slope, y = cuisine_label)) 
     strip.text = element_text(face = "bold", size = 12)
   )
 
-out_file_cultural <- here::here("Plots", "02_acat_multilevel", "rs_cuisine_slopes_cultural.png")
+out_file_cultural <- here::here("Plots", "02_acat_multilevel", "rs_variance_cultural.png")
 ggsave(out_file_cultural, plot = p_cultural, width = 13, height = 7, bg = "white")
 
 cat("Plots successfully saved\n")

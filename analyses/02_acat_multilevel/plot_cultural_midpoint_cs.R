@@ -47,31 +47,35 @@ calc_midpoint_contrasts <- function(d, var_prefix) {
   return(df)
 }
 
-# Calculate contrasts for social and economic
-social_contrasts <- calc_midpoint_contrasts(draws, "social_c") %>%
-  mutate(Ideology = "Social Conservatism")
+# Calculate contrasts for cultural variables
+educ_contrasts <- calc_midpoint_contrasts(draws, "educ_c") %>%
+  mutate(Variable = "Education")
 
-econ_contrasts <- calc_midpoint_contrasts(draws, "economic_c") %>%
-  mutate(Ideology = "Economic Conservatism")
+peduc_contrasts <- calc_midpoint_contrasts(draws, "peduc_c") %>%
+  mutate(Variable = "Parental Education")
+
+arts_contrasts <- calc_midpoint_contrasts(draws, "arts_c") %>%
+  mutate(Variable = "Arts Exposure")
 
 # Combine and set factor levels
-all_contrasts <- bind_rows(social_contrasts, econ_contrasts) %>%
+all_contrasts <- bind_rows(educ_contrasts, peduc_contrasts, arts_contrasts) %>%
   mutate(
     Contrast = factor(Contrast, levels = c(
       "1 (Elder) vs 4", "2 vs 4", "3 vs 4",
       "5 vs 4", "6 vs 4", "7 (Chef) vs 4"
-    ))
+    )),
+    Variable = factor(Variable, levels = c("Education", "Parental Education", "Arts Exposure"))
   )
 
 # Plot
-p_midpoint <- ggplot(all_contrasts, aes(x = .value, y = fct_rev(Contrast), fill = Ideology)) +
+p_midpoint <- ggplot(all_contrasts, aes(x = .value, y = fct_rev(Contrast), fill = Variable)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray40", linewidth = 1) +
   stat_halfeye(slab_alpha = 0.35, .width = c(0.8, 0.95)) +
-  facet_wrap(~Ideology, ncol = 2) +
-  scale_fill_manual(values = c("Social Conservatism" = "coral", "Economic Conservatism" = "steelblue")) +
+  facet_wrap(~Variable, ncol = 3) +
+  scale_fill_manual(values = c("Education" = "mediumseagreen", "Parental Education" = "mediumseagreen", "Arts Exposure" = "mediumseagreen")) +
   labs(
-    title = "Midpoint Contrasts: Economic vs. Social Ideology",
-    subtitle = "Effect of higher conservatism on choosing a specific rating vs. the Neutral midpoint (4)\nPositive = More likely to choose that rating than neutral",
+    title = "Midpoint Contrasts: Cultural Capital Effects",
+    subtitle = "Effect of higher variable levels on choosing a specific rating vs. the Neutral midpoint (4)\nPositive = More likely to choose that rating than neutral",
     x = "Log-Odds Shift (vs. Rating 4)",
     y = "Rating vs Neutral Baseline"
   ) +
@@ -82,5 +86,5 @@ p_midpoint <- ggplot(all_contrasts, aes(x = .value, y = fct_rev(Contrast), fill 
     strip.text = element_text(face = "bold", size = 12)
   )
 
-ggsave("Plots/02_acat_multilevel/ideology_cs_midpoint_effects.png", p_midpoint, width = 11, height = 7)
-cat("Saved plot to Plots/02_acat_multilevel/ideology_cs_midpoint_effects.png\n")
+ggsave("Plots/02_acat_multilevel/cultural_cs_midpoint_effects.png", p_midpoint, width = 13, height = 7)
+cat("Saved plot to Plots/02_acat_multilevel/cultural_cs_midpoint_effects.png\n")

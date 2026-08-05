@@ -83,59 +83,9 @@ To determine which mathematical architecture is empirically justified, we compar
 
 ---
 
-## 5. Preliminary Findings: Category-Specific Demographic Effects
+## 5. Preliminary Findings: Baseline and Category-Specific Effects
 
-To interpret the non-linear Category-Specific (CS) effects from Model 2, we extracted the posterior draws for each threshold step (1|2, 2|3, ..., 6|7) and mathematically recombined them into **contrasts against the neutral midpoint (4)**. 
-
-This allows us to visualize how a 1-standard-deviation increase in a given demographic trait shifts the probability of choosing an extreme rating relative to staying neutral.
-
-### 5.1 Social Conservatism: The Driver of Polarization
-
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-# Embed the pre-generated plot to ensure lightning-fast rendering
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_social_c.png"))
-```
-
-**Key Takeaways:**
-*   **Directionality**: A positive log-odds shift for a specific category indicates that higher conservatism *increases* the likelihood of choosing that rating (relative to a 4). 
-*   **Polarization**: As social conservatism increases, respondents are wildly more likely to abandon the neutral midpoint for "7 - Professional Chef." They are decisively drawn to the high-end, professional definition of authenticity.
-
-### 5.2 Economic Conservatism: The Centrist Pull
-
-Often treated as a monolith alongside social conservatism, political ideology actually pulls cultural preferences in opposing directions depending on whether we measure social or economic conservatism. 
-
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_economic_c.png"))
-```
-
-**Key Ideological Divergence:**
-*   **Centrism**: Economic conservatism exerts an anti-polarizing gravitational pull. Higher economic conservatism mathematically decreases the likelihood of choosing the extremes ("Professional Chef" or "Elder") relative to the baseline. They pull inward toward the neutral baseline (4), avoiding extreme categorizations of cultural goods altogether.
-
-### 5.3 Education and Cultural Capital
-
-Concepts of "authenticity" and preference for "high-end chefs" versus "traditional elders" are heavily theorized as class-based (cultural capital).
-
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_educ_c.png"))
-```
-
-Higher education acts as a structural force pushing respondents away from the "Traditional Elder" side of the scale, increasing the log-odds that they define authenticity through professionalization (Ratings 5, 6, and 7).
-
-### 5.4 Parental Education
-
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_peduc_c.png"))
-```
-
-Interestingly, while a respondent's *own* education pushes them toward the professional chef extreme, *parental* education exerts a much more muted, slightly centrist pull (similar to economic conservatism), suppressing the likelihood of choosing the absolute extremes (1 and 7).
-
-### 5.5 Childhood Arts Exposure
-
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_arts_c.png"))
-```
-
-Childhood arts exposure exhibits a wide, overlapping posterior distribution across the thresholds, indicating that once we control for education and ideology, early arts socialization does not have a mathematically confident directional pull on culinary authenticity.
+### 5.1 Baseline Authenticity by Cuisine
 
 In addition to fixed effects like ideology, the model estimates a random intercept for each of the 15 cuisines. This shows us the baseline public consensus for where each cuisine "belongs" on the authenticity-to-professionalization spectrum, holding demographic and ideological differences constant.
 
@@ -148,18 +98,63 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_rando
 *   **Most "Elder at Home"**: Native American, Nigerian, Jamaican, and Ethiopian cuisines have statistically credible negative intercepts, meaning the average respondent views them as most authentically prepared by a traditional elder at home.
 *   **Most "Professional Chef"**: French, Japanese, and Swedish cuisines have strong positive intercepts, firmly rooting them in the high-end professional/chef domain in the public eye. (French cuisine is the most extreme outlier in this direction).
 
-### 6.1 Do ideological effects vary by cuisine?
+To interpret the non-linear Category-Specific (CS) effects from Model 2, we extracted the posterior draws for each threshold step (1|2, 2|3, ..., 6|7) and mathematically recombined them into **contrasts against the neutral midpoint (4)**. 
 
-We estimated a random slopes model, allowing the effect of social conservatism to vary independently for each cuisine. WAIC comparisons indicated this provided a statistically significant improvement in model fit ($\Delta$ ELPD = -19.2), confirming that ideology interacts with specific cuisines differently.
+This allows us to visualize how a 1-standard-deviation increase in a given demographic trait shifts the probability of choosing an extreme rating relative to staying neutral.
 
-The following plot combines the global fixed effect of social conservatism with the cuisine-specific deviations (random slopes) to show the total ideological push for each cuisine.
+### 5.2 Ideological Effects: Polarization vs. Centrism
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-# Embed the random slopes plot
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_cuisine_slopes.png"))
+# Embed the pre-generated plot to ensure lightning-fast rendering
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_cs_midpoint_effects.png"))
 ```
 
-A **negative slope** means that higher conservatism pulls that specific cuisine toward the "Traditional Elder at Home" (1) rating, while a **positive slope** pushes it toward the "Professional Chef" (7) rating.
+**Key Ideological Divergence:**
+*   **Social Conservatism (Polarization)**: As social conservatism increases, respondents are wildly more likely to abandon the neutral midpoint for "7 - Professional Chef." They are decisively drawn to the high-end, professional definition of authenticity.
+*   **Economic Conservatism (Centrism)**: Economic conservatism exerts an anti-polarizing gravitational pull. Higher economic conservatism mathematically decreases the likelihood of choosing the extremes ("Professional Chef" or "Elder") relative to the baseline. They pull inward toward the neutral baseline (4), avoiding extreme categorizations of cultural goods altogether.
+
+### 5.3 Cultural Capital Effects
+
+Concepts of "authenticity" and preference for "high-end chefs" versus "traditional elders" are heavily theorized as class-based (cultural capital).
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cultural_cs_midpoint_effects.png"))
+```
+
+*   **Education**: Higher education acts as a structural force pushing respondents away from the "Traditional Elder" side of the scale, increasing the log-odds that they define authenticity through professionalization (Ratings 5, 6, and 7).
+*   **Parental Education**: Interestingly, while a respondent's *own* education pushes them toward the professional chef extreme, *parental* education exerts a much more muted, slightly centrist pull (similar to economic conservatism), suppressing the likelihood of choosing the absolute extremes (1 and 7).
+*   **Childhood Arts Exposure**: Childhood arts exposure exhibits a wide, overlapping posterior distribution across the thresholds, indicating that once we control for education and ideology, early arts socialization does not have a mathematically confident directional pull on culinary authenticity.
+
+---
+
+## 6. Random Slopes: Demographic and Ideological Effects by Cuisine
+
+We estimated a random slopes model (Model 3) allowing the continuous effects of Education, Parental Education, Social and Economic Conservatism, and Arts Exposure to vary independently for each cuisine. WAIC comparisons indicated this provided a statistically significant improvement in model fit, confirming that demographic and ideological factors interact with specific cuisines differently.
+
+The following plots combine the global fixed effects with the cuisine-specific deviations (random slopes) to show the total structural push of each variable on each cuisine. 
+
+*   A **negative slope** means that higher values of the variable pull that specific cuisine toward the "Traditional Elder at Home" (1) rating.
+*   A **positive slope** pushes it toward the "Professional Chef" (7) rating.
+
+### 6.1 Ideological Effects
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+# Embed the ideology random slopes plot
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_cuisine_slopes_ideology.png"))
+```
+
+*   **Social Conservatism**: Social Conservatism universally exerts a strong pull toward the professional end of the spectrum across virtually all cuisines, with French and Japanese showing the highest susceptibility to this ideological framing.
+*   **Economic Conservatism**: Hovers around zero across almost all cuisines, reinforcing its global role as a neutral or centrist pull that lacks a strong directional push toward either authenticity extreme.
+
+### 6.2 Cultural Capital Effects
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+# Embed the cultural capital random slopes plot
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_cuisine_slopes_cultural.png"))
+```
+
+*   **Education**: While Education has a globally positive pull (toward Professional Chef), the magnitude varies considerably. Education acts as a massive upward force for cuisines like Japanese, French, and Italian, but has a noticeably weaker effect on Nigerian or Jamaican cuisines.
+*   **Parental Education & Arts Exposure**: Similar to economic conservatism, these factors largely hover around zero across all cuisines, showing little to no directional influence regardless of the cuisine in question.
 
 ---
 
@@ -178,40 +173,43 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_varia
 *   **High Consensus (Blue)**: Cuisines like Ethiopian, Pakistani, and Lebanese are highly agreed upon by the public (they have very low variance in ratings). They generally map uniformly to the "Traditional Elder" side of the scale without much contestation.
 *   **Low Consensus (Red)**: Italian, French, and Japanese cuisines produce massive rating variance. Because these cuisines exist simultaneously as everyday domestic food and highly formalized, elite professional cuisine in the US, respondents exhibit fundamental disagreement about where their "authenticity" lies.
 
-### 7.2 Demographic Effects on Cultural Consensus
+### 7.2 Demographic Effects on Global Consensus
 
-Do certain demographic groups have stronger consensus than others? The following Bayesian "half-eye" forest plot visualizes the probability distribution of the demographic effects on the `disc` (consensus) parameter.
-
-*   **Blue Shaded Area**: The Bayesian posterior density (where the true effect is most likely to be).
-*   **Lines**: 80% and 95% Credible Intervals.
+Do certain demographic groups have stronger consensus than others? The following Bayesian "half-eye" forest plot visualizes the probability distribution of the demographic effects on the global `disc` (consensus) parameter.
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "demographic_variance_effects_forest.png"))
 ```
 
 **Key Insights into Consensus:**
-*   **Education Drives Consensus:** Respondents with a High School education or less display significantly more consensus (lower variance) in their ratings. Conversely, those with Professional/Graduate degrees have the lowest consensus (widest variance). 
-*   **Ideological Chaos:** As social conservatism increases, the discrimination parameter firmly drops. Conservatives exhibit significantly higher variance (less consensus) in their authenticity ratings compared to liberals.
+*   **Education Drives Dissensus:** Higher education levels firmly drop the discrimination parameter, meaning higher education results in wider variance (less consensus) on what constitutes authenticity globally.
+*   **Ideological Chaos:** As social conservatism increases, the discrimination parameter also drops. Conservatives exhibit significantly higher variance (less consensus) in their authenticity ratings compared to liberals.
 *   **Arts Exposure:** Childhood exposure to the arts does not have a statistically credible effect on variance, as its distribution widely crosses zero.
 
 ---
 
-## 8. Global Demographic Shifts (Dual-Ideology Effects)
+## 8. Random Slopes for Consensus: How Demographic Effects on Variance Change by Cuisine
 
-Using the Category-Specific model that controls for both Economic and Social conservatism, we can map how core demographic characteristics shift overall ratings along the authenticity spectrum. 
+Just as demographic pulls on the rating itself differ by cuisine, we also evaluated whether demographic impacts on *variance* differ by cuisine using Model 6 (Variance + Random Slopes).
 
-In this plot:
-*   **Negative Values** = Pushes ratings toward "1 - Traditional Elder at Home"
-*   **Positive Values** = Pushes ratings toward "7 - Professional Chef"
+*   A **negative value** means the trait lowers consensus (increases variance/chaos) for that specific cuisine.
+*   A **positive value** means the trait increases consensus (decreases variance).
 
-*(Note: Because the two ideology effects are category-specific, their values in this plot represent their mathematical average across all 6 thresholds).*
+### 8.1 Ideological Effects on Consensus
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_econ_soc_demographic_effects.png"))
+# Embed the ideology variance random slopes plot
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_variance_ideology.png"))
 ```
 
-**Core Demographic Patterns:**
-1.  **Gender**: Women are strongly more likely than men to view food authenticity as anchored in the "Traditional Elder at Home" (the entire posterior distribution is negative).
-2.  **The Class/Education Divide**: Respondents with High School or Some College degrees lean toward "Traditional Elder," whereas holding a Professional/Graduate degree is the *only* educational bracket that reliably pushes ratings toward "Professional Chef."
-3.  **Ideology**: Social conservatism exerts a tight, highly confident positive push, meaning conservatives are structurally more likely to associate authenticity with high-end, professional preparation than liberals. Economic conservatism, because it operates as a centrist pull (drawing away from both extremes), averages out to a null global effect.
-4.  **Race**: Racial categorizations (Hispanic, Black, Asian), once controlling for class and ideology, largely hover over zero, indicating they are not the primary structural drivers of authenticity associations in this global sample.
+*   **Social Conservatism**: While Social Conservatism generally creates more chaos (variance) in ratings globally, its effect is deeply dependent on the cuisine. For Mexican and Italian food, Social Conservatism powerfully decreases consensus. However, for Nigerian and Ethiopian cuisines, the effect hovers near zero, indicating conservatives are just as unified on their authenticity ratings for these cuisines as liberals.
+
+### 8.2 Cultural Capital Effects on Consensus
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+# Embed the cultural capital variance random slopes plot
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_variance_cultural.png"))
+```
+
+*   **Education**: Education universally decreases consensus (negative shifts across the board), but the chaos it introduces is especially intense for Mexican, Italian, and Native American cuisines. 
+*   **Parental Education & Arts Exposure**: As seen in the location models, early cultural capital markers (parental education and arts exposure) remain largely non-directional and do not significantly alter public consensus for any given cuisine.

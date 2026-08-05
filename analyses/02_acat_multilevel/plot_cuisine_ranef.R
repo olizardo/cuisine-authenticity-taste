@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
 })
 
 cat("Loading category-specific model...\n")
-fit <- readRDS(here::here("cache", "fit_cs_acat.rds"))
+fit <- readRDS(here::here("cache", "hier_1_baseline.rds"))
 
 cat("Extracting cuisine random effects as posterior draws...\n")
 draws <- fit |>
@@ -41,7 +41,7 @@ draws <- draws |>
 cat("Creating half-eye plot...\n")
 p_ranef <- ggplot(draws, aes(x = r_cuisine, y = Cuisine, fill = Lean)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50", linewidth = 1) +
-  stat_halfeye(alpha = 0.7, .width = c(0.8, 0.95)) +
+  stat_halfeye(slab_alpha = 0.35, .width = c(0.8, 0.95)) +
   scale_fill_manual(values = c("Elder at Home" = "firebrick", "Neutral (Crosses 0)" = "gray40", "Professional Chef" = "steelblue")) +
   theme_minimal(base_size = 14) +
   labs(

@@ -3,7 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(patchwork)
 
-fit_econ <- readRDS("cache/fit_cs_econ_soc_acat.rds")
+fit_econ <- readRDS(here::here("cache", "hier_2_relaxed.rds"))
 
 # Extract conditional effects
 ce_social <- conditional_effects(fit_econ, effects = "social_c", categorical = TRUE)

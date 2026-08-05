@@ -5,7 +5,7 @@ library(tidybayes)
 library(tidyr)
 library(forcats)
 
-fit_econ <- readRDS("cache/fit_cs_econ_soc_acat.rds")
+fit_econ <- readRDS(here::here("cache", "hier_2_relaxed.rds"))
 
 draws_cs <- fit_econ |>
   gather_draws(`bcs_social_c\\[.*`, `bcs_economic_c\\[.*`, regex = TRUE) |>
@@ -28,7 +28,7 @@ draws_cs <- fit_econ |>
 
 p_cs <- ggplot(draws_cs, aes(x = .value, y = fct_rev(Transition), fill = Ideology)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray40", linewidth = 1) +
-  stat_halfeye(alpha = 0.7, .width = c(0.8, 0.95)) +
+  stat_halfeye(slab_alpha = 0.35, .width = c(0.8, 0.95)) +
   facet_wrap(~Ideology, ncol = 2) +
   scale_fill_manual(values = c("Social Conservatism" = "coral", "Economic Conservatism" = "steelblue")) +
   labs(

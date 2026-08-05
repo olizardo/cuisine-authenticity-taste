@@ -3,37 +3,34 @@ library(dplyr)
 library(tidybayes)
 library(brms)
 
-fit_var <- readRDS("cache/fit_variance_acat.rds")
+fit_var <- readRDS(here::here("cache", "hier_5_var_rs.rds"))
 
 # Extract posterior draws for the fixed effects of the discrimination parameter
 draws_disc <- fit_var |>
-  gather_draws(`b_disc_social_c`, `b_disc_educ.f.*`, `b_disc_arts.f.*`, regex = TRUE) |>
+  gather_draws(`b_disc_social_c`, `b_disc_economic_c`, `b_disc_educ_c`, `b_disc_peduc_c`, `b_disc_arts_c`, regex = TRUE) |>
   mutate(
     .variable = case_when(
       .variable == "b_disc_social_c" ~ "Social Conservatism",
-      .variable == "b_disc_educ.fHighSchoolorLess" ~ "Educ: High School or Less",
-      .variable == "b_disc_educ.fSomeCollege" ~ "Educ: Some College",
-      .variable == "b_disc_educ.fProf.DGraduateDegree" ~ "Educ: Prof/Grad Degree",
-      .variable == "b_disc_arts.fLowExposuretoArtsasChild" ~ "Arts: Low Childhood Exposure",
-      .variable == "b_disc_arts.fHighExposuretoArtsasChild" ~ "Arts: High Childhood Exposure",
+      .variable == "b_disc_economic_c" ~ "Economic Conservatism",
+      .variable == "b_disc_educ_c" ~ "Education (Continuous)",
+      .variable == "b_disc_peduc_c" ~ "Parental Education (Continuous)",
+      .variable == "b_disc_arts_c" ~ "Arts Exposure (Continuous)",
       TRUE ~ .variable
     )
   ) |>
-  # Re-order the variables so education is stacked properly, with baseline College Degree implied 
   mutate(
     .variable = factor(.variable, levels = c(
-      "Educ: High School or Less",
-      "Educ: Some College",
-      "Educ: Prof/Grad Degree",
-      "Arts: Low Childhood Exposure",
-      "Arts: High Childhood Exposure",
+      "Parental Education (Continuous)",
+      "Education (Continuous)",
+      "Arts Exposure (Continuous)",
+      "Economic Conservatism",
       "Social Conservatism"
     ))
   )
 
 p_forest <- ggplot(draws_disc, aes(x = .value, y = .variable)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "gray50") +
-  stat_halfeye(fill = "steelblue", alpha = 0.7, .width = c(0.8, 0.95)) +
+  stat_halfeye(fill = "steelblue", slab_alpha = 0.35, .width = c(0.8, 0.95)) +
   labs(
     title = "Demographic Effects on Cultural Consensus",
     subtitle = "Positive = Higher Consensus (Lower Variance)\nNegative = Lower Consensus (Higher Variance)",

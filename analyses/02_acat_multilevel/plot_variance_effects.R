@@ -4,7 +4,7 @@ library(dplyr)
 library(tidybayes)
 
 # 1. Load the cached model
-fit_var <- readRDS("cache/fit_variance_acat.rds")
+fit_var <- readRDS(here::here("cache", "hier_5_var_rs.rds"))
 
 # ==========================================
 # PLOT 1: Baseline Variance by Cuisine
@@ -35,7 +35,7 @@ draws_disc <- draws_disc |>
 
 p_baseline_variance <- ggplot(draws_disc, aes(x = r_cuisine__disc, y = cuisine, fill = consensus_category)) +
   geom_vline(xintercept = 0, linetype = "dashed", color = "black", linewidth = 1) +
-  stat_halfeye(alpha = 0.7, .width = c(0.8, 0.95)) +
+  stat_halfeye(slab_alpha = 0.35, .width = c(0.8, 0.95)) +
   scale_fill_manual(values = c(
     "High Consensus (Above Average)" = "royalblue",
     "Average Consensus (Crosses Zero)" = "gray50",
