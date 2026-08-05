@@ -64,6 +64,10 @@ Given the massive complexity of these models (particularly ACAT location-scale f
 
 To determine which mathematical architecture is empirically justified, we compared their predictive performance using the **Watanabe-Akaike Information Criterion (WAIC)** subsetted to 1,000 random posterior draws (as standard LOO cross-validation matrices exceed available RAM). 
 
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "model_fit_comparison.png"))
+```
+
 **Results:**
 
 | Rank | Model Description | WAIC | SE | $\Delta$ WAIC (vs Baseline) |
@@ -113,6 +117,15 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_cs_m
 *   **Social Conservatism (Polarization)**: As social conservatism increases, respondents are wildly more likely to abandon the neutral midpoint for "7 - Professional Chef." They are decisively drawn to the high-end, professional definition of authenticity.
 *   **Economic Conservatism (Centrism)**: Economic conservatism exerts an anti-polarizing gravitational pull. Higher economic conservatism mathematically decreases the likelihood of choosing the extremes ("Professional Chef" or "Elder") relative to the baseline. They pull inward toward the neutral baseline (4), avoiding extreme categorizations of cultural goods altogether.
 
+To understand the mathematical mechanics driving these patterns, we can visualize the raw Category-Specific (CS) thresholds in the ACAT model. These represent the log-odds "push" across each internal boundary (e.g., the jump from Rating 6 to 7).
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_cs_effects.png"))
+```
+
+*   **The Social Slingshot**: At the lower thresholds, the effect of Social Conservatism is muted. But at the final threshold (6 vs 7), it applies an enormous positive push (+0.51 log-odds), throwing respondents aggressively into the absolute extreme "Professional Chef" category.
+*   **The Economic Wall**: Economic conservatism weakly pushes people rightward away from 1 (+0.09). But crucially, at the upper thresholds (5 vs 6, and 6 vs 7), the coefficients flip negative (-0.10 and -0.30). This acts as a mathematical wall—blocking respondents from choosing extreme "Chef" ratings and trapping them in the middle of the scale.
+
 ### 5.3 Cultural Capital Effects
 
 Concepts of "authenticity" and preference for "high-end chefs" versus "traditional elders" are heavily theorized as class-based (cultural capital).
@@ -124,6 +137,15 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cultural_cs_m
 *   **Education**: Higher education acts as a structural force pushing respondents away from the "Traditional Elder" side of the scale, increasing the log-odds that they define authenticity through professionalization (Ratings 5, 6, and 7).
 *   **Parental Education**: Interestingly, while a respondent's *own* education pushes them toward the professional chef extreme, *parental* education exerts a much more muted, slightly centrist pull (similar to economic conservatism), suppressing the likelihood of choosing the absolute extremes (1 and 7).
 *   **Childhood Arts Exposure**: Childhood arts exposure exhibits a wide, overlapping posterior distribution across the thresholds, indicating that once we control for education and ideology, early arts socialization does not have a mathematically confident directional pull on culinary authenticity.
+
+Again, looking at the raw internal category thresholds clarifies exactly how these two forms of capital diverge mathematically.
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cultural_cs_effects.png"))
+```
+
+*   **The Structural Plow**: A respondent's own education applies a positive push at *every single threshold*. It functions like a snowplow, consistently shoving the respondent away from "Elder" and cleanly through the neutral midpoint toward the "Professional Chef" side of the scale.
+*   **The Restrained Centrist**: Inherited cultural capital (parental education) behaves almost exactly like Economic Conservatism. It exerts negative pressure at the upper thresholds (-0.12 at Threshold 5; -0.10 at Threshold 6). This prevents respondents from selecting extreme professionalization, suppressing extreme opinions in favor of a more restrained, moderate rating style.
 
 ---
 
@@ -164,14 +186,14 @@ To answer the question of whether there is widespread public agreement (consensu
 
 ### 7.1 Baseline Variance by Cuisine
 
-By extracting the random intercepts for the `disc` parameter, we can determine which cuisines generate the most cultural consensus in the US.
+By extracting both the location intercept and the `disc` parameter intercept, we can map the entire authenticity landscape in two dimensions: where the cuisine sits, and how much the public agrees on it.
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_variance_baseline.png"))
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_2d_consensus.png"))
 ```
 
-*   **High Consensus (Blue)**: Cuisines like Ethiopian, Pakistani, and Lebanese are highly agreed upon by the public (they have very low variance in ratings). They generally map uniformly to the "Traditional Elder" side of the scale without much contestation.
-*   **Low Consensus (Red)**: Italian, French, and Japanese cuisines produce massive rating variance. Because these cuisines exist simultaneously as everyday domestic food and highly formalized, elite professional cuisine in the US, respondents exhibit fundamental disagreement about where their "authenticity" lies.
+*   **High Consensus / High Traditional (Top-Left)**: Cuisines like Ethiopian, Pakistani, and Lebanese are highly agreed upon by the public (they have very high `disc` parameters / low variance) and are firmly mapped to the "Traditional Elder" side of the scale.
+*   **Low Consensus / Chaos (Bottom)**: Italian, French, and Japanese cuisines produce massive rating variance (negative `disc` parameters). Because these cuisines exist simultaneously as everyday domestic food and highly formalized, elite professional cuisine in the US, respondents exhibit fundamental disagreement about where their "authenticity" lies.
 
 ### 7.2 Demographic Effects on Global Consensus
 
