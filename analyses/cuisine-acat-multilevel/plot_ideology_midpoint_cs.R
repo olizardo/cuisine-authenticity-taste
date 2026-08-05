@@ -82,5 +82,5 @@ p_midpoint <- ggplot(all_contrasts, aes(x = .value, y = fct_rev(Contrast), fill 
     strip.text = element_text(face = "bold", size = 12)
   )
 
-ggsave("Plots/02_acat_multilevel/ideology_cs_midpoint_effects.png", p_midpoint, width = 11, height = 7)
-cat("Saved plot to Plots/02_acat_multilevel/ideology_cs_midpoint_effects.png\n")
+ggsave("Plots/cuisine-acat-multilevel/ideology_cs_midpoint_effects.png", p_midpoint, width = 11, height = 7)
+cat("Saved plot to Plots/cuisine-acat-multilevel/ideology_cs_midpoint_effects.png\n")

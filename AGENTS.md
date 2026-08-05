@@ -10,12 +10,12 @@ The core dependent variable is a 1-to-7 ordinal rating scale asking where the fo
 ## Folder Structure
 - `data/`: Contains raw data (`dat/`) and the universal prep script (`recode.dat.R`).
 - `analyses/01_baseline_analysis/`: Standard descriptive, correspondence, and basic statistical reports.
-- `analyses/02_acat_multilevel/`: The core Bayesian modeling pipeline using `brms`. Includes the finalized `analysis.qmd` Quarto report.
+- `analyses/cuisine-acat-multilevel/`: The core Bayesian modeling pipeline using `brms`. Includes the finalized `analysis.qmd` Quarto report.
 - `cache/`: Stores massive `.rds` model objects.
 - `logs/`: Holds output from `nohup` background runs.
 - `Plots/`: All generated plots, standardized to use Bayesian `stat_halfeye` density ribbons.
 
-## The Bayesian Pipeline (`analyses/02_acat_multilevel/`)
+## The Bayesian Pipeline (`analyses/cuisine-acat-multilevel/`)
 We use multilevel Adjacent Category (ACAT) models. 
 
 ### Recent Breakthroughs & Finalized Analyses (Aug 5, 2026):

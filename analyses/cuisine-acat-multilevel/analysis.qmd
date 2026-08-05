@@ -65,7 +65,7 @@ Given the massive complexity of these models (particularly ACAT location-scale f
 To determine which mathematical architecture is empirically justified, we compared their predictive performance using the **Watanabe-Akaike Information Criterion (WAIC)** subsetted to 1,000 random posterior draws (as standard LOO cross-validation matrices exceed available RAM). 
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "model_fit_comparison.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "model_fit_comparison.png"))
 ```
 
 **Results:**
@@ -94,7 +94,7 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "model_fit_com
 Before looking at specific cuisines or non-linear effects, we can extract the global fixed effects from the best-fitting model (Model 5: Variance + Random Slopes). These coefficients represent the average structural "push" of demographic and ideological traits across all cuisines.
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "demographic_fixed_effects.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "demographic_fixed_effects.png"))
 ```
 
 **Key Baseline Drivers:**
@@ -107,7 +107,7 @@ In addition to fixed effects like ideology, the model estimates a random interce
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 # Embed the pre-generated cuisine random effects plot
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_random_effects.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "cuisine_random_effects.png"))
 ```
 
 **Key Baseline Findings:**
@@ -122,7 +122,7 @@ This allows us to visualize how a 1-standard-deviation increase in a given demog
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 # Embed the pre-generated plot to ensure lightning-fast rendering
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_cs_midpoint_effects.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "ideology_cs_midpoint_effects.png"))
 ```
 
 **Key Ideological Divergence:**
@@ -132,7 +132,7 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_cs_m
 To understand the mathematical mechanics driving these patterns, we can visualize the raw Category-Specific (CS) thresholds in the ACAT model. These represent the log-odds "push" across each internal boundary (e.g., the jump from Rating 6 to 7).
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_cs_effects.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "ideology_cs_effects.png"))
 ```
 
 *   **The Social Slingshot**: At the lower thresholds, the effect of Social Conservatism is muted. But at the final threshold (6 vs 7), it applies an enormous positive push (+0.51 log-odds), throwing respondents aggressively into the absolute extreme "Professional Chef" category.
@@ -143,7 +143,7 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_cs_e
 Concepts of "authenticity" and preference for "high-end chefs" versus "traditional elders" are heavily theorized as class-based (cultural capital).
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cultural_cs_midpoint_effects.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "cultural_cs_midpoint_effects.png"))
 ```
 
 *   **Education**: Higher education acts as a structural force pushing respondents away from the "Traditional Elder" side of the scale, increasing the log-odds that they define authenticity through professionalization (Ratings 5, 6, and 7).
@@ -153,7 +153,7 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cultural_cs_m
 Again, looking at the raw internal category thresholds clarifies exactly how these two forms of capital diverge mathematically.
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cultural_cs_effects.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "cultural_cs_effects.png"))
 ```
 
 *   **The Structural Plow**: A respondent's own education applies a positive push at *every single threshold*. It functions like a snowplow, consistently shoving the respondent away from "Elder" and cleanly through the neutral midpoint toward the "Professional Chef" side of the scale.
@@ -174,7 +174,7 @@ The following plots combine the global fixed effects with the cuisine-specific d
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 # Embed the ideology random slopes plot
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_cuisine_slopes_ideology.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "rs_cuisine_slopes_ideology.png"))
 ```
 
 *   **Social Conservatism**: Social Conservatism universally exerts a strong pull toward the professional end of the spectrum across virtually all cuisines, with French and Japanese showing the highest susceptibility to this ideological framing.
@@ -184,7 +184,7 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_cuisine_sl
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 # Embed the cultural capital random slopes plot
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_cuisine_slopes_cultural.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "rs_cuisine_slopes_cultural.png"))
 ```
 
 *   **Education**: While Education has a globally positive pull (toward Professional Chef), the magnitude varies considerably. Education acts as a massive upward force for cuisines like Japanese, French, and Italian, but has a noticeably weaker effect on Nigerian or Jamaican cuisines.
@@ -201,7 +201,7 @@ To answer the question of whether there is widespread public agreement (consensu
 By extracting both the location intercept and the `disc` parameter intercept, we can map the entire authenticity landscape in two dimensions: where the cuisine sits, and how much the public agrees on it.
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_2d_consensus.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "cuisine_2d_consensus.png"))
 ```
 
 *   **High Consensus / High Traditional (Top-Left)**: Cuisines like Ethiopian, Pakistani, and Lebanese are highly agreed upon by the public (they have very high `disc` parameters / low variance) and are firmly mapped to the "Traditional Elder" side of the scale.
@@ -212,7 +212,7 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cuisine_2d_co
 Do certain demographic groups have stronger consensus than others? The following Bayesian "half-eye" forest plot visualizes the probability distribution of the demographic effects on the global `disc` (consensus) parameter.
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "demographic_variance_effects_forest.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "demographic_variance_effects_forest.png"))
 ```
 
 **Key Insights into Consensus:**
@@ -233,7 +233,7 @@ Just as demographic pulls on the rating itself differ by cuisine, we also evalua
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 # Embed the ideology variance random slopes plot
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_variance_ideology.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "rs_variance_ideology.png"))
 ```
 
 *   **Social Conservatism**: While Social Conservatism generally creates more chaos (variance) in ratings globally, its effect is deeply dependent on the cuisine. For Mexican and Italian food, Social Conservatism powerfully decreases consensus. However, for Nigerian and Ethiopian cuisines, the effect hovers near zero, indicating conservatives are just as unified on their authenticity ratings for these cuisines as liberals.
@@ -242,7 +242,7 @@ knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_variance_i
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 # Embed the cultural capital variance random slopes plot
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "rs_variance_cultural.png"))
+knitr::include_graphics(here::here("Plots", "cuisine-acat-multilevel", "rs_variance_cultural.png"))
 ```
 
 *   **Education**: Education universally decreases consensus (negative shifts across the board), but the chaos it introduces is especially intense for Mexican, Italian, and Native American cuisines. 

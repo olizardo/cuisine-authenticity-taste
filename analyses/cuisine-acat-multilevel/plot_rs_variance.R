@@ -64,7 +64,7 @@ p_ideology <- ggplot(draws_ideology, aes(x = cuisine_slope, y = cuisine_label)) 
     strip.text = element_text(face = "bold", size = 12)
   )
 
-out_file_ideology <- here::here("Plots", "02_acat_multilevel", "rs_variance_ideology.png")
+out_file_ideology <- here::here("Plots", "cuisine-acat-multilevel", "rs_variance_ideology.png")
 ggsave(out_file_ideology, plot = p_ideology, width = 10, height = 7, bg = "white")
 
 cat("Creating variance cultural capital plot...\n")
@@ -86,7 +86,7 @@ p_cultural <- ggplot(draws_cultural, aes(x = cuisine_slope, y = cuisine_label)) 
     strip.text = element_text(face = "bold", size = 12)
   )
 
-out_file_cultural <- here::here("Plots", "02_acat_multilevel", "rs_variance_cultural.png")
+out_file_cultural <- here::here("Plots", "cuisine-acat-multilevel", "rs_variance_cultural.png")
 ggsave(out_file_cultural, plot = p_cultural, width = 13, height = 7, bg = "white")
 
 cat("Plots successfully saved\n")

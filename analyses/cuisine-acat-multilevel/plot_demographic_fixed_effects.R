@@ -66,7 +66,7 @@ p <- ggplot(draws, aes(x = .value, y = Predictor, fill = Category)) +
     panel.grid.major.y = element_blank()
   )
 
-out_path <- here::here("Plots", "02_acat_multilevel", "demographic_fixed_effects.png")
+out_path <- here::here("Plots", "cuisine-acat-multilevel", "demographic_fixed_effects.png")
 ggsave(out_path, p, width = 11, height = 8, dpi = 300, bg = "white")
 
 cat("Plot saved to:", out_path, "\n")

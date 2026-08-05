@@ -34,7 +34,7 @@ p <- ggplot(comp_df, aes(x = elpd_diff, y = model_clean)) +
     panel.grid.major.y = element_blank()
   )
 
-out_path <- here::here("Plots", "02_acat_multilevel", "model_fit_comparison.png")
+out_path <- here::here("Plots", "cuisine-acat-multilevel", "model_fit_comparison.png")
 ggsave(out_path, p, width = 10, height = 5, dpi = 300, bg = "white")
 
 cat("Plot saved to:", out_path, "\n")

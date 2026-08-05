@@ -57,7 +57,7 @@ p_ranef <- ggplot(draws, aes(x = r_cuisine, y = Cuisine, fill = Lean)) +
     plot.title = element_text(face = "bold")
   )
 
-out_file <- here::here("Plots", "02_acat_multilevel", "cuisine_random_effects.png")
+out_file <- here::here("Plots", "cuisine-acat-multilevel", "cuisine_random_effects.png")
 ggsave(out_file, plot = p_ranef, width = 9, height = 7, bg = "white")
 
 cat("Plot successfully saved to", out_file, "\n")

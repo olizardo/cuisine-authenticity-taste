@@ -49,5 +49,5 @@ p_cs <- ggplot(draws_cs, aes(x = .value, y = fct_rev(Transition), fill = Variabl
     strip.text = element_text(face = "bold", size = 12)
   )
 
-ggsave(here::here("Plots", "02_acat_multilevel", "cultural_cs_effects.png"), p_cs, width = 12, height = 6, bg = "white")
-cat("Saved plot to Plots/02_acat_multilevel/cultural_cs_effects.png\n")
+ggsave(here::here("Plots", "cuisine-acat-multilevel", "cultural_cs_effects.png"), p_cs, width = 12, height = 6, bg = "white")
+cat("Saved plot to Plots/cuisine-acat-multilevel/cultural_cs_effects.png\n")

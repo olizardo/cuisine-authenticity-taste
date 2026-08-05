@@ -40,5 +40,5 @@ p_forest <- ggplot(draws_disc, aes(x = .value, y = .variable)) +
   theme_minimal(base_size = 14) +
   theme(plot.title = element_text(face = "bold"))
 
-ggsave("Plots/02_acat_multilevel/demographic_variance_effects_forest.png", p_forest, width = 8, height = 6)
-cat("Saved demographic forest plot to Plots/02_acat_multilevel/demographic_variance_effects_forest.png\n")
+ggsave("Plots/cuisine-acat-multilevel/demographic_variance_effects_forest.png", p_forest, width = 8, height = 6)
+cat("Saved demographic forest plot to Plots/cuisine-acat-multilevel/demographic_variance_effects_forest.png\n")

@@ -56,5 +56,5 @@ p_final <- p_combined + plot_annotation(
   theme = theme(plot.title = element_text(face = "bold", size = 16))
 )
 
-ggsave("Plots/02_acat_multilevel/ideology_predicted_probs.png", p_final, width = 11, height = 6, bg = "white")
-cat("Saved plot to Plots/02_acat_multilevel/ideology_predicted_probs.png\n")
+ggsave("Plots/cuisine-acat-multilevel/ideology_predicted_probs.png", p_final, width = 11, height = 6, bg = "white")
+cat("Saved plot to Plots/cuisine-acat-multilevel/ideology_predicted_probs.png\n")

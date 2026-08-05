@@ -55,5 +55,5 @@ p_baseline_variance <- ggplot(draws_disc, aes(x = r_cuisine__disc, y = cuisine, 
   ) +
   guides(fill = guide_legend(nrow = 3, byrow = TRUE))
 
-ggsave("Plots/02_acat_multilevel/cuisine_variance_baseline.png", p_baseline_variance, width = 8, height = 7)
+ggsave("Plots/cuisine-acat-multilevel/cuisine_variance_baseline.png", p_baseline_variance, width = 8, height = 7)
 

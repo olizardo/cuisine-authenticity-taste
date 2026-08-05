@@ -44,5 +44,5 @@ p_cs <- ggplot(draws_cs, aes(x = .value, y = fct_rev(Transition), fill = Ideolog
     strip.text = element_text(face = "bold", size = 12)
   )
 
-ggsave("Plots/02_acat_multilevel/ideology_cs_effects.png", p_cs, width = 10, height = 6)
-cat("Saved plot to Plots/02_acat_multilevel/ideology_cs_effects.png\n")
+ggsave("Plots/cuisine-acat-multilevel/ideology_cs_effects.png", p_cs, width = 10, height = 6)
+cat("Saved plot to Plots/cuisine-acat-multilevel/ideology_cs_effects.png\n")

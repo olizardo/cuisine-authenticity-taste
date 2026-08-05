@@ -62,7 +62,7 @@ p <- ggplot(summary_df, aes(x = loc_med, y = disc_med)) +
     axis.title.y = element_text(margin = margin(r = 15), face = "bold")
   )
 
-out_path <- here::here("Plots", "02_acat_multilevel", "cuisine_2d_consensus.png")
+out_path <- here::here("Plots", "cuisine-acat-multilevel", "cuisine_2d_consensus.png")
 ggsave(out_path, p, width = 10, height = 8, dpi = 300, bg = "white")
 
 cat("Plot saved to:", out_path, "\n")

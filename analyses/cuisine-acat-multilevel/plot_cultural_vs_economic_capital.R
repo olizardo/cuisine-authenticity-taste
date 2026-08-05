@@ -61,7 +61,7 @@ p <- ggplot(draws, aes(x = Effect, y = fct_rev(Predictor), fill = Predictor)) +
     panel.grid.major.y = element_blank()
   )
 
-out_path <- here::here("Plots", "02_acat_multilevel", "cultural_vs_economic_capital.png")
+out_path <- here::here("Plots", "cuisine-acat-multilevel", "cultural_vs_economic_capital.png")
 ggsave(out_path, p, width = 10, height = 5, dpi = 300, bg = "white")
 
 cat("Plot saved to:", out_path, "\n")
