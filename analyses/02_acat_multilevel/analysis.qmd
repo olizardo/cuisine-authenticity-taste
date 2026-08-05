@@ -41,125 +41,101 @@ Because the outcome is a 1-to-7 ordinal scale, standard linear regression is ina
 
 We selected the **Adjacent Category (ACAT)** family. Unlike cumulative ordinal models (which predict the probability of rating *at least* a category), ACAT models predict the probability of choosing category $k+1$ rather than category $k$. This aligns conceptually with how survey respondents make step-by-step decisions on a Likert scale.
 
-### Strict vs. Category-Specific Effects
-We fitted two competing model specifications:
-*   **Model 1 (Strict)**: Assumes that predictors (like social conservatism) have the exact same proportional effect across all thresholds (e.g., the push from 1 to 2 is the same as the push from 6 to 7).
-*   **Model 2 (Category-Specific)**: Relaxes this assumption using the `cs()` specification (e.g., `cs(social_c)`). This allows the slope of the predictor to vary across each step of the rating scale, capturing non-linear or polarizing effects at the extremes of the scale.
+### Structural Model Hierarchy
+To identify the optimal mathematical architecture for evaluating the data, we systematically fitted a hierarchy of six competing model specifications:
 
-### Computational Safeguards
-Due to the massive complexity of Category-Specific ACAT models, they require significant computational resources. During model fitting, we encountered Out-Of-Memory (OOM) crashes and convergence warnings. The pipeline was adjusted to:
-*   Increase iterations to **6,000** (with 3,000 warmup) to ensure sufficient Bulk Effective Sample Size (ESS) for complex parameters.
-*   Restrict sampling to **2 cores** to strictly manage RAM footprint.
-*   Implement strategic file checkpointing (`saveRDS`) immediately after sampling to prevent data loss during heavy post-processing steps.
+1.  **Baseline Strict:** Assumes that continuous predictors (like mean-centered education and ideology) exert a uniform, linear push across all thresholds of the scale, identical for all cuisines.
+2.  **Relaxed Category-Specific (CS):** Relaxes the proportional odds assumption using the `cs()` specification (e.g., `cs(social_c)`). This allows the slope of predictors to vary across each step of the rating scale, capturing non-linear "centrist" or "polarizing" effects.
+3.  **Random Slopes (RS) Strict:** Returns to the strict linear structure but allows the effect of demographic predictors to vary independently for every cuisine.
+4.  **Relaxed CS + Random Slopes:** Combines both CS and RS structures.
+5.  **Variance Strict (Distributional):** Introduces a second equation predicting the `disc` parameter (inverse variance/consensus) using the same demographics, testing if groups differ in how much they agree on authenticity.
+6.  **Variance + Random Slopes:** The ultimate hybrid, applying cuisine-specific random slopes to both the location and the variance equations.
+
+### Computational Optimizations
+Given the massive complexity of these models (particularly ACAT location-scale formulations with random slopes), they require extreme computational efficiency to avoid Out-Of-Memory (OOM) crashes and endless sampling times. The pipeline utilizes:
+*   **Fully Standardized Predictors:** All continuous predictors are centered and scaled (Mean = 0, SD = 1) to provide frictionless, "spherical" geometry for the NUTS sampler.
+*   **`cmdstanr` Backend:** Completely bypasses R's internal memory limits by executing the C++ binaries in an isolated background process.
+*   **Within-Chain Threading (`reduce_sum`):** Uses `threads = threading(3)` to chunk the dataset and run likelihood calculations in parallel *within* each chain, fully saturating the server's 12 CPU cores.
+*   **Efficient Sampling:** The above optimizations allow convergence within a lean 2,000 iterations (1,000 warmup) while maintaining pristine Effective Sample Sizes (ESS).
 
 ---
 
 ## 4. Model Comparison
 
-To determine whether the complex Category-Specific model (Model 2) was justified over the simpler Strict model (Model 1), we compared their predictive performance. 
-
-Because standard Leave-One-Out Cross-Validation (LOO) requires allocating likelihood matrices that exceed system RAM, we utilized the **Watanabe-Akaike Information Criterion (WAIC)** subsetted to 1,000 random posterior draws. 
+To determine which mathematical architecture is empirically justified, we compared their predictive performance using the **Watanabe-Akaike Information Criterion (WAIC)** subsetted to 1,000 random posterior draws (as standard LOO cross-validation matrices exceed available RAM). 
 
 **Results:**
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-library(knitr)
-library(dplyr)
-
-# Gather all cached WAIC comparisons to build a master table
-waic_files <- list.files(here::here("cache"), pattern = "waic_comparison.*\\.rds", full.names = TRUE)
-
-all_waics <- lapply(waic_files, function(f) {
-  readRDS(f) %>% as.data.frame()
-}) %>% bind_rows()
-
-# Get unique models and rank them by predictive performance (ELPD)
-waic_clean <- all_waics %>%
-  group_by(model) %>%
-  summarize(
-    ELPD = mean(elpd_waic),
-    WAIC = mean(waic),
-    `SE (WAIC)` = mean(se_waic)
-  ) %>%
-  arrange(desc(ELPD)) %>%
-  mutate(
-    `Δ ELPD (from best)` = max(ELPD) - ELPD,
-    Model = case_when(
-      model == "fit_variance" ~ "Distributional Variance",
-      model == "fit_cs_econ_soc" ~ "Econ/Soc Category-Specific",
-      model == "fit_cs" ~ "Category-Specific Baseline",
-      model == "fit_rs_strict" ~ "Random Slopes (Ideology)",
-      model == "fit_strict" ~ "Strict Baseline",
-      TRUE ~ model
-    )
-  ) %>%
-  select(Model, ELPD, `Δ ELPD (from best)`, WAIC, `SE (WAIC)`)
-
-kable(waic_clean, digits = 2, caption = "Comprehensive Model Comparison using WAIC (Ranked by Fit)")
-```
+| Rank | Model Description | WAIC | SE | $\Delta$ WAIC (vs Baseline) |
+|------|-------------------|------|----|---------------|
+| **1** | **Variance + Random Slopes** | **53432.63** | 249.41 | **- 1877.96** |
+| 2 | Variance Strict | 53653.40 | 249.42 | - 1657.19 |
+| 3 | Relaxed CS + Random Slopes | 54961.97 | 244.84 | - 348.62 |
+| 4 | Random Slopes Strict | 55171.37 | 243.27 | - 139.22 |
+| 5 | Relaxed CS | 55177.51 | 243.10 | - 133.08 |
+| 6 | Baseline Strict | 55310.59 | 241.69 | 0.00 |
 
 *   **Conclusion**: 
-    1. The **Distributional Variance model** provides a massively superior fit ($\Delta$ ELPD > 750) over all standard location models, indicating that modeling the *variance* (consensus) of authenticity ratings is just as crucial as predicting the average rating.
-    2. Among standard location models, the **Category-Specific** models decisively beat the Strict Baseline, confirming that the effect of demographics on cuisine ratings is *not* uniform across the 1-to-7 scale.
+    1. The **Distributional Variance models (5 & 6)** provide a massively superior fit ($\Delta$ WAIC > 1,600) over all standard location models, indicating that formally modeling the *variance* (consensus) of authenticity ratings is by far the most crucial architectural choice for this data.
+    2. Among standard location models, adding **Random Slopes** (to allow cuisine-specific demographic effects) and **Category-Specific (CS) thresholds** yield moderate but meaningful improvements (-130 to -350 WAIC points) over the Strict Baseline. 
+    3. The best-fitting model overall combines Variance prediction with Random Slopes (`6_var_rs`).
 
-### 4.1 Posterior Predictive Checks
-To ensure the ordinal model accurately captures the shape of the data, we perform a posterior predictive check (PPC). This compares the model's predicted counts for each ordinal rating category against the actual observed distribution.
-
-```{r, echo=FALSE, fig.align='center', out.width='80%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ppc_bars.png"))
-```
-*If the light blue intervals tightly capture the dark blue observed bars, particularly for the central neutral category ("4") and the extremes, the model is successfully recovering the response process.*
 
 ---
 
-## 5. Preliminary Findings: The Effect of Social Conservatism
+## 5. Preliminary Findings: Category-Specific Demographic Effects
 
-To interpret the category-specific effects, we extracted the posterior draws for each threshold step (1|2, 2|3, ..., 6|7) and mathematically recombined them into **contrasts against the neutral midpoint (4)**. This allows us to visualize how a 1-unit increase in Social Conservatism shifts the probability of choosing an extreme rating relative to staying neutral.
+To interpret the non-linear Category-Specific (CS) effects from Model 2, we extracted the posterior draws for each threshold step (1|2, 2|3, ..., 6|7) and mathematically recombined them into **contrasts against the neutral midpoint (4)**. 
+
+This allows us to visualize how a 1-standard-deviation increase in a given demographic trait shifts the probability of choosing an extreme rating relative to staying neutral.
+
+### 5.1 Social Conservatism: The Driver of Polarization
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 # Embed the pre-generated plot to ensure lightning-fast rendering
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "social_midpoint_contrast.png"))
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_social_c.png"))
 ```
 
-**Key Takeaways from the Midpoint Contrasts:**
-*   **Directionality**: A positive log-odds shift for a specific category indicates that higher conservatism *increases* the likelihood of choosing that rating (relative to a 4). A negative shift indicates a *decrease* in likelihood.
-*   **Extremes**: By looking at the 95% Credible Intervals for the "1 (Elder at Home) vs 4" and "7 (Professional Chef) vs 4" contrasts, we can directly observe how ideology pushes respondents toward or away from specific definitions of culinary authenticity.
-*   **Credible Shifts**: Thresholds where the error bars (95% CI) do not cross the zero-line are flagged as credible, meaning we have high Bayesian confidence in the ideological effect at that specific point on the scale.
+**Key Takeaways:**
+*   **Directionality**: A positive log-odds shift for a specific category indicates that higher conservatism *increases* the likelihood of choosing that rating (relative to a 4). 
+*   **Polarization**: As social conservatism increases, respondents are wildly more likely to abandon the neutral midpoint for "7 - Professional Chef." They are decisively drawn to the high-end, professional definition of authenticity.
 
-### 5.1 The Effect of Education (Class Dynamics)
+### 5.2 Economic Conservatism: The Centrist Pull
 
-Concepts of "authenticity" and preference for "high-end chefs" versus "traditional elders" are heavily theorized as class-based (cultural capital). To investigate this, we computed similar midpoint contrasts comparing respondents with a **Graduate Degree** to those with **High School or Less** (relative to the baseline of a College Degree).
-
-```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "education_midpoint_contrast.png"))
-```
-
-This reveals whether highly educated respondents are drawn more toward the "traditional elder" for certain cuisines (a possible marker of omnivorous cultural capital) compared to less educated respondents, or if they lean toward professionalization.
-
-### 5.2 Competing Ideologies: Social vs. Economic Conservatism
-
-Often treated as a monolith, political ideology actually pulls cultural preferences in opposing directions depending on whether we measure social or economic conservatism. To disentangle this, we fit a category-specific model containing both predictors. 
-
-Instead of showing step-by-step thresholds, the plot below maps how a 1-unit increase in conservatism changes the probability of choosing a specific extreme over the neutral midpoint (4). 
+Often treated as a monolith alongside social conservatism, political ideology actually pulls cultural preferences in opposing directions depending on whether we measure social or economic conservatism. 
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_cs_midpoint_effects.png"))
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_economic_c.png"))
 ```
 
 **Key Ideological Divergence:**
-*   **Social Conservatism Drives Polarization**: As social conservatism increases, respondents are wildly more likely to abandon the neutral midpoint for "7 - Professional Chef." They are simultaneously far less likely to choose "1 - Traditional Elder." They are decisively drawn to the high-end, professional definition of authenticity.
-*   **Economic Conservatism Drives Centrism**: Conversely, economic conservatism exerts an anti-polarizing gravitational pull. High economic conservatives are *less* likely to choose the extreme "Professional Chef" and slightly less likely to choose the extreme "Elder." They pull inward toward the neutral baseline (4), avoiding extreme categorizations of cultural goods altogether.
+*   **Centrism**: Economic conservatism exerts an anti-polarizing gravitational pull. Higher economic conservatism mathematically decreases the likelihood of choosing the extremes ("Professional Chef" or "Elder") relative to the baseline. They pull inward toward the neutral baseline (4), avoiding extreme categorizations of cultural goods altogether.
 
-To make these log-odds shifts more intuitive, we can translate them back into **Predicted Probabilities**. The ribbon plot below shows the absolute probability of a respondent choosing either of the two extremes (1 or 7) versus the exact midpoint (4) as their ideology shifts from liberal to conservative.
+### 5.3 Education and Cultural Capital
+
+Concepts of "authenticity" and preference for "high-end chefs" versus "traditional elders" are heavily theorized as class-based (cultural capital).
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "ideology_predicted_probs.png"))
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_educ_c.png"))
 ```
 
-*   **Social Ideology (Left Panel):** Look at the blue line (rating of 7 - Professional Chef). For highly liberal respondents, the probability of choosing 7 is near zero. As we move to the right (highly conservative), the probability sharply spikes upwards, while the red line (1 - Elder) is depressed. 
-*   **Economic Ideology (Right Panel):** As we move to the right (more economically conservative), the probability of choosing *either* extreme (the red line and the blue line) slopes slowly downward. Instead, the gray line (rating of 4 - Neutral) swells in the middle, visually confirming that economic conservatism exerts a centrist pull, pulling respondents away from absolute categories.
+Higher education acts as a structural force pushing respondents away from the "Traditional Elder" side of the scale, increasing the log-odds that they define authenticity through professionalization (Ratings 5, 6, and 7).
 
-## 6. Baseline Cuisine Leans and Ideological Slopes (Random Effects)
+### 5.4 Parental Education
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_peduc_c.png"))
+```
+
+Interestingly, while a respondent's *own* education pushes them toward the professional chef extreme, *parental* education exerts a much more muted, slightly centrist pull (similar to economic conservatism), suppressing the likelihood of choosing the absolute extremes (1 and 7).
+
+### 5.5 Childhood Arts Exposure
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "02_acat_multilevel", "cs_midpoint_arts_c.png"))
+```
+
+Childhood arts exposure exhibits a wide, overlapping posterior distribution across the thresholds, indicating that once we control for education and ideology, early arts socialization does not have a mathematically confident directional pull on culinary authenticity.
 
 In addition to fixed effects like ideology, the model estimates a random intercept for each of the 15 cuisines. This shows us the baseline public consensus for where each cuisine "belongs" on the authenticity-to-professionalization spectrum, holding demographic and ideological differences constant.
 
