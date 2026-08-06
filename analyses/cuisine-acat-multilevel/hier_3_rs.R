@@ -29,14 +29,7 @@ dat_long <- dat |>
   mutate(
     rating_ord = factor(rating, levels = 1:7, ordered = TRUE),
     cuisine = as.factor(cuisine),
-    respondent_id = as.factor(respondent_id),
-    social_c = as.numeric(scale(social, center = TRUE, scale = TRUE)),
-    economic_c = as.numeric(scale(economic, center = TRUE, scale = TRUE)),
-    educ_c = as.numeric(scale(educ, center = TRUE, scale = TRUE)),
-    peduc_c = as.numeric(scale(peduc, center = TRUE, scale = TRUE)),
-    income_c = as.numeric(scale(income, center = TRUE, scale = TRUE)),
-    age_c = as.numeric(scale(age, center = TRUE, scale = TRUE)),
-    arts_c = as.numeric(scale(arts, center = TRUE, scale = TRUE))
+    respondent_id = as.factor(respondent_id)
   )
 
 formula_mod <- bf(rating_ord ~ 1 + educ_c + peduc_c + social_c + economic_c + income_c + age_c + arts_c + gend.f + race.f + (1 | respondent_id) + (1 + educ_c + peduc_c + social_c + economic_c + arts_c | cuisine))

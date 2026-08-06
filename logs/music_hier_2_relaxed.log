@@ -1,0 +1,13 @@
+- The project is out-of-sync -- use `renv::status()` for details.
+Starting Music Relaxed CS Model...
+Error in `.validate_prior()` at brms/R/brm.R:540:5:
+! The following priors do not correspond to any model parameter: 
+bcs ~ normal(0, 1)
+Function 'default_prior' might be helpful to you.
+Backtrace:
+    ▆
+ 1. └─brms::brm(...)
+ 2.   └─brms:::.validate_prior(prior, bframe = bframe, sample_prior = sample_prior) at brms/R/brm.R:540:5
+ 3.     └─brms:::stop2(...) at brms/R/priors.R:1287:7
+ 4.       └─rlang::abort(...) at brms/R/misc.R:874:3
+Execution halted

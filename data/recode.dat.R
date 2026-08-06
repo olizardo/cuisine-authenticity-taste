@@ -147,6 +147,15 @@ recode.dat <- function() {
     mutate(inq.f = ntile(income, 5)) |> 
     mutate(inq.f = factor(inq.f, labels = c("Bottom Income Quint.", "Second Income Quint.", 
     "Third Income Quint.", "Fourth Income Quint.", "Top Income Quint."))) |> 
+    mutate(
+      social_c = as.numeric(scale(social, center = TRUE, scale = TRUE)),
+      economic_c = as.numeric(scale(economic, center = TRUE, scale = TRUE)),
+      educ_c = as.numeric(scale(educ, center = TRUE, scale = TRUE)),
+      peduc_c = as.numeric(scale(peduc, center = TRUE, scale = TRUE)),
+      income_c = as.numeric(scale(income, center = TRUE, scale = TRUE)),
+      age_c = as.numeric(scale(age, center = TRUE, scale = TRUE)),
+      arts_c = as.numeric(scale(arts, center = TRUE, scale = TRUE))
+    ) |>
     data.frame() 
     dat$race.f <- relevel(dat$race.f, "White") 
     dat$pol.f <- relevel(dat$pol.f, "Moderate") 
