@@ -36,8 +36,7 @@ fit <- brm(
   family = acat("logit"),
   prior = c(
     prior(normal(0, 1.5), class = "Intercept"),
-    prior(normal(0, 1), class = "b"),
-    prior(normal(0, 1), class = "bcs")
+    prior(normal(0, 1), class = "b")
   ),
   chains = 4, cores = 4, iter = 2000, warmup = 1000, seed = 1234,
   control = list(adapt_delta = 0.90),
