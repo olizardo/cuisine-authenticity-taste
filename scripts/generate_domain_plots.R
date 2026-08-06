@@ -30,22 +30,22 @@ generate_domain <- function(domain_prefix, domain_name) {
   
   # Load models
   cat("Loading models...\n")
-  m1 <- tryCatch(readRDS(cfile("1_baseline")), error=function(e) NULL)
-  m2 <- tryCatch(readRDS(cfile("2_relaxed")), error=function(e) NULL)
-  m3 <- tryCatch(readRDS(cfile("3_rs")), error=function(e) NULL)
-  m4 <- tryCatch(readRDS(cfile("4_var")), error=function(e) NULL)
-  m5 <- tryCatch(readRDS(cfile("5_var_rs")), error=function(e) NULL)
-  m6 <- tryCatch(readRDS(cfile("6_relaxed_rs")), error=function(e) NULL)
-  
-  if(domain_prefix == "cuisine") {
-    m1 <- tryCatch(readRDS(cfile("1_baseline")), error=function(e) NULL)
-    m2 <- tryCatch(readRDS(cfile("2_relaxed")), error=function(e) NULL)
-    m3 <- tryCatch(readRDS(cfile("3_rs")), error=function(e) NULL)
-    m4 <- tryCatch(readRDS(cfile("4_var")), error=function(e) NULL)
-    # Reassign m5 to hier_5_var_rs and m6 to hier_6_relaxed_rs
-    m5 <- tryCatch(readRDS(cfile("5_var_rs")), error=function(e) NULL)
-    m6 <- tryCatch(readRDS(cfile("6_relaxed_rs")), error=function(e) NULL) 
+  load_model <- function(m_name) {
+    path <- cfile(m_name)
+    if (file.exists(path)) {
+      cat(sprintf("  - Found cached model: %s\n", m_name))
+      return(tryCatch(readRDS(path), error = function(e) NULL))
+    }
+    cat(sprintf("  - Model not found (still running or uncompiled): %s\n", m_name))
+    return(NULL)
   }
+  
+  m1 <- load_model("1_baseline")
+  m2 <- load_model("2_relaxed")
+  m3 <- load_model("3_rs")
+  m4 <- load_model("4_var")
+  m5 <- load_model("5_var_rs")
+  m6 <- load_model("6_relaxed_rs")
 
   if(domain_prefix == "cuisine") {
       # The cuisine models use 'cuisine' instead of 'genre' for the random effect grouping variable
@@ -211,15 +211,28 @@ generate_domain <- function(domain_prefix, domain_name) {
 
   # --- 4. 2D Consensus Plot ---
   cat("Plotting 2D Consensus...\n")
-  draws_loc <- m5 |> 
-    spread_draws(!!sym(paste0("r_", genre_var_name))[!!sym(genre_var_name), term]) |>
-    filter(term == "Intercept") |>
-    rename(loc_effect = !!sym(paste0("r_", genre_var_name)))
+  
+  if (domain_prefix == "cuisine") {
+    draws_loc <- m5 |> 
+      spread_draws(r_cuisine[cuisine, term]) |>
+      filter(term == "Intercept") |>
+      rename(loc_effect = r_cuisine)
 
-  draws_disc <- m5 |> 
-    spread_draws(!!sym(paste0("r_", genre_var_name, "__disc"))[!!sym(genre_var_name), term]) |>
-    filter(term == "Intercept") |>
-    rename(disc_effect = !!sym(paste0("r_", genre_var_name, "__disc")))
+    draws_disc <- m5 |> 
+      spread_draws(r_cuisine__disc[cuisine, term]) |>
+      filter(term == "Intercept") |>
+      rename(disc_effect = r_cuisine__disc)
+  } else {
+    draws_loc <- m5 |> 
+      spread_draws(r_genre[genre, term]) |>
+      filter(term == "Intercept") |>
+      rename(loc_effect = r_genre)
+
+    draws_disc <- m5 |> 
+      spread_draws(r_genre__disc[genre, term]) |>
+      filter(term == "Intercept") |>
+      rename(disc_effect = r_genre__disc)
+  }
 
   summary_df <- draws_loc |>
     left_join(draws_disc, by = c(".chain", ".iteration", ".draw", genre_var_name)) |>
@@ -271,7 +284,7 @@ generate_domain <- function(domain_prefix, domain_name) {
   var_vars_to_extract <- intersect(var_vars_to_extract, available_var_vars)
   
   draws_disc_fixed <- m5 |>
-    gather_draws(syms(var_vars_to_extract)) |>
+    gather_draws(!!!syms(var_vars_to_extract)) |>
     mutate(
       Predictor = case_when(
         .variable == "b_disc_social_c" ~ "Social Conservatism",
@@ -308,80 +321,156 @@ generate_domain <- function(domain_prefix, domain_name) {
   
   available_rs_terms <- c("social_c", "economic_c", "educ_c", "peduc_c", "arts_c")
   
-  draws_rs_loc <- m5 |> 
-    spread_draws(!!sym(paste0("r_", genre_var_name))[!!sym(genre_var_name), term]) |>
-    filter(term %in% available_rs_terms) |>
-    mutate(
-      Category = ifelse(term %in% c("social_c", "economic_c"), "Ideology", "Cultural Capital"),
-      Predictor = case_when(
-        term == "social_c" ~ "Social Conservatism",
-        term == "economic_c" ~ "Economic Conservatism",
-        term == "educ_c" ~ "Education",
-        term == "peduc_c" ~ "Parental Education",
-        term == "arts_c" ~ "Arts Exposure"
-      ),
-      genre_label = str_to_title(str_replace_all(!!sym(genre_var_name), "_", " "))
-    )
-
-  p_rs_loc_ideo <- draws_rs_loc |> filter(Category == "Ideology") |>
-    ggplot(aes(x = !!sym(paste0("r_", genre_var_name)), y = reorder(genre_label, !!sym(paste0("r_", genre_var_name))), fill = Predictor)) +
-    geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
-    stat_halfeye(alpha = 0.7) +
-    facet_wrap(~Predictor, scales = "free_y") +
-    theme_minimal() +
-    labs(title = sprintf("Random Slopes: Ideological Effects on %s", domain_name),
-         x = "Location Random Slope (Positive = Shift toward 'Like')", y = "") +
-    theme(legend.position = "none")
+  if (domain_prefix == "cuisine") {
+    draws_rs_loc <- m5 |> 
+      spread_draws(r_cuisine[cuisine, term]) |>
+      filter(term %in% available_rs_terms) |>
+      mutate(
+        Category = ifelse(term %in% c("social_c", "economic_c"), "Ideology", "Cultural Capital"),
+        Predictor = case_when(
+          term == "social_c" ~ "Social Conservatism",
+          term == "economic_c" ~ "Economic Conservatism",
+          term == "educ_c" ~ "Education",
+          term == "peduc_c" ~ "Parental Education",
+          term == "arts_c" ~ "Arts Exposure"
+        ),
+        genre_label = str_to_title(str_replace_all(cuisine, "_", " "))
+      )
+      
+      p_rs_loc_ideo <- draws_rs_loc |> filter(Category == "Ideology") |>
+        ggplot(aes(x = r_cuisine, y = reorder(genre_label, r_cuisine), fill = Predictor)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
+        stat_halfeye(alpha = 0.7) +
+        facet_wrap(~Predictor, scales = "free_y") +
+        theme_minimal() +
+        labs(title = sprintf("Random Slopes: Ideological Effects on %s", domain_name),
+             x = "Location Random Slope (Positive = Shift toward 'Professional Chef')", y = "") +
+        theme(legend.position = "none")
+      
+      p_rs_loc_cult <- draws_rs_loc |> filter(Category == "Cultural Capital") |>
+        ggplot(aes(x = r_cuisine, y = reorder(genre_label, r_cuisine), fill = Predictor)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
+        stat_halfeye(alpha = 0.7) +
+        facet_wrap(~Predictor, scales = "free_y") +
+        theme_minimal() +
+        labs(title = sprintf("Random Slopes: Cultural Capital Effects on %s", domain_name),
+             x = "Location Random Slope (Positive = Shift toward 'Professional Chef')", y = "") +
+        theme(legend.position = "none")
+  } else {
+    draws_rs_loc <- m5 |> 
+      spread_draws(r_genre[genre, term]) |>
+      filter(term %in% available_rs_terms) |>
+      mutate(
+        Category = ifelse(term %in% c("social_c", "economic_c"), "Ideology", "Cultural Capital"),
+        Predictor = case_when(
+          term == "social_c" ~ "Social Conservatism",
+          term == "economic_c" ~ "Economic Conservatism",
+          term == "educ_c" ~ "Education",
+          term == "peduc_c" ~ "Parental Education",
+          term == "arts_c" ~ "Arts Exposure"
+        ),
+        genre_label = str_to_title(str_replace_all(genre, "_", " "))
+      )
+      
+      p_rs_loc_ideo <- draws_rs_loc |> filter(Category == "Ideology") |>
+        ggplot(aes(x = r_genre, y = reorder(genre_label, r_genre), fill = Predictor)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
+        stat_halfeye(alpha = 0.7) +
+        facet_wrap(~Predictor, scales = "free_y") +
+        theme_minimal() +
+        labs(title = sprintf("Random Slopes: Ideological Effects on %s", domain_name),
+             x = "Location Random Slope (Positive = Shift toward 'Like')", y = "") +
+        theme(legend.position = "none")
+      
+      p_rs_loc_cult <- draws_rs_loc |> filter(Category == "Cultural Capital") |>
+        ggplot(aes(x = r_genre, y = reorder(genre_label, r_genre), fill = Predictor)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
+        stat_halfeye(alpha = 0.7) +
+        facet_wrap(~Predictor, scales = "free_y") +
+        theme_minimal() +
+        labs(title = sprintf("Random Slopes: Cultural Capital Effects on %s", domain_name),
+             x = "Location Random Slope (Positive = Shift toward 'Like')", y = "") +
+        theme(legend.position = "none")
+  }
   ggsave(pfile("rs_genre_slopes_ideology"), p_rs_loc_ideo, width = 10, height = 6, bg="white")
-
-  p_rs_loc_cult <- draws_rs_loc |> filter(Category == "Cultural Capital") |>
-    ggplot(aes(x = !!sym(paste0("r_", genre_var_name)), y = reorder(genre_label, !!sym(paste0("r_", genre_var_name))), fill = Predictor)) +
-    geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
-    stat_halfeye(alpha = 0.7) +
-    facet_wrap(~Predictor, scales = "free_y") +
-    theme_minimal() +
-    labs(title = sprintf("Random Slopes: Cultural Capital Effects on %s", domain_name),
-         x = "Location Random Slope (Positive = Shift toward 'Like')", y = "") +
-    theme(legend.position = "none")
   ggsave(pfile("rs_genre_slopes_cultural"), p_rs_loc_cult, width = 10, height = 6, bg="white")
 
   # --- 7. Random Slopes (Variance) ---
   cat("Plotting Random Slopes (Variance)...\n")
-  draws_rs_var <- m5 |> 
-    spread_draws(!!sym(paste0("r_", genre_var_name, "__disc"))[!!sym(genre_var_name), term]) |>
-    filter(term %in% available_rs_terms) |>
-    mutate(
-      Category = ifelse(term %in% c("social_c", "economic_c"), "Ideology", "Cultural Capital"),
-      Predictor = case_when(
-        term == "social_c" ~ "Social Conservatism",
-        term == "economic_c" ~ "Economic Conservatism",
-        term == "educ_c" ~ "Education",
-        term == "peduc_c" ~ "Parental Education",
-        term == "arts_c" ~ "Arts Exposure"
-      ),
-      genre_label = str_to_title(str_replace_all(!!sym(genre_var_name), "_", " "))
-    )
-
-  p_rs_var_ideo <- draws_rs_var |> filter(Category == "Ideology") |>
-    ggplot(aes(x = !!sym(paste0("r_", genre_var_name, "__disc")), y = reorder(genre_label, !!sym(paste0("r_", genre_var_name, "__disc"))), fill = Predictor)) +
-    geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
-    stat_halfeye(alpha = 0.7) +
-    facet_wrap(~Predictor, scales = "free_y") +
-    theme_minimal() +
-    labs(title = sprintf("Random Slopes: Ideological Effects on Consensus by Genre (%s)", domain_name),
-         x = "Consensus Random Slope (Positive = Increased Consensus, Negative = Polarization)", y = "") +
-    theme(legend.position = "none")
+  
+  if (domain_prefix == "cuisine") {
+    draws_rs_var <- m5 |> 
+      spread_draws(r_cuisine__disc[cuisine, term]) |>
+      filter(term %in% available_rs_terms) |>
+      mutate(
+        Category = ifelse(term %in% c("social_c", "economic_c"), "Ideology", "Cultural Capital"),
+        Predictor = case_when(
+          term == "social_c" ~ "Social Conservatism",
+          term == "economic_c" ~ "Economic Conservatism",
+          term == "educ_c" ~ "Education",
+          term == "peduc_c" ~ "Parental Education",
+          term == "arts_c" ~ "Arts Exposure"
+        ),
+        genre_label = str_to_title(str_replace_all(cuisine, "_", " "))
+      )
+      
+      p_rs_var_ideo <- draws_rs_var |> filter(Category == "Ideology") |>
+        ggplot(aes(x = r_cuisine__disc, y = reorder(genre_label, r_cuisine__disc), fill = Predictor)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
+        stat_halfeye(alpha = 0.7) +
+        facet_wrap(~Predictor, scales = "free_y") +
+        theme_minimal() +
+        labs(title = sprintf("Random Slopes: Ideological Effects on Consensus by Genre (%s)", domain_name),
+             x = "Consensus Random Slope (Positive = Increased Consensus, Negative = Polarization)", y = "") +
+        theme(legend.position = "none")
+      
+      p_rs_var_cult <- draws_rs_var |> filter(Category == "Cultural Capital") |>
+        ggplot(aes(x = r_cuisine__disc, y = reorder(genre_label, r_cuisine__disc), fill = Predictor)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
+        stat_halfeye(alpha = 0.7) +
+        facet_wrap(~Predictor, scales = "free_y") +
+        theme_minimal() +
+        labs(title = sprintf("Random Slopes: Cultural Capital Effects on Consensus (%s)", domain_name),
+             x = "Consensus Random Slope (Positive = Increased Consensus, Negative = Polarization)", y = "") +
+        theme(legend.position = "none")
+  } else {
+    draws_rs_var <- m5 |> 
+      spread_draws(r_genre__disc[genre, term]) |>
+      filter(term %in% available_rs_terms) |>
+      mutate(
+        Category = ifelse(term %in% c("social_c", "economic_c"), "Ideology", "Cultural Capital"),
+        Predictor = case_when(
+          term == "social_c" ~ "Social Conservatism",
+          term == "economic_c" ~ "Economic Conservatism",
+          term == "educ_c" ~ "Education",
+          term == "peduc_c" ~ "Parental Education",
+          term == "arts_c" ~ "Arts Exposure"
+        ),
+        genre_label = str_to_title(str_replace_all(genre, "_", " "))
+      )
+      
+      p_rs_var_ideo <- draws_rs_var |> filter(Category == "Ideology") |>
+        ggplot(aes(x = r_genre__disc, y = reorder(genre_label, r_genre__disc), fill = Predictor)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
+        stat_halfeye(alpha = 0.7) +
+        facet_wrap(~Predictor, scales = "free_y") +
+        theme_minimal() +
+        labs(title = sprintf("Random Slopes: Ideological Effects on Consensus by Genre (%s)", domain_name),
+             x = "Consensus Random Slope (Positive = Increased Consensus, Negative = Polarization)", y = "") +
+        theme(legend.position = "none")
+      
+      p_rs_var_cult <- draws_rs_var |> filter(Category == "Cultural Capital") |>
+        ggplot(aes(x = r_genre__disc, y = reorder(genre_label, r_genre__disc), fill = Predictor)) +
+        geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
+        stat_halfeye(alpha = 0.7) +
+        facet_wrap(~Predictor, scales = "free_y") +
+        theme_minimal() +
+        labs(title = sprintf("Random Slopes: Cultural Capital Effects on Consensus (%s)", domain_name),
+             x = "Consensus Random Slope (Positive = Increased Consensus, Negative = Polarization)", y = "") +
+        theme(legend.position = "none")
+  }
+  
   ggsave(pfile("rs_variance_ideology"), p_rs_var_ideo, width = 10, height = 6, bg="white")
-
-  p_rs_var_cult <- draws_rs_var |> filter(Category == "Cultural Capital") |>
-    ggplot(aes(x = !!sym(paste0("r_", genre_var_name, "__disc")), y = reorder(genre_label, !!sym(paste0("r_", genre_var_name, "__disc"))), fill = Predictor)) +
-    geom_vline(xintercept = 0, linetype = "dashed", color = "gray30") +
-    stat_halfeye(alpha = 0.7) +
-    facet_wrap(~Predictor, scales = "free_y") +
-    theme_minimal() +
-    labs(title = sprintf("Random Slopes: Cultural Capital Effects on Consensus (%s)", domain_name),
-         x = "Consensus Random Slope (Positive = Increased Consensus, Negative = Polarization)", y = "") +
-    theme(legend.position = "none")
   ggsave(pfile("rs_variance_cultural"), p_rs_var_cult, width = 10, height = 6, bg="white")
 
   # --- 8. Category-Specific (CS) Threshold Effects ---

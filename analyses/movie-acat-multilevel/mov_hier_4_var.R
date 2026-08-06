@@ -26,7 +26,7 @@ dat_long <- dat |>
 
 formula_mod <- bf(
   rating_ord ~ 1 + educ_c + peduc_c + social_c + economic_c + income_c + age_c + arts_c + gend.f + race.f + (1 | respondent_id) + (1 | genre),
-  disc ~ 1 + educ_c + peduc_c + social_c + economic_c + arts_c
+  disc ~ 1 + educ_c + peduc_c + social_c + economic_c + arts_c + (1 | genre)
 )
 prior_mod <- c(
   prior(normal(0, 1.5), class = "Intercept"),

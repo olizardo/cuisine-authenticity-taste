@@ -14,9 +14,18 @@ params:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, fig.align = 'center', out.width = '100%')
+knitr::opts_chunk$set(echo = FALSE, fig.align = 'center', out.width = '100%', message = FALSE, warning = FALSE)
 library(here)
 d <- params$domain
+
+show_plot <- function(plot_name) {
+  f <- here::here("Plots", paste0(d, "-acat-multilevel"), paste0(plot_name, ".png"))
+  if (file.exists(f)) {
+    knitr::include_graphics(f)
+  } else {
+    cat(sprintf("\n\n<div style='border: 1px dashed #e67e22; padding: 15px; background: #fffcf9; color: #d35400; text-align: center; margin: 15px 0; border-radius: 5px;'><strong>[Plot: %s]</strong><br/>Image not found yet. This plot will be automatically displayed here once the Bayesian Model 5 finishes running and saving to cache.</div>\n\n", plot_name))
+  }
+}
 ```
 
 ## 1. Introduction
@@ -66,8 +75,8 @@ We systematically fitted a hierarchy of competing model specifications to the da
 
 To determine which mathematical architecture is empirically justified, we compared predictive performance using the **Watanabe-Akaike Information Criterion (WAIC)** subsetted to 1,000 random posterior draws.
 
-```{r}
-knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "model_fit_comparison.png"))
+```{r, results='asis'}
+show_plot("model_fit_comparison")
 ```
 
 ---
@@ -78,8 +87,8 @@ knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "mode
 
 We extract the global fixed effects from the best-fitting location-scale model. These coefficients represent the average structural "push" of demographic, socialization, and ideological traits across all genres.
 
-```{r}
-knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "demographic_fixed_effects.png"))
+```{r, results='asis'}
+show_plot("demographic_fixed_effects")
 ```
 
 *Positive estimates indicate a global structural push toward higher ratings ('Strongly Like' = 7), while negative estimates indicate a push toward lower ratings ('Strongly Dislike' = 1).*
@@ -88,8 +97,8 @@ knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "demo
 
 The model estimates a random intercept for each genre. This shows the baseline public preference for each genre, holding demographic and ideological differences constant at their means.
 
-```{r}
-knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "genre_random_effects.png"))
+```{r, results='asis'}
+show_plot("genre_random_effects")
 ```
 
 ### 5.3 Ideological Effects: Polarization vs. Centrism
@@ -126,14 +135,14 @@ We estimated models allowing the continuous effects to vary independently for ea
 
 ### 6.1 Ideological Effects
 
-```{r}
-knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "rs_genre_slopes_ideology.png"))
+```{r, results='asis'}
+show_plot("rs_genre_slopes_ideology")
 ```
 
 ### 6.2 Cultural Capital Effects
 
-```{r}
-knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "rs_genre_slopes_cultural.png"))
+```{r, results='asis'}
+show_plot("rs_genre_slopes_cultural")
 ```
 
 ---
@@ -146,8 +155,8 @@ To answer the question of whether there is widespread public agreement (consensu
 
 By extracting both the location intercept and the `disc` parameter intercept, we can map the entire landscape in two dimensions: baseline likability (Location) and how much the public agrees on it (Consensus).
 
-```{r}
-knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "genre_2d_consensus.png"))
+```{r, results='asis'}
+show_plot("genre_2d_consensus")
 ```
 
 *   **Higher `disc` parameters** mean higher consensus (lower variance).
@@ -157,8 +166,8 @@ knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "genr
 
 Do certain demographic groups have stronger consensus than others? The following plot visualizes the probability distribution of the demographic effects on the global `disc` (consensus) parameter.
 
-```{r}
-knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "demographic_variance_effects_forest.png"))
+```{r, results='asis'}
+show_plot("demographic_variance_effects_forest")
 ```
 
 **Key Insights into Consensus:**
@@ -176,14 +185,14 @@ Just as demographic pulls on the rating itself differ by genre, we also evaluate
 
 ### 8.1 Ideological Effects on Consensus
 
-```{r}
-knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "rs_variance_ideology.png"))
+```{r, results='asis'}
+show_plot("rs_variance_ideology")
 ```
 
 ### 8.2 Cultural Capital Effects on Consensus
 
-```{r}
-knitr::include_graphics(here::here("Plots", paste0(d, "-acat-multilevel"), "rs_variance_cultural.png"))
+```{r, results='asis'}
+show_plot("rs_variance_cultural")
 ```
 
 ---

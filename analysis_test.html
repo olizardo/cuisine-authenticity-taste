@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Analysis Report">
+<meta name="dcterms.date" content="2026-08-06">
+
+<title>Data Analysis Pipeline and Preliminary Results</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="analysis_template_files/libs/clipboard/clipboard.min.js"></script>
+<script src="analysis_template_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="analysis_template_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="analysis_template_files/libs/quarto-html/popper.min.js"></script>
+<script src="analysis_template_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="analysis_template_files/libs/quarto-html/anchor.min.js"></script>
+<link href="analysis_template_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="analysis_template_files/libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="analysis_template_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="analysis_template_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="analysis_template_files/libs/bootstrap/bootstrap-67270d1595a62d14f123c043d4fb2f18.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">1. Introduction</a></li>
+  <li><a href="#data-preparation-and-reshaping" id="toc-data-preparation-and-reshaping" class="nav-link" data-scroll-target="#data-preparation-and-reshaping">2. Data Preparation and Reshaping</a></li>
+  <li><a href="#modeling-strategy-bayesian-adjacent-category-acat-models" id="toc-modeling-strategy-bayesian-adjacent-category-acat-models" class="nav-link" data-scroll-target="#modeling-strategy-bayesian-adjacent-category-acat-models">3. Modeling Strategy: Bayesian Adjacent Category (ACAT) Models</a>
+  <ul class="collapse">
+  <li><a href="#structural-model-hierarchy" id="toc-structural-model-hierarchy" class="nav-link" data-scroll-target="#structural-model-hierarchy">Structural Model Hierarchy</a></li>
+  </ul></li>
+  <li><a href="#model-comparison" id="toc-model-comparison" class="nav-link" data-scroll-target="#model-comparison">4. Model Comparison</a></li>
+  <li><a href="#preliminary-findings-baseline-and-fixed-effects" id="toc-preliminary-findings-baseline-and-fixed-effects" class="nav-link" data-scroll-target="#preliminary-findings-baseline-and-fixed-effects">5. Preliminary Findings: Baseline and Fixed Effects</a>
+  <ul class="collapse">
+  <li><a href="#global-demographic-fixed-effects" id="toc-global-demographic-fixed-effects" class="nav-link" data-scroll-target="#global-demographic-fixed-effects">5.1 Global Demographic Fixed Effects</a></li>
+  <li><a href="#baseline-preference-by-genre" id="toc-baseline-preference-by-genre" class="nav-link" data-scroll-target="#baseline-preference-by-genre">5.2 Baseline Preference by Genre</a></li>
+  <li><a href="#ideological-effects-polarization-vs.-centrism" id="toc-ideological-effects-polarization-vs.-centrism" class="nav-link" data-scroll-target="#ideological-effects-polarization-vs.-centrism">5.3 Ideological Effects: Polarization vs.&nbsp;Centrism</a></li>
+  <li><a href="#cultural-capital-effects" id="toc-cultural-capital-effects" class="nav-link" data-scroll-target="#cultural-capital-effects">5.4 Cultural Capital Effects</a></li>
+  </ul></li>
+  <li><a href="#random-slopes-demographic-and-ideological-effects-by-genre" id="toc-random-slopes-demographic-and-ideological-effects-by-genre" class="nav-link" data-scroll-target="#random-slopes-demographic-and-ideological-effects-by-genre">6. Random Slopes: Demographic and Ideological Effects by Genre</a>
+  <ul class="collapse">
+  <li><a href="#ideological-effects" id="toc-ideological-effects" class="nav-link" data-scroll-target="#ideological-effects">6.1 Ideological Effects</a></li>
+  <li><a href="#cultural-capital-effects-1" id="toc-cultural-capital-effects-1" class="nav-link" data-scroll-target="#cultural-capital-effects-1">6.2 Cultural Capital Effects</a></li>
+  </ul></li>
+  <li><a href="#cultural-consensus-and-variance-distributional-model" id="toc-cultural-consensus-and-variance-distributional-model" class="nav-link" data-scroll-target="#cultural-consensus-and-variance-distributional-model">7. Cultural Consensus and Variance (Distributional Model)</a>
+  <ul class="collapse">
+  <li><a href="#baseline-variance-by-genre" id="toc-baseline-variance-by-genre" class="nav-link" data-scroll-target="#baseline-variance-by-genre">7.1 Baseline Variance by Genre</a></li>
+  <li><a href="#demographic-effects-on-global-consensus" id="toc-demographic-effects-on-global-consensus" class="nav-link" data-scroll-target="#demographic-effects-on-global-consensus">7.2 Demographic Effects on Global Consensus</a></li>
+  </ul></li>
+  <li><a href="#random-slopes-for-consensus-how-demographic-effects-on-variance-change-by-genre" id="toc-random-slopes-for-consensus-how-demographic-effects-on-variance-change-by-genre" class="nav-link" data-scroll-target="#random-slopes-for-consensus-how-demographic-effects-on-variance-change-by-genre">8. Random Slopes for Consensus: How Demographic Effects on Variance Change by Genre</a>
+  <ul class="collapse">
+  <li><a href="#ideological-effects-on-consensus" id="toc-ideological-effects-on-consensus" class="nav-link" data-scroll-target="#ideological-effects-on-consensus">8.1 Ideological Effects on Consensus</a></li>
+  <li><a href="#cultural-capital-effects-on-consensus" id="toc-cultural-capital-effects-on-consensus" class="nav-link" data-scroll-target="#cultural-capital-effects-on-consensus">8.2 Cultural Capital Effects on Consensus</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">9. Conclusion</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Data Analysis Pipeline and Preliminary Results</h1>
+<p class="subtitle lead">Musical Taste</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Analysis Report </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 6, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">1. Introduction</h2>
+<p>This report outlines the full data analysis pipeline for analyzing how respondents perceive and rate their preference for various genres. The core dependent variable asks respondents to rate genres on a 1-to-7 ordinal scale:</p>
+<ul>
+<li><strong>1</strong> = Strongly Dislike</li>
+<li><strong>4</strong> = Neither Like Nor Dislike</li>
+<li><strong>7</strong> = Strongly Like</li>
+</ul>
+<p>The primary analytical goal is to evaluate how sociodemographic factors, cultural capital (Education, Parental Education, Childhood Arts), and ideological leanings (e.g., Social and Economic Conservatism) influence these tastes across the rating scale.</p>
+<hr>
+</section>
+<section id="data-preparation-and-reshaping" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation-and-reshaping">2. Data Preparation and Reshaping</h2>
+<p>The data pipeline begins with raw survey data.</p>
+<ol type="1">
+<li><strong>Recoding and Cleaning</strong>:
+<ul>
+<li>Demographic variables (age, education, income, gender, race) are cleaned and transformed.</li>
+<li>Continuous predictors like <strong>Social Conservatism (<code>social_c</code>)</strong>, <strong>Economic Conservatism (<code>economic_c</code>)</strong>, <strong>Education (<code>educ_c</code>)</strong>, <strong>Parental Education (<code>peduc_c</code>)</strong>, <strong>Childhood Arts (<code>arts_c</code>)</strong>, <strong>Income (<code>income_c</code>)</strong>, and <strong>Age (<code>age_c</code>)</strong> are mean-centered and scaled. Centering ensures that the model intercepts represent the “average” survey respondent, aiding in convergence and interpretation.</li>
+</ul></li>
+<li><strong>Long-Format Reshaping</strong>:
+<ul>
+<li>To leverage multilevel modeling, the separate genre rating columns are pivoted into a “long” dataset. Each row represents a single respondent’s rating of a single genre.</li>
+<li>This structure allows the model to treat both <code>respondent_id</code> and <code>genre</code> as grouping variables (random effects), controlling for individual response tendencies and baseline differences between genres.</li>
+</ul></li>
+</ol>
+<hr>
+</section>
+<section id="modeling-strategy-bayesian-adjacent-category-acat-models" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-strategy-bayesian-adjacent-category-acat-models">3. Modeling Strategy: Bayesian Adjacent Category (ACAT) Models</h2>
+<p>Because the outcome is a 1-to-7 ordinal scale, standard linear regression is inappropriate (it assumes the conceptual “distance” between a 1 and 2 is identical to a 6 and 7). Instead, we utilize <strong>Bayesian Multilevel Ordinal Models</strong> via the <code>brms</code> package.</p>
+<p>We selected the <strong>Adjacent Category (ACAT)</strong> family. Unlike cumulative ordinal models, ACAT models predict the probability of choosing category <span class="math inline">\(k+1\)</span> rather than category <span class="math inline">\(k\)</span>. This aligns conceptually with how survey respondents make step-by-step decisions on a Likert scale.</p>
+<section id="structural-model-hierarchy" class="level3">
+<h3 class="anchored" data-anchor-id="structural-model-hierarchy">Structural Model Hierarchy</h3>
+<p>We systematically fitted a hierarchy of competing model specifications to the data:</p>
+<ol type="1">
+<li><strong>Baseline Strict (Model 1):</strong> Assumes that continuous predictors exert a uniform, linear push across all thresholds of the scale, identical for all genres.</li>
+<li><strong>Relaxed Category-Specific (CS) (Model 2):</strong> Relaxes the proportional odds assumption using the <code>cs()</code> specification. This allows the slope of predictors to vary across each step of the rating scale, capturing non-linear “centrist” or “polarizing” effects.</li>
+<li><strong>Random Slopes (RS) Strict (Model 3):</strong> Allows the effect of demographic predictors to vary independently for every genre.</li>
+<li><strong>Variance Strict (Distributional) (Model 4):</strong> Introduces a second equation predicting the <code>disc</code> parameter (inverse variance/consensus) using demographics, testing if groups differ in how much they agree on genre ratings.</li>
+<li><strong>Variance + Random Slopes (Model 5):</strong> The ultimate hybrid, applying genre-specific random slopes to both the location and the variance equations.</li>
+<li><strong>Relaxed CS + Random Slopes (Model 6):</strong> Relaxes slopes for specific categories and genres simultaneously.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="model-comparison" class="level2">
+<h2 class="anchored" data-anchor-id="model-comparison">4. Model Comparison</h2>
+<p>To determine which mathematical architecture is empirically justified, we compared predictive performance using the <strong>Watanabe-Akaike Information Criterion (WAIC)</strong> subsetted to 1,000 random posterior draws.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../Plots/music-acat-multilevel/model_fit_comparison.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="preliminary-findings-baseline-and-fixed-effects" class="level2">
+<h2 class="anchored" data-anchor-id="preliminary-findings-baseline-and-fixed-effects">5. Preliminary Findings: Baseline and Fixed Effects</h2>
+<section id="global-demographic-fixed-effects" class="level3">
+<h3 class="anchored" data-anchor-id="global-demographic-fixed-effects">5.1 Global Demographic Fixed Effects</h3>
+<p>We extract the global fixed effects from the best-fitting location-scale model. These coefficients represent the average structural “push” of demographic, socialization, and ideological traits across all genres.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../Plots/music-acat-multilevel/demographic_fixed_effects.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Positive estimates indicate a global structural push toward higher ratings (‘Strongly Like’ = 7), while negative estimates indicate a push toward lower ratings (‘Strongly Dislike’ = 1).</em></p>
+</section>
+<section id="baseline-preference-by-genre" class="level3">
+<h3 class="anchored" data-anchor-id="baseline-preference-by-genre">5.2 Baseline Preference by Genre</h3>
+<p>The model estimates a random intercept for each genre. This shows the baseline public preference for each genre, holding demographic and ideological differences constant at their means.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../Plots/music-acat-multilevel/genre_random_effects.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="ideological-effects-polarization-vs.-centrism" class="level3">
+<h3 class="anchored" data-anchor-id="ideological-effects-polarization-vs.-centrism">5.3 Ideological Effects: Polarization vs.&nbsp;Centrism</h3>
+</section>
+<section id="cultural-capital-effects" class="level3">
+<h3 class="anchored" data-anchor-id="cultural-capital-effects">5.4 Cultural Capital Effects</h3>
+<hr>
+</section>
+</section>
+<section id="random-slopes-demographic-and-ideological-effects-by-genre" class="level2">
+<h2 class="anchored" data-anchor-id="random-slopes-demographic-and-ideological-effects-by-genre">6. Random Slopes: Demographic and Ideological Effects by Genre</h2>
+<p>We estimated models allowing the continuous effects to vary independently for each genre.</p>
+<ul>
+<li>A <strong>negative slope</strong> means that higher values of the variable pull that specific genre toward the “Dislike” (1) rating.</li>
+<li>A <strong>positive slope</strong> pushes it toward the “Like” (7) rating.</li>
+</ul>
+<section id="ideological-effects" class="level3">
+<h3 class="anchored" data-anchor-id="ideological-effects">6.1 Ideological Effects</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../Plots/music-acat-multilevel/rs_genre_slopes_ideology.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="cultural-capital-effects-1" class="level3">
+<h3 class="anchored" data-anchor-id="cultural-capital-effects-1">6.2 Cultural Capital Effects</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../Plots/music-acat-multilevel/rs_genre_slopes_cultural.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="cultural-consensus-and-variance-distributional-model" class="level2">
+<h2 class="anchored" data-anchor-id="cultural-consensus-and-variance-distributional-model">7. Cultural Consensus and Variance (Distributional Model)</h2>
+<p>To answer the question of whether there is widespread public agreement (consensus) vs.&nbsp;polarization (high variance) on these genre ratings, we look at the results of the <strong>Distributional (Location-Scale) ACAT Model</strong>.</p>
+<section id="baseline-variance-by-genre" class="level3">
+<h3 class="anchored" data-anchor-id="baseline-variance-by-genre">7.1 Baseline Variance by Genre</h3>
+<p>By extracting both the location intercept and the <code>disc</code> parameter intercept, we can map the entire landscape in two dimensions: baseline likability (Location) and how much the public agrees on it (Consensus).</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../Plots/music-acat-multilevel/genre_2d_consensus.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<ul>
+<li><strong>Higher <code>disc</code> parameters</strong> mean higher consensus (lower variance).</li>
+<li><strong>Lower <code>disc</code> parameters</strong> (negative) mean lower consensus (more chaotic, polarized, or spread-out ratings).</li>
+</ul>
+</section>
+<section id="demographic-effects-on-global-consensus" class="level3">
+<h3 class="anchored" data-anchor-id="demographic-effects-on-global-consensus">7.2 Demographic Effects on Global Consensus</h3>
+<p>Do certain demographic groups have stronger consensus than others? The following plot visualizes the probability distribution of the demographic effects on the global <code>disc</code> (consensus) parameter.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../Plots/music-acat-multilevel/demographic_variance_effects_forest.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Key Insights into Consensus:</strong> * A negative estimate means that higher values of the predictor are associated with lower consensus (greater variance/chaos in ratings). * A positive estimate means that the trait increases consensus (ratings are tighter/more uniform).</p>
+<hr>
+</section>
+</section>
+<section id="random-slopes-for-consensus-how-demographic-effects-on-variance-change-by-genre" class="level2">
+<h2 class="anchored" data-anchor-id="random-slopes-for-consensus-how-demographic-effects-on-variance-change-by-genre">8. Random Slopes for Consensus: How Demographic Effects on Variance Change by Genre</h2>
+<p>Just as demographic pulls on the rating itself differ by genre, we also evaluated whether demographic impacts on <em>variance</em> differ by genre using Model 5 (Variance + Random Slopes).</p>
+<ul>
+<li>A <strong>negative value</strong> means the trait lowers consensus (increases variance/chaos) for that specific genre.</li>
+<li>A <strong>positive value</strong> means the trait increases consensus (decreases variance).</li>
+</ul>
+<section id="ideological-effects-on-consensus" class="level3">
+<h3 class="anchored" data-anchor-id="ideological-effects-on-consensus">8.1 Ideological Effects on Consensus</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../Plots/music-acat-multilevel/rs_variance_ideology.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="cultural-capital-effects-on-consensus" class="level3">
+<h3 class="anchored" data-anchor-id="cultural-capital-effects-on-consensus">8.2 Cultural Capital Effects on Consensus</h3>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../Plots/music-acat-multilevel/rs_variance_cultural.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">9. Conclusion</h2>
+<p>By systematically scaling up from baseline strict location models to fully distributional location-scale models with random slopes, we successfully map the social structure of taste.</p>
+<ol type="1">
+<li>Model fit comparisons overwhelmingly mandate the use of <strong>Variance (Distributional)</strong> components combined with <strong>Random Slopes</strong>.</li>
+<li>Sociodemographic characteristics not only shift <em>which</em> genres respondents prefer, but critically alter the <em>variance and consensus</em> of those preferences across the public landscape.</li>
+</ol>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -3,7 +3,7 @@ Starting music 1_baseline Model...
 Start sampling
 Running MCMC with 4 parallel chains, with 3 thread(s) per chain...
 
-Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) 
 Chain 1 Iteration:    1 / 2000 [  0%]  (Warmup) 
-Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) 
 Chain 2 Iteration:    1 / 2000 [  0%]  (Warmup) 
+Chain 3 Iteration:    1 / 2000 [  0%]  (Warmup) 
+Chain 4 Iteration:    1 / 2000 [  0%]  (Warmup) 
