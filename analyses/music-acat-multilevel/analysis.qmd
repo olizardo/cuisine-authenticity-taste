@@ -12,7 +12,11 @@ format:
 
 ## 1. Introduction
 
-This report outlines the full data analysis pipeline for analyzing how respondents perceive and rate their preference for various musical genres. The core dependent variable asks respondents to rate 20 different musical genres on a 1-to-7 ordinal scale, mapping onto their level of preference or liking for that genre.
+This report outlines the full data analysis pipeline for analyzing how respondents perceive and rate their preference for various musical genres. The core dependent variable asks respondents to rate 20 different musical genres on a 1-to-7 ordinal scale, mapping onto their level of preference or liking for that genre:
+
+*   **1** = Strongly Dislike
+*   **4** = Neither Like Nor Dislike
+*   **7** = Strongly Like
 
 The primary analytical goal is to evaluate how sociodemographic factors and ideological leanings (e.g., Social and Economic Conservatism) influence these musical tastes across the rating scale.
 
@@ -33,12 +37,15 @@ The data pipeline begins with raw survey data.
 
 ## 3. Modeling Strategy: Bayesian Adjacent Category (ACAT) Models
 
-Because the outcome is a 1-to-7 ordinal scale, standard linear regression is inappropriate. Instead, we utilize **Bayesian Multilevel Ordinal Models** via the `brms` package. We selected the **Adjacent Category (ACAT)** family. 
+Because the outcome is a 1-to-7 ordinal scale, standard linear regression is inappropriate (it assumes the conceptual "distance" between a 1 and 2 is identical to a 6 and 7). Instead, we utilize **Bayesian Multilevel Ordinal Models** via the `brms` package.
+
+We selected the **Adjacent Category (ACAT)** family. Unlike cumulative ordinal models, ACAT models predict the probability of choosing category $k+1$ rather than category $k$. This aligns conceptually with how survey respondents make step-by-step decisions on a Likert scale.
 
 ### Structural Model Hierarchy
-We systematically fitted a hierarchy of four competing model specifications to the music data:
+We systematically fitted a hierarchy of competing model specifications to the music data:
 
 1.  **Baseline Strict (Model 1):** Assumes that continuous predictors exert a uniform, linear push across all thresholds of the scale, identical for all genres.
+2.  **Relaxed Category-Specific (CS) (Model 2):** Relaxes the proportional odds assumption using the `cs()` specification (e.g., `cs(social_c)`). This allows the slope of predictors to vary across each step of the rating scale, capturing non-linear "centrist" or "polarizing" effects. *(Note: Currently running in background queue).*
 3.  **Random Slopes (RS) Strict (Model 3):** Allows the effect of demographic predictors to vary independently for every genre.
 4.  **Variance Strict (Distributional) (Model 4):** Introduces a second equation predicting the `disc` parameter (inverse variance/consensus) using demographics, testing if groups differ in how much they agree on genre ratings.
 5.  **Variance + Random Slopes (Model 5):** The ultimate hybrid, applying genre-specific random slopes to both the location and the variance equations.
@@ -54,6 +61,14 @@ knitr::include_graphics(here::here("Plots", "music-acat-multilevel", "model_fit_
 ```
 
 **Results:**
+
+| Rank | Model Description | WAIC | SE | $\Delta$ WAIC (vs Baseline) |
+|------|-------------------|------|----|---------------|
+| **1** | **Variance + Random Slopes (Model 5)** | **87345.07** | 215.67 | **- 1986.94** |
+| 2 | Variance Strict (Model 4) | 87920.38 | 212.63 | - 1411.63 |
+| 3 | Random Slopes Strict (Model 3) | 88640.65 | 213.57 | - 691.36 |
+| 4 | Baseline Strict (Model 1) | 89332.01 | 210.27 | 0.00 |
+
 The **Distributional Variance + Random Slopes model** (Model 5) provides a massively superior fit over standard location models, indicating that formally modeling the *variance* (consensus) of genre ratings and allowing demographic impacts to vary by genre are crucial architectural choices for this data.
 
 ---
@@ -68,26 +83,52 @@ We extract the global fixed effects from the best-fitting model (Model 5: Varian
 knitr::include_graphics(here::here("Plots", "music-acat-multilevel", "demographic_fixed_effects.png"))
 ```
 
-*Positive estimates indicate a global structural push toward higher ratings (preference), while negative estimates indicate a push toward lower ratings (dislike).*
+*Positive estimates indicate a global structural push toward higher ratings ('Strongly Like' = 7), while negative estimates indicate a push toward lower ratings ('Strongly Dislike' = 1).*
 
 ### 5.2 Baseline Preference by Genre
 
 The model estimates a random intercept for each of the 20 genres. This shows the baseline public preference for each genre, holding demographic and ideological differences constant at their means.
 
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
-# Embed the pre-generated genre random effects plot
 knitr::include_graphics(here::here("Plots", "music-acat-multilevel", "genre_random_effects.png"))
 ```
 
 Genres with positive intercepts represent those with generally higher baseline likability in the population, whereas negative intercepts map to genres with lower average ratings.
 
+### 5.3 Ideological Effects: Polarization vs. Centrism
+*(Note: Visualizations mapping category-specific (CS) thresholds from Model 2 will be populated here once the model finishes sampling in the background. This will mirror the cuisine report by mapping how traits push users toward the absolute extremes vs. the neutral midpoint).*
+
+### 5.4 Cultural Capital Effects
+*(Note: Visualizations mapping category-specific (CS) thresholds from Model 2 will be populated here once the model finishes sampling in the background).*
+
 ---
 
-## 6. Cultural Consensus and Variance (Distributional Model)
+## 6. Random Slopes: Demographic and Ideological Effects by Genre
+
+We estimated models allowing the continuous effects of Education, Social and Economic Conservatism to vary independently for each genre.
+
+*   A **negative slope** means that higher values of the variable pull that specific genre toward the "Dislike" (1) rating.
+*   A **positive slope** pushes it toward the "Like" (7) rating.
+
+### 6.1 Ideological Effects
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "music-acat-multilevel", "rs_genre_slopes_ideology.png"))
+```
+
+### 6.2 Cultural Capital Effects
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "music-acat-multilevel", "rs_genre_slopes_cultural.png"))
+```
+
+---
+
+## 7. Cultural Consensus and Variance (Distributional Model)
 
 To answer the question of whether there is widespread public agreement (consensus) vs. polarization (high variance) on these genre ratings, we look at the results of the **Distributional (Location-Scale) ACAT Model**.
 
-### 6.1 Baseline Variance by Genre
+### 7.1 Baseline Variance by Genre
 
 By extracting both the location intercept and the `disc` parameter intercept, we can map the entire musical landscape in two dimensions: baseline likability (Location) and how much the public agrees on it (Consensus).
 
@@ -98,7 +139,7 @@ knitr::include_graphics(here::here("Plots", "music-acat-multilevel", "genre_2d_c
 *   **Higher `disc` parameters** mean higher consensus (lower variance).
 *   **Lower `disc` parameters** (negative) mean lower consensus (more chaotic, polarized, or spread-out ratings).
 
-### 6.2 Demographic Effects on Global Consensus
+### 7.2 Demographic Effects on Global Consensus
 
 Do certain demographic groups have stronger consensus than others? The following plot visualizes the probability distribution of the demographic effects on the global `disc` (consensus) parameter.
 
@@ -112,7 +153,28 @@ knitr::include_graphics(here::here("Plots", "music-acat-multilevel", "demographi
 
 ---
 
-## 7. Conclusion
+## 8. Random Slopes for Consensus: How Demographic Effects on Variance Change by Genre
+
+Just as demographic pulls on the rating itself differ by genre, we also evaluated whether demographic impacts on *variance* differ by genre using Model 5 (Variance + Random Slopes).
+
+*   A **negative value** means the trait lowers consensus (increases variance/chaos) for that specific genre.
+*   A **positive value** means the trait increases consensus (decreases variance).
+
+### 8.1 Ideological Effects on Consensus
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "music-acat-multilevel", "rs_variance_ideology.png"))
+```
+
+### 8.2 Cultural Capital Effects on Consensus
+
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(here::here("Plots", "music-acat-multilevel", "rs_variance_cultural.png"))
+```
+
+---
+
+## 9. Conclusion
 
 By systematically scaling up from baseline strict location models to fully distributional location-scale models with random slopes, we successfully map the social structure of musical taste.
 

@@ -5,12 +5,12 @@ suppressPackageStartupMessages({
   library(here)
 })
 
-cat("Starting music 1_baseline Model...\n")
+cat("Starting mov 1_baseline Model...\n")
 source(here::here("data", "recode.qualtrics.R"))
 dat <- recode.qualtrics()
 dat$respondent_id <- seq_len(nrow(dat))
 
-genres_cols <- c("swing", "bluegrass", "country", "randb", "musicals", "classical", "folk", "gospel", "jazz", "latin", "easy", "newage", "opera", "rap", "reggae", "pop", "rock", "oldies", "classrock", "metal")
+genres_cols <- c("mov_comedy", "mov_drama", "mov_doc", "mov_animat", "mov_action", "mov_scifi", "mov_horror", "mov_crime", "mov_musicl", "mov_romanc", "mov_thrill", "mov_intl", "mov_classc")
 
 dat_long <- dat |>
   select(respondent_id, all_of(genres_cols), gend.f, race.f, social_c, economic_c, educ_c, peduc_c, income_c, age_c, arts_c) |>
@@ -44,7 +44,7 @@ fit <- brm(
   save_pars = save_pars(all = FALSE)
 )
 
-saveRDS(fit, file = here::here("cache", "music_hier_1_baseline.rds"))
+saveRDS(fit, file = here::here("cache", "mov_hier_1_baseline.rds"))
 fit <- add_criterion(fit, "waic", ndraws = 1000)
-saveRDS(fit, file = here::here("cache", "music_hier_1_baseline.rds"))
-cat("Finished music Model 1_baseline!\n")
+saveRDS(fit, file = here::here("cache", "mov_hier_1_baseline.rds"))
+cat("Finished mov Model 1_baseline!\n")

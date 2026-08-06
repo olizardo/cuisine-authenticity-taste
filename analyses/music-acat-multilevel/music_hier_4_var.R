@@ -5,20 +5,17 @@ suppressPackageStartupMessages({
   library(here)
 })
 
-cat("Starting Music Variance Model...\n")
+cat("Starting music 4_var Model...\n")
 source(here::here("data", "recode.qualtrics.R"))
 dat <- recode.qualtrics()
 dat$respondent_id <- seq_len(nrow(dat))
 
-genres_cols <- c("swing", "bluegrass", "country", "randb", "musicals", 
-                 "classical", "folk", "gospel", "jazz", "latin", "easy", 
-                 "newage", "opera", "rap", "reggae", "pop", "rock", 
-                 "oldies", "classrock", "metal")
+genres_cols <- c("swing", "bluegrass", "country", "randb", "musicals", "classical", "folk", "gospel", "jazz", "latin", "easy", "newage", "opera", "rap", "reggae", "pop", "rock", "oldies", "classrock", "metal")
 
 dat_long <- dat |>
-  select(respondent_id, all_of(genres_cols), gend.f, race.f, social_c, economic_c, educ_c, income_c, age_c) |>
+  select(respondent_id, all_of(genres_cols), gend.f, race.f, social_c, economic_c, educ_c, peduc_c, income_c, age_c, arts_c) |>
   pivot_longer(cols = all_of(genres_cols), names_to = "genre", values_to = "rating") |>
-  filter(!is.na(rating), !is.na(social_c), !is.na(economic_c), !is.na(educ_c), 
+  filter(!is.na(rating), !is.na(social_c), !is.na(economic_c), !is.na(educ_c), !is.na(peduc_c), !is.na(arts_c),
          !is.na(income_c), !is.na(age_c), !is.na(gend.f), !is.na(race.f)) |>
   mutate(
     rating_ord = factor(rating, levels = 1:7, ordered = TRUE),
@@ -26,21 +23,24 @@ dat_long <- dat |>
     respondent_id = as.factor(respondent_id)
   )
 
+
 formula_mod <- bf(
-  rating_ord ~ 1 + educ_c + social_c + economic_c + income_c + age_c + gend.f + race.f + (1 | respondent_id) + (1 | genre),
-  disc ~ 1 + educ_c + social_c + economic_c + (1 | genre)
+  rating_ord ~ 1 + educ_c + peduc_c + social_c + economic_c + income_c + age_c + arts_c + gend.f + race.f + (1 | respondent_id) + (1 | genre),
+  disc ~ 1 + educ_c + peduc_c + social_c + economic_c + arts_c
 )
+prior_mod <- c(
+  prior(normal(0, 1.5), class = "Intercept"),
+  prior(normal(0, 1), class = "b")
+)
+
 
 fit <- brm(
   formula = formula_mod,
   data = dat_long,
   family = acat("logit"),
-  prior = c(
-    prior(normal(0, 1.5), class = "Intercept"),
-    prior(normal(0, 1), class = "b")
-  ),
+  prior = prior_mod,
   chains = 4, cores = 4, iter = 2000, warmup = 1000, seed = 1234,
-  control = list(adapt_delta = 0.90),
+  control = list(adapt_delta = 0.95),
   backend = "cmdstanr", threads = threading(3),
   save_pars = save_pars(all = FALSE)
 )
@@ -48,4 +48,4 @@ fit <- brm(
 saveRDS(fit, file = here::here("cache", "music_hier_4_var.rds"))
 fit <- add_criterion(fit, "waic", ndraws = 1000)
 saveRDS(fit, file = here::here("cache", "music_hier_4_var.rds"))
-cat("Finished Music Model 4!\n")
+cat("Finished music Model 4_var!\n")

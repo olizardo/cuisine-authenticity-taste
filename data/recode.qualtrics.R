@@ -25,7 +25,33 @@ recode.qualtrics <- function() {
         rock = like_music_genres_37,
         oldies = like_music_genres_38,
         classrock = like_music_genres_39,
-        metal = like_music_genres_40
+        metal = like_music_genres_40,
+        tv_comedy = like_tv_genres_11,
+        tv_drama = like_tv_genres_12,
+        tv_reality = like_tv_genres_13,
+        tv_game = like_tv_genres_14,
+        tv_action = like_tv_genres_15,
+        tv_scifi = like_tv_genres_16,
+        tv_horror = like_tv_genres_17,
+        tv_talk = like_tv_genres_18,
+        tv_news = like_tv_genres_19,
+        tv_sports = like_tv_genres_20,
+        tv_life = like_tv_genres_21,
+        tv_doc = like_tv_genres_22,
+        tv_tech = like_tv_genres_23,
+        mov_comedy = like_movies_genres_11,
+        mov_drama = like_movies_genres_12,
+        mov_doc = like_movies_genres_13,
+        mov_animat = like_movies_genres_14,
+        mov_action = like_movies_genres_15,
+        mov_scifi = like_movies_genres_16,
+        mov_horror = like_movies_genres_17,
+        mov_crime = like_movies_genres_18,
+        mov_musicl = like_movies_genres_19,
+        mov_romanc = like_movies_genres_20,
+        mov_thrill = like_movies_genres_21,
+        mov_intl = like_movies_genres_22,
+        mov_classc = like_movies_genres_23
     ) |>
     mutate(
         age2 = 2018 - as.numeric(age)
@@ -92,7 +118,10 @@ recode.qualtrics <- function() {
         economic_c = as.numeric(scale(economic, center = TRUE, scale = TRUE)),
         income_c = as.numeric(scale(income, center = TRUE, scale = TRUE)),
         educ_c = as.numeric(scale(educ, center = TRUE, scale = TRUE)),
-        age_c = as.numeric(scale(age2, center = TRUE, scale = TRUE))
+        age_c = as.numeric(scale(age2, center = TRUE, scale = TRUE)),
+        peduc = pmax(mom_educ, dad_educ, na.rm = TRUE),
+        peduc_c = as.numeric(scale(peduc, center = TRUE, scale = TRUE)),
+        arts_c = as.numeric(scale(child_arts, center = TRUE, scale = TRUE))
     ) |>
     mutate(gend.f = factor(sex, levels = c(1, 2, 3), labels = c("Woman", "Man", "Nonbinary/Other"))) |> 
     mutate(across(c(race.f, age.f, educ.f, inc.f), factor)) |>

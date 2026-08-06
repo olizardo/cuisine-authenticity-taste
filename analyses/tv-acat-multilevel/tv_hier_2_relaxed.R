@@ -5,12 +5,12 @@ suppressPackageStartupMessages({
   library(here)
 })
 
-cat("Starting music 1_baseline Model...\n")
+cat("Starting tv 2_relaxed Model...\n")
 source(here::here("data", "recode.qualtrics.R"))
 dat <- recode.qualtrics()
 dat$respondent_id <- seq_len(nrow(dat))
 
-genres_cols <- c("swing", "bluegrass", "country", "randb", "musicals", "classical", "folk", "gospel", "jazz", "latin", "easy", "newage", "opera", "rap", "reggae", "pop", "rock", "oldies", "classrock", "metal")
+genres_cols <- c("tv_comedy", "tv_drama", "tv_reality", "tv_game", "tv_action", "tv_scifi", "tv_horror", "tv_talk", "tv_news", "tv_sports", "tv_life", "tv_doc", "tv_tech")
 
 dat_long <- dat |>
   select(respondent_id, all_of(genres_cols), gend.f, race.f, social_c, economic_c, educ_c, peduc_c, income_c, age_c, arts_c) |>
@@ -25,7 +25,7 @@ dat_long <- dat |>
 
 
 formula_mod <- bf(
-  rating_ord ~ 1 + educ_c + peduc_c + social_c + economic_c + income_c + age_c + arts_c + gend.f + race.f + (1 | respondent_id) + (1 | genre)
+  rating_ord ~ 1 + cs(educ_c) + cs(peduc_c) + cs(social_c) + cs(economic_c) + cs(arts_c) + income_c + age_c + gend.f + race.f + (1 | respondent_id) + (1 | genre)
 )
 prior_mod <- c(
   prior(normal(0, 1.5), class = "Intercept"),
@@ -44,7 +44,7 @@ fit <- brm(
   save_pars = save_pars(all = FALSE)
 )
 
-saveRDS(fit, file = here::here("cache", "music_hier_1_baseline.rds"))
+saveRDS(fit, file = here::here("cache", "tv_hier_2_relaxed.rds"))
 fit <- add_criterion(fit, "waic", ndraws = 1000)
-saveRDS(fit, file = here::here("cache", "music_hier_1_baseline.rds"))
-cat("Finished music Model 1_baseline!\n")
+saveRDS(fit, file = here::here("cache", "tv_hier_2_relaxed.rds"))
+cat("Finished tv Model 2_relaxed!\n")
