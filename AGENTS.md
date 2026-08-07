@@ -27,12 +27,16 @@ The core dependent variable is a 1-to-7 ordinal rating scale asking where/how an
   - Finalized `analysis.html` compiled and verified.
 
 ### 2. Music Domain (Active Execution 🔄)
-* **Status**: A master queue script (`./run_master_queue.sh`) was started on **Aug 6, 2026 at 09:18 AM** to sequentially process the Music models.
-* **Active Process**: `music_hier_1_baseline.R` is actively sampling in the background (PIDs 3797-3800 running chains at 100%+ CPU).
-* **Previous Runs**: Music Models 3, 4, and 5 successfully completed during overnight background runs. However, starting the new master queue truncated existing logs and will re-calculate and overwrite cache files sequentially. 
+* **Status**: A master queue script is sequentially processing the Music models in the background.
+* **Active Process**: `music_hier_2_relaxed.R` is actively sampling in the background (PIDs 3578 running chains at 100%+ CPU). It is executing MCMC sampling.
+* **Completed Runs**: `music_hier_1_baseline.R` completed successfully at 11:00 AM on Aug 6, 2026, and its results are cached in `cache/music_hier_1_baseline.rds`.
+* **Execution State & Timing Increase**: 
+  - Model fitting times have increased in this round compared to the Cuisine round. This is due to a **45% increase in dataset size** (the long format Music dataset has **25,966 observations** across 20 genres, compared to Cuisine's ~18,000 observations across 15 cuisines).
+  - Additionally, Music genres (such as classical, rap, metal) exhibit much higher polarization and visual variation than cuisines, which increases NUTS tree depths, making ordinal threshold boundaries (`cs()`) computationally harder to locate and sample.
+* **Subsequent Queue**: Models 3, 4, 5, and 6 will run sequentially after Model 2 finishes. 
 
 ### 3. TV and Movies Domains (In Queue ⏳)
-* **Status**: Positioned sequentially in the queue behind Music inside `run_master_queue.sh`.
+* **Status**: Positioned sequentially in the queue behind Music.
 * **Execution Strategy**: To prevent triggering the Linux Out-Of-Memory (OOM) killer on this shared instance, these models **must** be executed sequentially. Compiling multiple `rstan`/`cmdstanr` C++ models simultaneously will exceed RAM headroom.
 
 ---
@@ -48,7 +52,17 @@ The core dependent variable is a 1-to-7 ordinal rating scale asking where/how an
   ```
 * This is standardized in `build_all_reports.sh`.
 
-### B. Robust Plot Generation
+### B. Smart Resuming Capability (`run_master_queue_smart.sh`)
+* **The Solution**: We developed `run_master_queue_smart.sh` to prevent overwriting successfully completed model caches when restarting the queue. Before launching any script, the runner performs a silent check:
+  - If `cache/<domain>_hier_<model_number>_*.rds` already exists, it prints a success message and **skips** fitting, proceeding instantly to the next model in the queue.
+  - If the `.rds` file is missing, it fits the model.
+* **Usage**: If you close your laptop, lose connectivity, or restart the server, simply run:
+  ```bash
+  nohup ./run_master_queue_smart.sh > logs/run_master_queue_all.log 2>&1 &
+  ```
+  It will automatically resume right where it was paused without wasting time on completed models.
+
+### C. Robust Plot Generation
 * Shared plots are generated using `scripts/generate_domain_plots.R`. 
 * The script is resilient; if any complex category-specific models (e.g., Model 2/6 with relaxed thresholds) are still running or missing, the script cleanly logs a warning, skips those specific plots, and successfully renders the remaining 9 plots without crashing.
 
@@ -57,6 +71,7 @@ The core dependent variable is a 1-to-7 ordinal rating scale asking where/how an
 ## Directives for Future Agents
 
 1. **Monitor the Queue**: Use `ps aux | grep R` or `tail -f logs/run_master_queue_all.log` to monitor the active sequential queue. Do not run any other brms models in parallel to protect RAM.
-2. **Rendering Reports**: To build updated reports for domains that have completed models, run `./build_all_reports.sh`.
-3. **Model Fitting Style**: Ensure all models continue to use `backend = "cmdstanr"` and threading configurations to optimize core usage without exhausting memory.
-4. **Visualizations**: Continue using `tidybayes::stat_halfeye()` for any additional density ribbon plots to maintain visual consistency.
+2. **Resuming Queue**: Always use `./run_master_queue_smart.sh` to run or resume model fitting.
+3. **Rendering Reports**: To build updated reports for domains that have completed models, run `./build_all_reports.sh`.
+4. **Model Fitting Style**: Ensure all models continue to use `backend = "cmdstanr"` and threading configurations to optimize core usage without exhausting memory.
+5. **Visualizations**: Continue using `tidybayes::stat_halfeye()` for any additional density ribbon plots to maintain visual consistency.
