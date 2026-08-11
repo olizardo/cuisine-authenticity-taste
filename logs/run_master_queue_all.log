@@ -1,4 +1,9 @@
-Resuming master model fitting queue...
-Starting Music models sequentially (from Model 2)...
-Running analyses/music-acat-multilevel/music_hier_2_relaxed.R
-Running analyses/music-acat-multilevel/music_hier_3_rs.R
+==========================================================
+Starting Smart Multilevel ACAT Model Queue...
+==========================================================
+
+--- 1. Processing Music Domain ---
+  [SKIPPED] cache/music_hier_1_baseline.rds already exists. Bypassing.
+  [SKIPPED] cache/music_hier_2_relaxed.rds already exists. Bypassing.
+  [SKIPPED] cache/music_hier_3_rs.rds already exists. Bypassing.
+  [RUNNING] cache/music_hier_4_var.rds not found. Executing analyses/music-acat-multilevel/music_hier_4_var.R...

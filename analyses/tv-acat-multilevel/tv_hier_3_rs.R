@@ -39,8 +39,8 @@ fit <- brm(
   data = dat_long,
   family = acat("logit"),
   prior = prior_mod,
-  chains = 4, cores = 4, iter = 2000, warmup = 1000, seed = 1234,
-  control = list(adapt_delta = 0.95),
+  chains = 4, cores = 4, iter = 1000, warmup = 500, seed = 1234,
+  control = list(adapt_delta = 0.85),
   backend = "cmdstanr", threads = threading(3),
   save_pars = save_pars(all = FALSE)
 )
