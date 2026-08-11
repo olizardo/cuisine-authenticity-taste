@@ -18,6 +18,9 @@
       "tail *": "allow",
       "quarto render *": "allow",
       "*": "allow"
+    },
+    "external_directory": {
+      "/tmp/RtmpTKKfkZ/*": "allow"
     }
   },
   "sandbox": {
