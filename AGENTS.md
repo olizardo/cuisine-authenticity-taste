@@ -17,7 +17,7 @@ The core dependent variable is a 1-to-7 ordinal rating scale asking where/how an
 
 ---
 
-## Active Pipeline Status (As of August 6, 2026)
+## Active Pipeline Status (As of August 12, 2026)
 
 ### 1. Cuisine Domain (Completed 🎉)
 * **Model Fits**: Models 1 through 6 are fully run, cached in `cache/` (as `hier_*.rds`), and analyzed.
@@ -28,16 +28,16 @@ The core dependent variable is a 1-to-7 ordinal rating scale asking where/how an
 
 ### 2. Music Domain (Active Execution 🔄)
 * **Status**: A master queue script is sequentially processing the Music models in the background.
-* **Active Process**: `music_hier_2_relaxed.R` is actively sampling in the background (PIDs 3578 running chains at 100%+ CPU). It is executing MCMC sampling.
-* **Completed Runs**: `music_hier_1_baseline.R` completed successfully at 11:00 AM on Aug 6, 2026, and its results are cached in `cache/music_hier_1_baseline.rds`.
-* **Execution State & Timing Increase**: 
-  - Model fitting times have increased in this round compared to the Cuisine round. This is due to a **45% increase in dataset size** (the long format Music dataset has **25,966 observations** across 20 genres, compared to Cuisine's ~18,000 observations across 15 cuisines).
-  - Additionally, Music genres (such as classical, rap, metal) exhibit much higher polarization and visual variation than cuisines, which increases NUTS tree depths, making ordinal threshold boundaries (`cs()`) computationally harder to locate and sample.
-* **Subsequent Queue**: Models 3, 4, 5, and 6 will run sequentially after Model 2 finishes. 
+* **Active Process**: `music_hier_5_var_rs.R` is actively sampling in the background using the newly optimized 16-core configuration (PIDs 25045-25048 running chains with 4 threads per chain, maxing CPU). It bypassed already completed cached models 1-4.
+* **Completed Runs**: Models 1 through 4 have completed successfully and are fully cached.
+* **Execution State & Timing Optimization**: 
+  - Model fitting times have been dramatically improved due to upgrading the computer hardware (16 cores, ~14GB RAM) and optimizing parallel execution configurations.
+  - Additionally, compiler-level optimizations (`-O3 -march=native -mtune=native`) have been added to the CmdStan backend to maximize speed on this specific architecture.
+* **Subsequent Queue**: Model 6 will run sequentially after Model 5 finishes. 
 
 ### 3. TV and Movies Domains (In Queue ⏳)
 * **Status**: Positioned sequentially in the queue behind Music.
-* **Execution Strategy**: To prevent triggering the Linux Out-Of-Memory (OOM) killer on this shared instance, these models **must** be executed sequentially. Compiling multiple `rstan`/`cmdstanr` C++ models simultaneously will exceed RAM headroom.
+* **Execution Strategy**: To prevent triggering the Linux Out-Of-Memory (OOM) killer on this shared instance, these models **must** be executed sequentially. Compiling multiple `rstan`/`cmdstanr` C++ models simultaneously will exceed RAM headroom. All scripts have been optimized to use `threads = threading(4)` (16 logical threads total across 4 chains) to fit as fast as possible on the new hardware.
 
 ---
 
@@ -66,12 +66,18 @@ The core dependent variable is a 1-to-7 ordinal rating scale asking where/how an
 * Shared plots are generated using `scripts/generate_domain_plots.R`. 
 * The script is resilient; if any complex category-specific models (e.g., Model 2/6 with relaxed thresholds) are still running or missing, the script cleanly logs a warning, skips those specific plots, and successfully renders the remaining 9 plots without crashing.
 
+### D. System Environment & Hardware Optimizations (August 12, 2026)
+* **The Hardware**: Upgraded to a 16-core CPU machine with ~14GB RAM.
+* **Compiler Flags**: Configured optimized `gcc` flags (`CXXFLAGS += -O3 -march=native -mtune=native`) in `~/.cmdstan/cmdstan-2.39.0/make/local` to compile specialized, maximum-speed C++ binaries for this exact CPU.
+* **Optimal Threading**: Configured `chains = 4, cores = 4` and `threads = threading(4)` across all R scripts. This executes 4 chains in parallel, each containing 4 parallelized computation threads, perfectly using all 16 cores without oversubscribing.
+* **Environment Configuration**: Set up R 4.5.3 (via CRAN Bookworm repo) with all necessary development headers (`cmake`, `libx11-dev`, `pandoc`, `libnode-dev`, etc.) and fully restored the 225-package `renv` environment using precompiled binaries from Posit Package Manager (RSPM). Added missing `shiny` dependency and updated `renv.lock`.
+
 ---
 
 ## Directives for Future Agents
 
 1. **Monitor the Queue**: Use `ps aux | grep R` or `tail -f logs/run_master_queue_all.log` to monitor the active sequential queue. Do not run any other brms models in parallel to protect RAM.
-2. **Resuming Queue**: Always use `./run_master_queue_smart.sh` to run or resume model fitting.
+2. **Resuming Queue**: Always use `./run_master_queue_smart.sh` or `./resume_master_queue.sh` to run or resume model fitting.
 3. **Rendering Reports**: To build updated reports for domains that have completed models, run `./build_all_reports.sh`.
-4. **Model Fitting Style**: Ensure all models continue to use `backend = "cmdstanr"` and threading configurations to optimize core usage without exhausting memory.
+4. **Model Fitting Style**: Ensure all models continue to use `backend = "cmdstanr"` and threading configurations (`threading(4)`) to optimize core usage without exhausting memory.
 5. **Visualizations**: Continue using `tidybayes::stat_halfeye()` for any additional density ribbon plots to maintain visual consistency.
