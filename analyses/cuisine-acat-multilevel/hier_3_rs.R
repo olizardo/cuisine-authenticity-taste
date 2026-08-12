@@ -50,7 +50,7 @@ fit <- brm(
   seed = 1234,
   control = list(adapt_delta = 0.90),
   backend = "cmdstanr",
-  threads = threading(3),
+  threads = threading(4),
   save_pars = save_pars(all = FALSE)
 )
 

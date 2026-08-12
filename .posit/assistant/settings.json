@@ -21,6 +21,9 @@
     },
     "external_directory": {
       "/tmp/RtmpTKKfkZ/*": "allow"
+    },
+    "webfetch": {
+      "https://cloud.r-project.org/*": "allow"
     }
   },
   "sandbox": {
