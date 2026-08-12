@@ -72,12 +72,30 @@ The core dependent variable is a 1-to-7 ordinal rating scale asking where/how an
 * **Optimal Threading**: Configured `chains = 4, cores = 4` and `threads = threading(4)` across all R scripts. This executes 4 chains in parallel, each containing 4 parallelized computation threads, perfectly using all 16 cores without oversubscribing.
 * **Environment Configuration**: Set up R 4.5.3 (via CRAN Bookworm repo) with all necessary development headers (`cmake`, `libx11-dev`, `pandoc`, `libnode-dev`, etc.) and fully restored the 225-package `renv` environment using precompiled binaries from Posit Package Manager (RSPM). Added missing `shiny` dependency and updated `renv.lock`.
 
+### E. Systemd Background Daemon (`systemctl --user`) (New - August 12, 2026)
+* **The Solution**: To make model fitting completely robust against SSH disconnects and laptop shutdowns, we configured a user-level `systemd` daemon. 
+* **The Configuration**: 
+  - Created `~/.config/systemd/user/acat-queue.service`.
+  - Set `Restart=on-failure` and `RestartSec=60s` to automatically restart the queue if it gets interrupted or killed (e.g., by the Linux OOM killer).
+  - Enabled "linger" (`loginctl enable-linger omarlizardo`) so the daemon stays alive and runs even when the user logs out completely.
+* **Why it's safe**: Since `run_master_queue_smart.sh` skips completed models, restarting the queue automatically has zero overhead and resumes exactly where the code crashed.
+
 ---
 
 ## Directives for Future Agents
 
-1. **Monitor the Queue**: Use `ps aux | grep R` or `tail -f logs/run_master_queue_all.log` to monitor the active sequential queue. Do not run any other brms models in parallel to protect RAM.
-2. **Resuming Queue**: Always use `./run_master_queue_smart.sh` or `./resume_master_queue.sh` to run or resume model fitting.
+1. **Monitor the Queue**: Use `ps aux | grep R` or `tail -f logs/music_hier_5_var_rs.log` to monitor the active sequential queue. Do not run other brms models in parallel.
+2. **Resuming Queue via Systemctl**: Once the currently active manual background run finishes, **all future queue runs should be managed natively via systemd** to ensure immunity from terminal hangups and shutdowns:
+   ```bash
+   # Start the queue
+   systemctl --user start acat-queue
+   # Stop/pause the queue
+   systemctl --user stop acat-queue
+   # Check status
+   systemctl --user status acat-queue
+   # Tail logs
+   tail -f logs/systemd_queue.log
+   ```
 3. **Rendering Reports**: To build updated reports for domains that have completed models, run `./build_all_reports.sh`.
 4. **Model Fitting Style**: Ensure all models continue to use `backend = "cmdstanr"` and threading configurations (`threading(4)`) to optimize core usage without exhausting memory.
 5. **Visualizations**: Continue using `tidybayes::stat_halfeye()` for any additional density ribbon plots to maintain visual consistency.

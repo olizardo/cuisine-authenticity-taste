@@ -20,7 +20,8 @@
       "*": "allow"
     },
     "external_directory": {
-      "/tmp/RtmpTKKfkZ/*": "allow"
+      "/tmp/RtmpTKKfkZ/*": "allow",
+      "/home/omarlizardo/.config/systemd/user/*": "allow"
     },
     "webfetch": {
       "https://cloud.r-project.org/*": "allow"
