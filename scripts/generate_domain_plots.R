@@ -261,12 +261,13 @@ generate_domain <- function(domain_prefix, domain_name) {
     geom_errorbar(aes(xmin = loc_lower, xmax = loc_upper), orientation = "y", width = 0, color = "gray40", alpha = 0.5) +
     geom_point(size = 3, color = "#2c3e50") +
     geom_label_repel(aes(label = genre_label), size = 4.5, box.padding = 0.5, point.padding = 0.3, max.overlaps = 20) +
+    coord_cartesian(ylim = c(-1.5, 1.0)) +
     theme_minimal(base_size = 14) +
     labs(
       title = sprintf("%s: Consensus vs. Preference", domain_name),
       subtitle = "Posterior medians and 95% CIs for Genre Random Effects",
       x = x_label_text,
-      y = "← High Disagreement (Polarized)      Consensus (Disc Parameter)      High Agreement (Consensus) →"
+      y = "← High Disagreement          Consensus (Disc Parameter)          High Agreement →"
     ) +
     theme(
       plot.title = element_text(face = "bold"),
