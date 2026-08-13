@@ -7,8 +7,7 @@ Starting Smart Multilevel ACAT Model Queue...
   [SKIPPED] cache/music_hier_2_relaxed.rds already exists. Bypassing.
   [SKIPPED] cache/music_hier_3_rs.rds already exists. Bypassing.
   [SKIPPED] cache/music_hier_4_var.rds already exists. Bypassing.
-  [RUNNING] cache/music_hier_5_var_rs.rds not found. Executing analyses/music-acat-multilevel/music_hier_5_var_rs.R...
-  [SUCCESS] Created cache/music_hier_5_var_rs.rds!
+  [SKIPPED] cache/music_hier_5_var_rs.rds already exists. Bypassing.
   [RUNNING] cache/music_hier_6_relaxed_rs.rds not found. Executing analyses/music-acat-multilevel/music_hier_6_relaxed_rs.R...
   [WARNING] Script analyses/music-acat-multilevel/music_hier_6_relaxed_rs.R finished but cache/music_hier_6_relaxed_rs.rds was not created or is empty!
 
