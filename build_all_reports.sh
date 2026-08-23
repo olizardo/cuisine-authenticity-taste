@@ -19,9 +19,4 @@ echo "Rendering Movie Report..."
 quarto render scripts/analysis_template.qmd -P domain:"mov" -P title:"Movie Taste"
 mv scripts/analysis_template.html analyses/movie-acat-multilevel/analysis.html
 
-# 5. Render Cuisine Report (Testing legacy)
-echo "Rendering Cuisine Report..."
-quarto render scripts/analysis_template.qmd -P domain:"cuisine" -P title:"Cuisine Authenticity"
-mv scripts/analysis_template.html analyses/cuisine-acat-multilevel/analysis.html
-
 echo "All reports successfully rendered!"

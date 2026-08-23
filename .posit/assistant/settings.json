@@ -21,7 +21,9 @@
     },
     "external_directory": {
       "/tmp/RtmpTKKfkZ/*": "allow",
-      "/home/omarlizardo/.config/systemd/user/*": "allow"
+      "/home/omarlizardo/.config/systemd/user/*": "allow",
+      "../*": "allow",
+      "/home/omarlizardo/projects/cuisine-authenticity/*": "allow"
     },
     "webfetch": {
       "https://cloud.r-project.org/*": "allow"

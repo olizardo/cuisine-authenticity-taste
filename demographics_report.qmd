@@ -1,37 +1,39 @@
 ---
-title: "Demographic Fixed Effects on Taste Across Domains"
+title: "Demographic Fixed Effects on Taste Across Cultural Domains"
+subtitle: "Variance and Liking Across Music, TV, and Movies"
 author: "Analysis Report"
 format: docx
 ---
 
 ## Overview
 
-This report summarizes the estimated fixed effects of demographic characteristics on overall liking/preference across four cultural domains: Cuisine, Music, Television, and Movies. 
+This report summarizes the estimated fixed effects of demographic characteristics on overall liking and aesthetic preference across three cultural media domains: **Music**, **Television**, and **Movies**. 
 
-For the three media domains (Music, TV, Movies), a positive coefficient indicates a shift toward the "Like" (7) anchor, while a negative coefficient indicates a shift toward "Dislike" (1). For the Cuisine domain, the dependent variable captures authenticity judgments rather than pure liking: a positive coefficient represents a shift toward foods prepared by a "Professional Chef" (7), and a negative coefficient represents a shift toward foods prepared by a "Traditional Elder/Domestic" (1).
+For each domain, the dependent variable is measured on a 1-to-7 Likert rating scale (1 = Strongly Dislike to 7 = Strongly Like). In the location equation of the Bayesian Adjacent Category (ACAT) models:
+* A **positive coefficient** indicates a shift toward the "Like" (7) anchor.
+* A **negative coefficient** indicates a shift toward the "Dislike" (1) anchor.
 
 ## 1. Cultural Capital & Socialization
 
-* **Childhood Arts Exposure** has the strongest, most consistent positive effect on media liking across all three domains (Music: +0.80, TV: +0.54, Movies: +0.71). Respondents exposed to the arts as children generally report liking more media genres on average. However, for Cuisine, arts exposure slightly pushes ratings toward the "Elder/Domestic" anchor (-0.11).
-* **Education** operates uniquely on Cuisine. It produces a massive positive shift (+0.43) toward preferring foods cooked by a "Professional Chef". In contrast, education has negligible effects on media liking (Music: +0.06, Movies: +0.03) or slightly decreases it (TV: -0.15).
+* **Childhood Arts Exposure** has the strongest, most consistent positive effect on media liking across all three domains (Music: +0.80, TV: +0.54, Movies: +0.71). Respondents exposed to the arts as children report liking a broader range of media genres on average.
+* **Education** has relatively mild or slightly negative effects on overall media liking (Music: +0.06, Movies: +0.03, TV: -0.15), suggesting that general omnivorous appreciation across multiple mass genres is driven more by early aesthetic socialization than formal educational attainment.
 
 ## 2. Race & Ethnicity (vs. White Baseline)
 
-* **Black Respondents** show massive, universally positive shifts in their overall liking of media compared to White respondents. This effect is especially extreme for Television (+1.55) and Movies (+1.01), and very strong for Music (+0.67). For Cuisine, they show virtually no difference from White respondents (+0.04).
-* **Asian Respondents** also show strong positive shifts in media liking (Music: +0.64, TV: +0.52), but they show a very strong negative shift for Cuisine (-0.43), strongly preferring foods cooked by "Traditional Elders".
-* **Mixed-Race Respondents (White/Other)** display the strongest preference for "Traditional Elder" cuisine of any demographic group (-0.91), while **Mixed (Other)** respondents also strongly lean toward the elder anchor (-0.52). 
+* **Black Respondents** show massive, universally positive shifts in their overall liking of media compared to White respondents. This effect is especially pronounced for Television (+1.55) and Movies (+1.01), and very strong for Music (+0.67).
+* **Asian Respondents** also show strong positive shifts in media liking (Music: +0.64, TV: +0.52, Movies: +0.35).
 
 ## 3. Gender (vs. Men)
 
-* **Women** consistently report lower overall liking across all media domains compared to men, with the strongest negative shifts occurring for TV (-0.40) and Movies (-0.29). In the Cuisine domain, women strongly prefer the "Traditional Elder" anchor (-0.56) compared to men.
-* **Nonbinary/Other Genders** show an even more extreme negative shift for TV liking (-0.74), and strongly prefer the "Traditional Elder" anchor for Cuisine (-0.44).
+* **Women** consistently report lower overall liking across media domains compared to men, with the strongest negative shifts occurring for TV (-0.40) and Movies (-0.29).
+* **Nonbinary/Other Genders** show an even more pronounced negative shift for TV liking (-0.74).
 
 ## 4. Age & Ideology
 
-* **Age** has a consistent negative relationship with media liking (TV: -0.54, Movies: -0.30) — older respondents generally report disliking more genres. They also slightly lean toward the "Elder" anchor for Cuisine (-0.18). The exception is Music, where older respondents report higher overall liking (+0.37).
-* **Social Conservatism** pushes respondents to view Cuisine as better produced by a Professional Chef (+0.43). Its effects on media are relatively mild, slightly increasing overall liking.
-* **Economic Conservatism** has mild negative effects on media liking, meaning economic conservatives tend to slightly dislike media genres more often. It has almost no effect on Cuisine views.
+* **Age** exhibits a consistent negative relationship with screen media liking (TV: -0.54, Movies: -0.30) — older respondents generally report disliking more media genres. The exception is Music, where older respondents report higher overall liking across genres (+0.37).
+* **Social Conservatism** slightly increases overall media liking across domains.
+* **Economic Conservatism** has mild negative effects on media liking, with economic conservatives tending to report slightly lower liking across genres.
 
 ## Conclusion
 
-Demographic characteristics—especially Race, Gender, and Arts Exposure—massively restructure how individuals rate media overall. Meanwhile, Education, Social Conservatism, and specific racial identities powerfully reorganize whether one believes food is best produced by a domestic elder or a professional chef.
+Demographic characteristics—especially Race, Gender, and Childhood Arts Exposure—fundamentally structure how individuals engage with cultural media goods, shaping both the baseline level of appreciation and the extent of genre omnivorousness across domains.

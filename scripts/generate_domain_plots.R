@@ -17,14 +17,7 @@ generate_domain <- function(domain_prefix, domain_name) {
   
   # Helper to construct file paths
   cfile <- function(m) {
-    if(domain_prefix == "cuisine" && m == "6_relaxed_rs") {
-      # The cuisine models don't have the domain prefix
-      here("cache", "hier_6_relaxed_rs.rds")
-    } else if(domain_prefix == "cuisine") {
-      here("cache", paste0("hier_", m, ".rds"))
-    } else {
-      here("cache", paste0(domain_prefix, "_hier_", m, ".rds"))
-    }
+    here("cache", paste0(domain_prefix, "_hier_", m, ".rds"))
   }
   pfile <- function(p) file.path(plot_dir, paste0(p, ".png"))
   
@@ -47,12 +40,7 @@ generate_domain <- function(domain_prefix, domain_name) {
   m5 <- load_model("5_var_rs")
   m6 <- load_model("6_relaxed_rs")
 
-  if(domain_prefix == "cuisine") {
-      # The cuisine models use 'cuisine' instead of 'genre' for the random effect grouping variable
-      genre_var_name <- "cuisine"
-  } else {
-      genre_var_name <- "genre"
-  }
+  genre_var_name <- "genre"
 
   if(is.null(m5)) {
     cat("Model 5 not found! Skipping domain...\n")
@@ -660,8 +648,7 @@ generate_domain <- function(domain_prefix, domain_name) {
   }
 }
 
-# Generate plots for all three domains and cuisine test
-generate_domain("cuisine", "Cuisine Authenticity")
+# Generate plots for cultural media domains (Music, TV, Movies)
 generate_domain("music", "Musical Taste")
 generate_domain("tv", "Television Taste")
 generate_domain("mov", "Movie Taste")
