@@ -1,0 +1,34 @@
+title: Taste Multilevel Models
+conversationId: "49a9768d-513d-42ea-b5d3-15f1ea16cf15"
+directions:
+  - area: Model execution and queue management
+    status: Explored
+    notes:
+      - Resumed background model queue and transitioned to systemd
+      - "Successfully compiled all cache files across Cuisine, Music, TV, and Movies"
+      - Fixed package cache issue with RcppParallel
+    ref: "91b4e10f-8aaa-4461-a4a5-d38a77a08ca2"
+  - area: Plot styling and standardization
+    status: Explored
+    notes:
+      - "Standardized 2D Consensus y-axis limits to -1.5 to 1.0 across all domains"
+      - Unified y-axis titles to match legacy cuisine plots
+    ref: "9af8750b-78a3-4513-aa93-7289ed0bb6a3"
+  - area: Cross-Domain 2D Consensus Analysis
+    status: Explored
+    notes:
+      - Niche or safe categories generate high consensus; identity-driven genres drive polarization
+      - Cuisine and Music exhibit deeper vertical variance (polarization) than TV and Movies
+      - Generated Quarto report with standardized plots
+    ref: "2b87f90d-d9f3-4ce0-ab45-9e5324c06c3f"
+  - area: Demographic fixed effects on overall liking
+    status: Explored
+    notes:
+      - "Arts Exposure strongly increases liking of Music, TV, and Movies, but shifts Cuisine toward domestic/elder (-0.11)"
+      - "Education shifts Cuisine heavily toward Professional Chef (+0.43) but has little effect on media liking"
+      - "Identifying as a Woman predicts lower overall liking of media and a shift toward domestic/elder for Cuisine"
+      - "Black respondents show massive positive shifts in overall liking for TV (+1.55) and Movies (+1.01)"
+    ref: "9aab04a5-33d3-4079-8467-86a28e624a7a"
+suggestions:
+  - Compare variance random slopes by cultural capital indicators
+  - Check category-specific threshold shifts for ideology
